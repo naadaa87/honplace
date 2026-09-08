@@ -1,0 +1,278 @@
+{
+  "posts": [
+    {
+      "id": "seed-01",
+      "category": "today",
+      "nickname": "창가 자리 하나",
+      "body": "퇴근하고 집에 오니 8시. 아무 소리도 안 나서 티비 켜놓고 이거 씀.",
+      "space_id": null,
+      "space_name": null,
+      "metoo": 41,
+      "thanks": 3,
+      "going": 0,
+      "comments": 2,
+      "created_at": "2026-09-05T20:12:00+09:00",
+      "replies": [
+        {
+          "id": "c-01-1",
+          "nickname": "국밥 한 그릇",
+          "body": "저도요. 라디오 켜놓으면 좀 낫더라고요.",
+          "created_at": "2026-09-05T20:40:00+09:00"
+        },
+        {
+          "id": "c-01-2",
+          "nickname": "밤에 걷는 사람",
+          "body": "티비 소리로 버티는 저녁이 많죠. 그래도 여기 쓰셨네요.",
+          "created_at": "2026-09-05T21:03:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "seed-02",
+      "category": "review",
+      "nickname": "을지로 이층",
+      "body": "혼술바 처음 가봤는데 내가 생각한 혼술이 아니었음. 옆에 앉은 분이 계속 말 걸어서 첫 15분 진짜 어색. 근데 30분 지나니까 직업군인 하셨다는 분 얘기 듣는 게 재밌어서 두 시간 있다 옴. 연락처는 아무도 안 물어봤고 그게 제일 좋았음. 조용히 마시고 싶은 날은 안 맞을 듯.",
+      "space_id": "jejuahop",
+      "space_name": "제주아홉",
+      "metoo": 12,
+      "thanks": 8,
+      "going": 15,
+      "comments": 1,
+      "created_at": "2026-09-04T23:48:00+09:00",
+      "replies": [
+        {
+          "id": "c-02-1",
+          "nickname": "느린 걸음",
+          "body": "첫 15분 어색한 거 다들 그렇대요. 저도 한 잔 시키고 그냥 앉아 있었어요.",
+          "created_at": "2026-09-05T00:15:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "seed-03",
+      "category": "ask",
+      "nickname": "수요일의 고양이",
+      "body": "서울 와서 1년 됐는데 회사 사람 말고는 아는 사람이 없어요. 근데 동호회 같은 건 좀 부담스럽고요. 말 안 해도 되는데 사람 소리는 나는 데 어디 없을까요. 성수 근처면 좋겠어요.",
+      "space_id": null,
+      "space_name": null,
+      "metoo": 27,
+      "thanks": 2,
+      "going": 0,
+      "comments": 3,
+      "created_at": "2026-09-04T19:30:00+09:00",
+      "replies": [
+        {
+          "id": "c-03-1",
+          "nickname": "벤치에 앉은",
+          "body": "서울숲 저녁에 가보세요. 혼자 앉아 있는 사람이 절반이라 하나도 안 튀어요.",
+          "created_at": "2026-09-04T19:52:00+09:00"
+        },
+        {
+          "id": "c-03-2",
+          "nickname": "카운터 끝",
+          "body": "성수 쪽 스탠딩 바요. 서서 마시니까 오래 안 있어도 되고 옆에 사람은 있어요.",
+          "created_at": "2026-09-04T20:10:00+09:00"
+        },
+        {
+          "id": "c-03-3",
+          "nickname": "수요일의 고양이",
+          "body": "둘 다 가볼게요. 고마워요.",
+          "created_at": "2026-09-04T21:33:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "seed-04",
+      "category": "story",
+      "nickname": "세 번째 잔",
+      "body": "친구한테는 못 하는 말이 있어요. 걱정할 게 뻔해서. 근데 여기는 아무도 나를 모르니까 그냥 써도 될 것 같아서. 요즘 아침에 일어나는 게 제일 어려워요. 그것뿐이에요.",
+      "space_id": null,
+      "space_name": null,
+      "metoo": 63,
+      "thanks": 9,
+      "going": 0,
+      "comments": 2,
+      "created_at": "2026-09-03T02:17:00+09:00",
+      "replies": [
+        {
+          "id": "c-04-1",
+          "nickname": "새벽 국밥",
+          "body": "그것뿐인 게 아니라 그게 제일 큰 거죠. 쓰셨으니까 됐어요.",
+          "created_at": "2026-09-03T02:41:00+09:00"
+        },
+        {
+          "id": "c-04-2",
+          "nickname": "창가 자리 하나",
+          "body": "저도 요즘 그래요. 나만 그런 게 아니라는 거 알고 갑니다.",
+          "created_at": "2026-09-03T08:05:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "seed-05",
+      "category": "review",
+      "nickname": "광화문 낮",
+      "body": "평일 2시 씨네큐브. 관객 여섯 명이었고 다 혼자였음. 혼영 처음인데 이럴 거면 진작 올걸.",
+      "space_id": "cinecube",
+      "space_name": "씨네큐브 광화문",
+      "metoo": 19,
+      "thanks": 4,
+      "going": 22,
+      "comments": 1,
+      "created_at": "2026-09-02T17:20:00+09:00",
+      "replies": [
+        {
+          "id": "c-05-1",
+          "nickname": "통로 쪽",
+          "body": "거긴 크레딧 끝날 때까지 다들 앉아 있어서 좋아요.",
+          "created_at": "2026-09-02T18:02:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "seed-06",
+      "category": "today",
+      "nickname": "국밥 한 그릇",
+      "body": "새벽 1시 국밥집. 옆자리 기사님이 깍두기 밀어주심. 그게 오늘 유일한 대화.",
+      "space_id": "gukbap",
+      "space_name": "국밥집",
+      "metoo": 34,
+      "thanks": 6,
+      "going": 3,
+      "comments": 1,
+      "created_at": "2026-09-02T01:14:00+09:00",
+      "replies": [
+        {
+          "id": "c-06-1",
+          "nickname": "밤에 걷는 사람",
+          "body": "그 정도 대화가 딱 좋은 날이 있죠.",
+          "created_at": "2026-09-02T01:30:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "seed-07",
+      "category": "ask",
+      "nickname": "잠 안 오는 목요일",
+      "body": "지금 12시 반인데 집에 있기가 싫어요. 술은 별로고요. 이 시간에 갈 데가 있나요? 마포 근처.",
+      "space_id": null,
+      "space_name": null,
+      "metoo": 15,
+      "thanks": 1,
+      "going": 0,
+      "comments": 2,
+      "created_at": "2026-09-01T00:31:00+09:00",
+      "replies": [
+        {
+          "id": "c-07-1",
+          "nickname": "탕에 10분",
+          "body": "24시간 찜질방이요. 아무도 말 안 걸고 누워 있어도 돼요. 나오면 잠 와요.",
+          "created_at": "2026-09-01T00:44:00+09:00"
+        },
+        {
+          "id": "c-07-2",
+          "nickname": "잠 안 오는 목요일",
+          "body": "갔다 왔어요. 진짜 잠 오네요. 고마워요.",
+          "created_at": "2026-09-01T03:12:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "seed-08",
+      "category": "review",
+      "nickname": "일일권",
+      "body": "클라이밍 처음 갔는데 혼자 온 사람이 대부분이라 어색한 게 없었음. 같은 문제 붙잡고 있던 분이 '거기 왼발 먼저요' 해준 게 전부인데 그게 좋았음. 손 아파서 한 시간 반 만에 나옴. 다음 주에 또 감.",
+      "space_id": "climbing-gym",
+      "space_name": "클라이밍 짐",
+      "metoo": 8,
+      "thanks": 3,
+      "going": 17,
+      "comments": 0,
+      "created_at": "2026-08-31T21:05:00+09:00",
+      "replies": []
+    },
+    {
+      "id": "seed-09",
+      "category": "story",
+      "nickname": "느린 걸음",
+      "body": "회사에서는 하루 종일 말을 하는데 집에 오면 한마디도 안 해요. 목소리를 안 쓰니까 어느 날은 내 목소리가 낯설더라고요. 그래서 요즘은 편의점에서 일부러 '봉투 주세요' 해요. 웃기죠.",
+      "space_id": null,
+      "space_name": null,
+      "metoo": 52,
+      "thanks": 5,
+      "going": 0,
+      "comments": 1,
+      "created_at": "2026-08-30T22:48:00+09:00",
+      "replies": [
+        {
+          "id": "c-09-1",
+          "nickname": "창가 자리 하나",
+          "body": "안 웃겨요. 저는 엘리베이터에서 '몇 층 가세요' 해요.",
+          "created_at": "2026-08-30T23:10:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "seed-10",
+      "category": "review",
+      "nickname": "통로 쪽",
+      "body": "잠실 리타비터바. 바 자리밖에 없어서 혼자가 기본값. 위스키 시켰더니 음악을 바꿔주심. 말은 거의 안 했는데 두 시간이 갔음. 조용히 마시고 싶은 날 여기.",
+      "space_id": "ritabitter-jamsil",
+      "space_name": "리타비터바",
+      "metoo": 6,
+      "thanks": 2,
+      "going": 11,
+      "comments": 0,
+      "created_at": "2026-08-29T23:55:00+09:00",
+      "replies": []
+    },
+    {
+      "id": "seed-11",
+      "category": "today",
+      "nickname": "벤치에 앉은",
+      "body": "오늘은 안 나갔음. 그래도 여기 하나 쓰고 잠.",
+      "space_id": null,
+      "space_name": null,
+      "metoo": 48,
+      "thanks": 2,
+      "going": 0,
+      "comments": 1,
+      "created_at": "2026-08-29T00:20:00+09:00",
+      "replies": [
+        {
+          "id": "c-11-1",
+          "nickname": "세 번째 잔",
+          "body": "안 나간 날도 괜찮아요.",
+          "created_at": "2026-08-29T00:35:00+09:00"
+        }
+      ]
+    },
+    {
+      "id": "seed-12",
+      "category": "ask",
+      "nickname": "처음 쓰는 사람",
+      "body": "혼술바 가보고 싶은데 여자 혼자 가도 괜찮은지 모르겠어요. 헌팅하는 데라는 말도 있고. 다녀오신 분 있나요.",
+      "space_id": null,
+      "space_name": null,
+      "metoo": 21,
+      "thanks": 0,
+      "going": 0,
+      "comments": 2,
+      "created_at": "2026-08-28T19:02:00+09:00",
+      "replies": [
+        {
+          "id": "c-12-1",
+          "nickname": "을지로 이층",
+          "body": "매장마다 달라요. 입장 인원 제한하고 사장이 이상한 사람 바로 막아주는 데는 괜찮았고, 음악 크고 성비 안 맞는 데는 별로였어요. 후기 먼저 보고 가세요.",
+          "created_at": "2026-08-28T19:40:00+09:00"
+        },
+        {
+          "id": "c-12-2",
+          "nickname": "카운터 끝",
+          "body": "대화 목적이 아니면 북바나 재즈바가 더 편해요. 아무도 말 안 걸어요.",
+          "created_at": "2026-08-28T20:15:00+09:00"
+        }
+      ]
+    }
+  ]
+}

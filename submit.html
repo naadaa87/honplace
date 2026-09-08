@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>혼자 가기 좋은 곳 알려 주기 — 혼곳</title>
+<meta name="description" content="혼자 가도 괜찮았던 곳을 알려 주세요. 이름은 묻지 않습니다. 확인 후 혼곳에 등록합니다.">
+<meta property="og:title" content="혼자 가기 좋은 곳 알려 주기 — 혼곳">
+<meta property="og:description" content="혼자 가도 괜찮았던 곳을 알려 주세요. 이름은 묻지 않습니다. 확인 후 혼곳에 등록합니다.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="혼곳">
+<meta property="og:url" content="https://hongot.pages.dev/submit">
+<meta property="og:image" content="https://hongot.pages.dev/assets/img/og.png">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="has-tabbar">
+<a class="sr" href="#main">본문으로 건너뛰기</a>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/"><svg class="mark" aria-hidden="true"><use href="/assets/img/icons.svg#mark"></use></svg>혼곳</a>
+  <nav class="nav" aria-label="주요 메뉴">
+    <a href="/spaces.html">곳 찾기</a>
+    <a href="/guide.html">혼자 하는 법</a>
+    <a href="/board.html">이름 없는 이야기</a>
+    <a href="/about.html">소개</a>
+  </nav>
+  <a class="btn lamp sm write-link" href="/board.html">한마디 남기기</a>
+</div></header>
+<main id="main">
+
+<section class="ph"><div class="wrap read"><h1 data-form-title>혼자 가기 좋은 곳 알려 주기</h1><p data-form-lead>혼자 가도 괜찮았던 곳을 알려 주세요. 확인 후 등록합니다. 보내는 사람의 이름은 묻지 않습니다.</p></div></section>
+<div class="wrap read">
+  <form class="form" data-submit-form>
+    <input type="hidden" name="fix_id" value="">
+    <div class="grid2">
+      <div class="field"><label for="f-name">이름</label><input id="f-name" type="text" name="name" placeholder="가게 이름 또는 장소 이름" required></div>
+      <div class="field"><label for="f-area">동네<small>시·구·동 정도면 됩니다</small></label><input id="f-area" type="text" name="area" placeholder="예: 서울 마포구 연남동"></div>
+    </div>
+    <div class="field"><label for="f-cat">종류</label>
+      <select id="f-cat" name="cat">
+        <option value="honsul">혼술</option><option value="honbap">혼밥</option><option value="cafe">카페·서점</option><option value="culture">영화·전시·공연</option>
+        <option value="move">몸 쓰기</option><option value="rest">쉬기</option><option value="learn">배우기</option><option value="social">가벼운 모임</option>
+      </select>
+    </div>
+    <div class="field" data-hide-on-fix><label>혼자 지수<small>혼자여도 눈에 띄지 않는 정도</small></label>
+      <div class="seg"><input type="hidden" name="solo" value="4">
+        <button type="button" class="chip" data-v="1">1, 튄다</button><button type="button" class="chip" data-v="2">2</button><button type="button" class="chip" data-v="3">3</button><button type="button" class="chip" data-v="4" aria-pressed="true">4</button><button type="button" class="chip" data-v="5">5, 아무도 안 본다</button>
+      </div>
+    </div>
+    <div class="field" data-hide-on-fix><label>대화 온도<small>말을 얼마나 하게 되나요</small></label>
+      <div class="seg"><input type="hidden" name="talk" value="0">
+        <button type="button" class="chip" data-v="0" aria-pressed="true">조용히 있어도 됨</button><button type="button" class="chip" data-v="1">원하면 한마디</button><button type="button" class="chip" data-v="2">이야기가 중심</button>
+      </div>
+    </div>
+    <div class="field"><label for="f-note">어떤 곳인가요<small>분위기, 규칙, 처음 가면 알아 둘 것</small></label><textarea id="f-note" name="note" placeholder="예: 바 자리만 있고 혼자 온 손님이 대부분. 사장이 말을 걸어 주지만 조용히 있어도 됨. 일행은 따로 앉힘." required></textarea></div>
+    <div class="field" data-hide-on-fix><label for="f-time">어울리는 시간<small>선택</small></label><input id="f-time" type="text" name="time" placeholder="예: 평일 저녁, 주말 낮"></div>
+    <p class="help">보내 주신 내용은 확인 후 등록하며, 보낸 사람의 정보는 저장하지 않습니다.</p>
+    <div class="submit"><button class="btn lamp" type="submit">보내기</button><a class="small muted" href="/spaces.html">그만두기</a></div>
+  </form>
+  <div class="form hide" data-submit-done>
+    <div class="ok"><b>보냈어요. 고마워요.</b>확인 후 혼곳에 올립니다. 보통 며칠 안에 반영됩니다.<p class="hide small" data-done-demo style="margin:10px 0 0;color:var(--honey)">지금은 체험 모드라 이 기기에만 저장되었습니다. 데이터베이스 연결 후에는 운영자에게 바로 전달됩니다.</p></div>
+    <div class="submit"><a class="btn ghost" href="/spaces.html">곳 찾기로</a><a class="btn ghost" href="/submit.html">하나 더 알려 주기</a></div>
+  </div>
+</div>
+
+</main>
+<footer class="foot"><div class="wrap">
+  <div>
+    <a class="brand" href="/"><svg class="mark" aria-hidden="true"><use href="/assets/img/icons.svg#mark"></use></svg>혼곳</a>
+    <p class="tag-line">혼곳은 ‘혼자 가기 좋은 곳’을 줄인 말입니다. 이름은 묻지 않습니다.</p>
+  </div>
+  <div class="links">
+    <a href="/spaces.html">곳 찾기</a><a href="/guide.html">혼자 하는 법</a><a href="/board.html">이름 없는 이야기</a><a href="/about.html">소개</a>
+    <a href="/submit.html">곳 알려 주기</a><a href="/about.html#rules">게시판 규칙</a><a href="/terms.html">이용약관</a><a href="/privacy.html">개인정보처리방침</a>
+  </div>
+  <div class="legal">운영 (회사명) &nbsp; 대표 (이름) &nbsp; 사업자등록번호 000-00-00000 &nbsp; 문의 hello@example.com<br>곳 정보는 공개 자료와 방문자 제보를 바탕으로 하며, 운영 시간과 규칙은 방문 전 확인이 필요합니다. © 2026 혼곳</div>
+</div></footer>
+<nav class="tabbar" aria-label="하단 메뉴">
+  <a href="/"><svg class="" aria-hidden="true"><use href="/assets/img/icons.svg#nav-home"></use></svg><span>홈</span></a>
+  <a href="/spaces.html"><svg class="" aria-hidden="true"><use href="/assets/img/icons.svg#nav-spaces"></use></svg><span>곳</span></a>
+  <a href="/board.html"><svg class="" aria-hidden="true"><use href="/assets/img/icons.svg#nav-board"></use></svg><span>이야기</span></a>
+  <a href="/guide.html"><svg class="" aria-hidden="true"><use href="/assets/img/icons.svg#nav-guide"></use></svg><span>하는 법</span></a>
+</nav>
+<script src="/assets/js/common.js"></script>
+<script src="/assets/js/submit.js"></script>
+</body>
+</html>
