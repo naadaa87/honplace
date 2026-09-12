@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Sitemap: https://hongot.pages.dev/sitemap.xml
+Sitemap: https://honplace.pages.dev/sitemap.xml

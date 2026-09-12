@@ -1,45 +1,52 @@
-# 혼곳 — 배포 안내
+# 혼곳 — 운영 안내
 
 혼곳은 ‘혼자 가기 좋은 곳’을 줄인 말입니다. 혼자 가도 어색하지 않은 곳을 모으고, 이름 없이 이야기를 남길 수 있는 서비스입니다.
-빌드 과정이 없는 정적 사이트라서 이 폴더를 그대로 GitHub에 올리고 Cloudflare Pages에 연결하면 바로 열립니다.
+
+- 저장소: https://github.com/naadaa87/honplace
+- 사이트: https://honplace.pages.dev
+
+빌드 과정이 없는 정적 사이트라서, 저장소에 파일을 올리면 Cloudflare Pages가 알아서 다시 배포합니다.
 게시판은 데이터베이스(D1)를 붙이기 전까지 **체험 모드**로 동작하고, 붙이는 순간 실제 게시판이 됩니다.
 
 ---
 
-## 1. GitHub에 올리기
+## 1. 배포되어 있는 상태 (완료)
 
-1. GitHub에서 새 저장소(Repository)를 만듭니다. 이름은 `hongot` 정도면 됩니다.
-2. 이 폴더 안의 파일 **전부**를 저장소에 올립니다. 브라우저에서 "Add file → Upload files"로 끌어다 놓으면 됩니다.
-   - `functions` 폴더와 `_headers`, `schema.sql` 도 함께 올라가야 합니다.
-   - 폴더 구조가 그대로 유지되어야 합니다. `index.html`이 저장소 최상단에 있어야 합니다.
+Cloudflare Pages 설정은 아래와 같습니다. 다시 연결할 일이 생기면 이 값을 그대로 쓰면 됩니다.
 
-## 2. Cloudflare Pages 연결
+- Framework preset: **None**
+- Build command: (비워 둠)
+- Build output directory: **/** (슬래시 하나)
 
-1. Cloudflare 대시보드 → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
-2. 위에서 만든 저장소를 고릅니다.
-3. 빌드 설정:
-   - Framework preset: **None**
-   - Build command: (비워 둠)
-   - Build output directory: **/** (슬래시 하나)
-4. **Save and Deploy**. 1~2분 뒤 `https://hongot.pages.dev` 같은 주소가 생깁니다.
+이후에는 저장소에 파일을 올리기만 하면 자동으로 다시 배포됩니다. 반영까지 보통 1~2분 걸립니다.
 
-여기까지 하면 사이트는 열리고, 곳 찾기와 혼자 하는 법은 그대로 동작합니다. 게시판은 체험 모드입니다(글이 이 기기에만 저장됨).
+## 2. 파일을 고치고 다시 올리는 법
+
+GitHub 저장소에서 고칠 파일을 열고 연필 아이콘(Edit)을 눌러 수정한 뒤 **Commit changes**를 누르면 됩니다.
+여러 파일을 한 번에 바꿀 때는 **Add file → Upload files**로 같은 이름의 파일을 덮어써도 됩니다.
+
+> **주소가 바뀌면 함께 고쳐야 하는 곳**
+> 나중에 개인 도메인을 연결하면 `sitemap.xml`, `robots.txt`, 그리고 10개 html 파일의 `og:url`·`og:image` 안에 있는
+> `honplace.pages.dev` 를 새 주소로 바꿔야 합니다. 안 바꾸면 카카오톡·SNS 공유 시 썸네일이 뜨지 않습니다.
 
 ## 3. 데이터베이스(D1) 만들고 연결하기 — 게시판을 실제로 켜는 단계
 
-1. 대시보드 → **Workers & Pages** → **D1 SQL Database** → **Create database**. 이름은 `hongot-db`.
+1. 대시보드 → **Workers & Pages** → **D1 SQL Database** → **Create database**. 이름은 `honplace-db`.
 2. 만들어진 데이터베이스를 열고 **Console** 탭으로 갑니다.
 3. 저장소에 있는 `schema.sql` 파일 내용을 전부 복사해서 붙여 넣고 **Execute**.
    (초기 글 12개가 함께 들어갑니다. 빈 게시판으로 시작하고 싶으면 `-- 초기 글` 아래 부분을 지우고 실행하세요.)
 4. Pages 프로젝트로 돌아가서 **Settings → Functions → D1 database bindings** → **Add binding**.
    - Variable name: **DB** (대문자, 정확히 이 이름)
-   - D1 database: `hongot-db`
+   - D1 database: `honplace-db`
 5. 같은 화면의 **Environment variables**에 두 개를 추가합니다.
    - `ADMIN_KEY` — 운영자용 비밀 문자열. 아무 긴 문자열이나 됩니다.
    - `IP_SALT` — 선택. 아무 문자열. 도배 방지용 IP 해시에 섞는 값입니다.
 6. **Deployments** 탭에서 최신 배포의 **Retry deployment**(재배포)를 누릅니다.
 
 재배포가 끝나면 게시판 위의 노란 "체험 모드" 안내가 사라지고, 글이 실제로 저장됩니다.
+
+**연결됐는지 확인하는 법**: 주소창에 `https://honplace.pages.dev/api/health` 를 칩니다.
+`{"ready":true,...}` 가 나오면 연결된 것이고, `{"ready":false,...}` 면 아직 바인딩이 안 된 상태입니다.
 
 ## 4. 운영자가 할 수 있는 것
 
@@ -67,7 +74,7 @@ fetch('/api/admin?key=KEY', { method: 'POST', headers: { 'Content-Type': 'applic
 | 푸터의 운영사·대표·사업자번호·문의 메일 | 모든 `.html` 파일 맨 아래 `<div class="legal">` (10개 파일 모두) |
 | 개인정보처리방침의 문의 메일 | `privacy.html` |
 | 약관·방침 시행일과 "초안" 문구 | `terms.html`, `privacy.html` 상단 |
-| 사이트 주소 | `sitemap.xml`, `robots.txt`, 각 html의 `og:url`·`og:image` (`hongot.pages.dev` → 실제 도메인) |
+| 사이트 주소 (개인 도메인 연결 시) | `sitemap.xml`, `robots.txt`, 각 html의 `og:url`·`og:image` |
 
 ## 콘텐츠 고치는 법 (코드 지식 없이)
 
@@ -102,7 +109,7 @@ _headers            보안·캐시 헤더
 
 ## 브랜드 · 디자인 메모
 
-**이름** 혼곳 = 혼자 + 곳. 풀어 쓰면 ‘혼자 가기 좋은 곳’. 영문 표기 hongot.
+**이름** 혼곳 = 혼자 + 곳. 풀어 쓰면 ‘혼자 가기 좋은 곳’. 영문 표기 honplace.
 **한 줄 문구** 오늘은 혼자 가기 좋은 곳으로.
 
 **모티프** 한 줄에 늘어선 곳들, 그중 하나에 불이 켜져 있는 그림 하나로 통일했습니다.
