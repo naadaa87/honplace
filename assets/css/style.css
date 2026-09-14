@@ -93,6 +93,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
 .btn.ghost:hover { background: var(--stone); }
 .btn.sm { min-height: 36px; padding: 0 13px; font-size: 14px; }
 .btn[disabled] { opacity: .5; cursor: not-allowed; }
+.btn svg { width: 16px; height: 16px; flex: none; }
 
 .chip {
   display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 13px; border-radius: 999px;
@@ -305,6 +306,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
 .composer .space-pick li:hover { background: var(--stone); }
 .composer .space-pick li small { display: block; color: var(--ink-3); font-size: 12px; }
 .composer .picked { display: inline-flex; align-items: center; gap: 6px; }
+.composer .picked svg { width: 12px; height: 12px; flex: none; }
 
 .post { padding: 26px 0; border-bottom: 1px solid var(--hair); }
 .post .body { font-family: var(--serif); font-size: 17.5px; line-height: 1.85; margin: 0; white-space: pre-wrap; }
@@ -381,3 +383,10 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
 .nf h1 { font-family: var(--serif); font-size: clamp(30px, 6vw, 48px); margin: 0 0 12px; }
 .nf p { color: var(--ink-2); margin: 0 0 24px; }
 .sk { color: var(--ink-3); font-size: 14px; padding: 20px 0; }
+
+/* 상세 페이지의 '비슷한 곳'은 좁은 폭이므로 간단 배치 */
+@media (min-width: 900px) {
+  .sp-more .row { grid-template-columns: 84px 1fr; gap: 16px; }
+  .sp-more .row .meta { display: flex; gap: 14px; grid-column: 2; }
+  .sp-more .row .meta > * { padding-top: 0; }
+}
