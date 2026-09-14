@@ -12,7 +12,9 @@
   const c = H.CATS[s.cat] || {};
   document.title = `${s.name} — 혼곳`;
   H.qs('meta[name=description]')?.setAttribute('content', s.intro);
-  const mapUrl = 'https://map.naver.com/p/search/' + encodeURIComponent(s.mapq || s.name);
+  const q = encodeURIComponent(s.mapq || s.name);
+  const naverUrl = 'https://map.naver.com/p/search/' + q;
+  const googleUrl = 'https://www.google.com/maps/search/?api=1&query=' + q;
 
   root.innerHTML = `
     <div class="sp-head">
@@ -34,9 +36,11 @@
       ${s.notes?.length ? `<h2>알아 두면 좋아요</h2><ul>${s.notes.map((n) => `<li>${H.esc(n)}</li>`).join('')}</ul>` : ''}
       <div class="tags">${(s.tags || []).map((t) => `<span class="tag">${H.esc(t)}</span>`).join('')}</div>
       <div class="actions">
-        <a class="btn" href="${mapUrl}" target="_blank" rel="noopener">${H.icon('i-pin')}${s.kind === 'type' ? '가까운 곳 지도에서 찾기' : '지도에서 보기'}</a>
+        <a class="btn" href="${naverUrl}" target="_blank" rel="noopener">${H.icon('i-pin')}네이버지도${s.kind === 'type' ? '에서 찾기' : ''}</a>
+        <a class="btn" href="${googleUrl}" target="_blank" rel="noopener">${H.icon('i-pin')}구글지도${s.kind === 'type' ? '에서 찾기' : ''}</a>
         <a class="btn ghost" href="/submit.html?fix=${encodeURIComponent(s.id)}">정보 수정 제안</a>
       </div>
+      ${s.kind === 'type' ? '' : `<p class="small muted" style="margin-top:10px">지도를 누르면 네이버지도·구글지도에서 위치와 운영시간을 바로 확인할 수 있습니다.</p>`}
     </div>`;
 
   /* 후기 */
