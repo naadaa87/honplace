@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-  <!-- 로고 마크: 한 줄에 놓인 곳들, 그중 하나에 불이 켜져 있다 -->
+  <!-- 로고 마크: 한 줄에 놓인 플레이스, 그중 하나에 불이 켜져 있다 -->
   <symbol id="mark" viewBox="0 0 32 32">
     <line x1="2" y1="25" x2="30" y2="25" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
     <circle cx="11" cy="14" r="5.5" fill="#f3b640"/>

@@ -1,4 +1,4 @@
-/* 혼곳 submit.js */
+/* 혼플 submit.js */
 (async function () {
   const form = H.qs('[data-submit-form]');
   const done = H.qs('[data-submit-done]');

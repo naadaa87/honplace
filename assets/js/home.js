@@ -1,4 +1,4 @@
-/* 혼곳 home.js — 문장으로 고르기 · 카운터 · 최근 이야기 */
+/* 혼플 home.js — 문장으로 고르기 · 카운터 · 최근 이야기 */
 (async function () {
   const { categories, spaces } = await H.loadSpaces();
   const now = H.now();
@@ -101,27 +101,17 @@
     const filled = Object.values(state).filter((v) => v != null).length;
     out.innerHTML = `<div class="head"><h2>${filled >= 2 ? '이런 곳 어때요' : `${(OPTS.time.find((o) => o[0] === state.time) || [0, '지금'])[1]} 갈 수 있는 곳`}</h2><span>${list.length}곳 중 ${picks.length}곳</span></div>
       <div class="sheet">${picks.map((s) => H.spaceRow(s, { intro: true })).join('')}</div>
-      <div class="pf"><button type="button" class="btn ghost sm" data-shuffle>다른 곳 보여 주기</button><a class="btn ghost sm" href="/spaces.html?${q}">이 조건으로 전부 보기</a></div>`;
+      <div class="pf"><button type="button" class="btn ghost sm" data-shuffle>다른 곳 보여 주기</button><a class="btn ghost sm" href="/spaces?${q}">이 조건으로 전부 보기</a></div>`;
   }
   out.addEventListener('click', (e) => { if (e.target.closest('[data-shuffle]')) run(true); });
   paint(); run();
 
-  /* ── 카테고리 목차 ───────────────────── */
-  H.qs('[data-toc]').innerHTML = categories.map((c) => {
-    const n = spaces.filter((s) => s.cat === c.id).length;
-    return `<a href="/spaces.html?cat=${c.id}">${H.icon('cat-' + c.id)}<span><span class="t">${H.esc(c.label)}</span><span class="d">${H.esc(c.desc)}</span></span><span class="n">${n}곳</span></a>`;
-  }).join('');
-
   /* ── 최근 이야기 ───────────────────────── */
   const feedEl = H.qs('[data-home-feed]');
-  try {
+  if (feedEl) try {
     const posts = await H.api.listPosts({ limit: 4 });
     Feed.render(feedEl, posts, { compact: true });
     Feed.bind(feedEl);
   } catch { feedEl.innerHTML = '<div class="sk">이야기를 불러오지 못했어요.</div>'; }
 
-  /* ── 가이드 ───────────────────────────── */
-  const { guides } = await H.loadGuides();
-  const pick = ['honsulbar-first', 'honbap-first', 'sauna-night', 'social-light'].map((id) => guides.find((g) => g.id === id)).filter(Boolean);
-  H.qs('[data-home-guides]').innerHTML = pick.map((g) => `<a class="gi" href="/guide.html?id=${g.id}"><span class="l1"><span class="t">${H.esc(g.title)}</span><span class="lead-line"></span><span class="m">${g.minutes}분</span></span><span class="sub">${H.esc(g.lead)}</span></a>`).join('');
 })();

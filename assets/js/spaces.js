@@ -1,4 +1,4 @@
-/* 혼곳 spaces.js */
+/* 혼플 spaces.js */
 (async function () {
   const { categories, spaces } = await H.loadSpaces();
   const url = new URL(location.href);
@@ -26,6 +26,8 @@
     });
   }
   function apply() {
+    if (first && !state.cat && !state.talk && !state.time && !state.q) { first = false; paint(); return; }
+    first = false;
     let r = spaces.slice();
     if (state.cat) r = r.filter((s) => s.cat === state.cat);
     if (state.talk === '0') r = r.filter((s) => s.talk === 0);
@@ -40,7 +42,7 @@
     r.sort((a, b) => b.solo - a.solo || a.name.localeCompare(b.name, 'ko'));
     count.textContent = r.length ? `${r.length}곳` : '';
     if (!r.length) {
-      list.innerHTML = `<div class="empty"><b>이 조건에 맞는 곳이 아직 없어요</b>조건을 하나 풀어 보거나, 아는 곳이 있다면 <a href="/submit.html" style="text-decoration:underline">알려 주세요</a>.</div>`;
+      list.innerHTML = `<div class="empty"><b>이 조건에 맞는 곳이 아직 없어요</b>조건을 하나 풀어 보거나, 아는 곳이 있다면 <a href="/submit" style="text-decoration:underline">알려 주세요</a>.</div>`;
       return;
     }
     list.innerHTML = H.sheetHead() + `<div class="sheet">${r.map((s) => H.spaceRow(s, { cat: !state.cat })).join('')}</div>`;
@@ -50,6 +52,7 @@
     paint();
   }
 
+  let first = true;
   root.addEventListener('click', (e) => {
     const c = e.target.closest('.chip'); if (!c) return;
     state[c.dataset.k] = c.dataset.v; apply();

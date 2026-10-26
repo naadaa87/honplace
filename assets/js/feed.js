@@ -1,4 +1,4 @@
-/* 혼곳 feed.js — 익명 글 렌더링/작성 공용 */
+/* 혼플 feed.js — 익명 글 렌더링/작성 공용 */
 (function () {
   const F = {};
   window.Feed = F;
@@ -10,12 +10,12 @@
       const on = H.api.reacted(p.id, type);
       return `<button class="react${on ? ' on' : ''}" data-act="react" data-type="${type}" data-id="${H.esc(p.id)}" aria-pressed="${on}">${label} <em>${p[type] || 0}</em></button>`;
     };
-    const sign = `<div class="sign"><b>— ${H.esc(p.nickname)}</b><span>${H.fmtTime(p.created_at)}</span><span class="cat">${H.CAT_LABEL[p.category] || ''}</span>${p.space_id ? `<a class="space-link" href="/space.html?id=${encodeURIComponent(p.space_id)}">${H.icon('i-pin')}${H.esc(p.space_name || p.space_id)}</a>` : ''}</div>`;
+    const sign = `<div class="sign"><b>— ${H.esc(p.nickname)}</b><span>${H.fmtTime(p.created_at)}</span><span class="cat">${H.CAT_LABEL[p.category] || ''}</span>${p.space_id ? `<a class="space-link" href="/place/${encodeURIComponent(p.space_id)}">${H.icon('i-pin')}${H.esc(p.space_name || p.space_id)}</a>` : ''}</div>`;
     if (compact) {
       return `<article class="post compact" data-id="${H.esc(p.id)}">
         <p class="body">${H.esc(p.body)}</p>
         ${sign}
-        <div class="acts">${r('metoo', '나도 그래요')}<span class="spacer"></span><a class="link" href="/board.html?id=${encodeURIComponent(p.id)}">답글 ${cnt}</a></div>
+        <div class="acts">${r('metoo', '나도 그래요')}<span class="spacer"></span><a class="link" href="/board?id=${encodeURIComponent(p.id)}">답글 ${cnt}</a></div>
       </article>`;
     }
     return `<article class="post" data-id="${H.esc(p.id)}" id="p-${H.esc(p.id)}">

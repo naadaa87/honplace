@@ -1,4 +1,4 @@
-/* 혼곳 API 공통 */
+/* 혼플 API 공통 */
 export const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
 
@@ -10,7 +10,7 @@ export const now = () => new Date().toISOString();
 
 export async function ipHash(request, env) {
   const ip = request.headers.get('CF-Connecting-IP') || '0.0.0.0';
-  const salt = env.IP_SALT || 'hongot';
+  const salt = env.IP_SALT || 'honplace';
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + ip));
   return Array.from(new Uint8Array(buf)).slice(0, 12).map((b) => b.toString(16).padStart(2, '0')).join('');
 }

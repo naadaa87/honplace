@@ -1,4 +1,4 @@
--- 혼곳 D1 스키마
+-- 혼플 D1 스키마
 -- Cloudflare 대시보드 > Workers & Pages > D1 > (데이터베이스) > Console 에 붙여넣고 실행하세요.
 
 CREATE TABLE IF NOT EXISTS posts (

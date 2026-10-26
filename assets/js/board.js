@@ -1,4 +1,4 @@
-/* 혼곳 board.js */
+/* 혼플 board.js */
 (async function () {
   await H.loadSpaces();
   const tabs = H.qs('[data-tabs]');

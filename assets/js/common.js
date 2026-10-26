@@ -1,4 +1,4 @@
-/* 혼곳 common.js */
+/* 혼플 common.js */
 (function () {
   const H = {};
   window.H = H;
@@ -59,7 +59,7 @@
   H.spaceRow = (s, opts = {}) => {
     const c = H.CATS[s.cat] || {};
     const time = s.time.map((t) => H.TIME[t]).join(', ');
-    return `<a class="row" href="/space.html?id=${encodeURIComponent(s.id)}">
+    return `<a class="row" href="/place/${encodeURIComponent(s.id)}">
       <div class="c1">${H.seats(s.solo)}</div>
       <div class="c2">
         <div class="name">${H.esc(s.name)}${s.kind === 'type' ? '<span class="tag kind">유형</span>' : ''}</div>

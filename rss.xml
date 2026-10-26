@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>혼플 매거진</title>
+  <link>https://honplace.pages.dev/magazine</link>
+  <atom:link href="https://honplace.pages.dev/rss.xml" rel="self" type="application/rss+xml"/>
+  <description>혼자 보내는 시간에 대해 쓴 글들</description>
+  <language>ko</language>
+  <lastBuildDate>Mon, 26 Oct 2026 00:00:00 GMT</lastBuildDate>
+  <item>
+    <title>서울 혼술 지도 — 동네마다 혼술의 문법이 다릅니다</title>
+    <link>https://honplace.pages.dev/magazine/seoul-honsul-map</link>
+    <guid isPermaLink="true">https://honplace.pages.dev/magazine/seoul-honsul-map</guid>
+    <pubDate>Mon, 26 Oct 2026 00:00:00 GMT</pubDate>
+    <description>같은 &#39;혼술&#39;이라도 을지로에서 혼자 마시는 것과 신림에서 혼자 마시는 것은 완전히 다른 경험입니다. 동네별로 어떤 혼술이 가능한지 정리했습니다.</description>
+  </item>
+  <item>
+    <title>혼밥 레벨, 실제로는 이렇게 올라갑니다</title>
+    <link>https://honplace.pages.dev/magazine/honbap-levels</link>
+    <guid isPermaLink="true">https://honplace.pages.dev/magazine/honbap-levels</guid>
+    <pubDate>Sat, 24 Oct 2026 00:00:00 GMT</pubDate>
+    <description>편의점에서 시작해 고깃집까지. 인터넷에 도는 혼밥 레벨표를 실제 난이도 순서로 다시 정리했습니다.</description>
+  </item>
+  <item>
+    <title>주말에 혼자 뭐 하지 — 시간대별로 짠 이틀</title>
+    <link>https://honplace.pages.dev/magazine/weekend-alone</link>
+    <guid isPermaLink="true">https://honplace.pages.dev/magazine/weekend-alone</guid>
+    <pubDate>Thu, 22 Oct 2026 00:00:00 GMT</pubDate>
+    <description>토요일 아침부터 일요일 밤까지, 혼자서 자연스럽게 소화할 수 있는 동선을 시간대별로 정리했습니다.</description>
+  </item>
+  <item>
+    <title>퇴근하고 바로 갈 수 있는 곳 — 평일 저녁 두 시간</title>
+    <link>https://honplace.pages.dev/magazine/after-work-alone</link>
+    <guid isPermaLink="true">https://honplace.pages.dev/magazine/after-work-alone</guid>
+    <pubDate>Tue, 20 Oct 2026 00:00:00 GMT</pubDate>
+    <description>집에 바로 들어가기는 싫은데 약속 잡을 기력은 없는 날, 혼자서 두 시간을 보낼 수 있는 선택지입니다.</description>
+  </item>
+  <item>
+    <title>잠이 안 오는 밤, 지금 문 연 곳</title>
+    <link>https://honplace.pages.dev/magazine/late-night-alone</link>
+    <guid isPermaLink="true">https://honplace.pages.dev/magazine/late-night-alone</guid>
+    <pubDate>Sun, 18 Oct 2026 00:00:00 GMT</pubDate>
+    <description>자정을 넘겼는데 집에 혼자 있기 싫을 때. 그 시간에 혼자 들어가도 괜찮은 곳들입니다.</description>
+  </item>
+  <item>
+    <title>혼자 영화 보기 — 예술영화관이 더 편한 이유</title>
+    <link>https://honplace.pages.dev/magazine/solo-cinema-guide</link>
+    <guid isPermaLink="true">https://honplace.pages.dev/magazine/solo-cinema-guide</guid>
+    <pubDate>Fri, 16 Oct 2026 00:00:00 GMT</pubDate>
+    <description>혼영은 원래 혼자 하는 일입니다. 그중에서도 예술영화관이 혼자에게 특히 맞는 이유와, 처음 가는 사람을 위한 안내입니다.</description>
+  </item>
+  <item>
+    <title>돈 안 쓰고 혼자 하루 보내기</title>
+    <link>https://honplace.pages.dev/magazine/free-day-alone</link>
+    <guid isPermaLink="true">https://honplace.pages.dev/magazine/free-day-alone</guid>
+    <pubDate>Wed, 14 Oct 2026 00:00:00 GMT</pubDate>
+    <description>입장료 없이도 하루가 지나갑니다. 무료이거나 1만 원 이하로 혼자 시간을 보낼 수 있는 곳들입니다.</description>
+  </item>
+  <item>
+    <title>비 오는 날 혼자 갈 만한 곳</title>
+    <link>https://honplace.pages.dev/magazine/rainy-day-alone</link>
+    <guid isPermaLink="true">https://honplace.pages.dev/magazine/rainy-day-alone</guid>
+    <pubDate>Mon, 12 Oct 2026 00:00:00 GMT</pubDate>
+    <description>비가 오면 선택지가 줄어드는 것 같지만, 오히려 비 올 때 가야 더 좋은 곳이 있습니다.</description>
+  </item>
+  <item>
+    <title>혼자 가는 첫 전시 — 뭘 알고 가야 할까</title>
+    <link>https://honplace.pages.dev/magazine/solo-exhibition-first</link>
+    <guid isPermaLink="true">https://honplace.pages.dev/magazine/solo-exhibition-first</guid>
+    <pubDate>Sat, 10 Oct 2026 00:00:00 GMT</pubDate>
+    <description>전시는 혼자 보는 것이 더 낫습니다. 처음 가는 사람이 알아 두면 편한 것들을 정리했습니다.</description>
+  </item>
+  <item>
+    <title>혼자 사는 사람의 외로움 — 숫자로 보면</title>
+    <link>https://honplace.pages.dev/magazine/loneliness-data</link>
+    <guid isPermaLink="true">https://honplace.pages.dev/magazine/loneliness-data</guid>
+    <pubDate>Thu, 08 Oct 2026 00:00:00 GMT</pubDate>
+    <description>외로움은 개인의 성격 문제가 아니라 지금 많은 사람이 공유하는 상태입니다. 통계와 함께 정리했습니다.</description>
+  </item>
+  <item>
+    <title>혼자 운동 시작하기 — 클라이밍이 혼자에게 맞는 이유</title>
+    <link>https://honplace.pages.dev/magazine/start-exercise-alone</link>
+    <guid isPermaLink="true">https://honplace.pages.dev/magazine/start-exercise-alone</guid>
+    <pubDate>Tue, 06 Oct 2026 00:00:00 GMT</pubDate>
+    <description>운동을 혼자 시작하기 어려운 이유는 체력이 아니라 어색함입니다. 그 어색함이 가장 적은 종목을 짚어 봤습니다.</description>
+  </item>
+  <item>
+    <title>혼자 어디 가는 게 처음이라면 — 7일 연습</title>
+    <link>https://honplace.pages.dev/magazine/first-time-alone-checklist</link>
+    <guid isPermaLink="true">https://honplace.pages.dev/magazine/first-time-alone-checklist</guid>
+    <pubDate>Sun, 04 Oct 2026 00:00:00 GMT</pubDate>
+    <description>혼자 나가는 것이 어색한 사람을 위해, 난이도가 낮은 순서로 일주일치를 짜 봤습니다.</description>
+  </item>
+</channel>
+</rss>
