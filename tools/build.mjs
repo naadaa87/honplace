@@ -690,7 +690,7 @@ write('about.html', shell({
 }));
 
 write('terms.html', shell({
-  path: '/terms', file: 'terms.html', title: '이용약관', desc: `${BRAND} 이용약관`,
+  path: '/terms', file: 'terms.html', title: '이용약관', desc: `혼플 이용약관 — 서비스의 범위, 플레이스 정보의 성격, 익명 게시물에 관한 규칙과 이용자의 책임을 정리했습니다.`,
   crumbs: [{ name: '이용약관', path: '/terms' }],
   body: `
 <article class="prose wrap read">
@@ -721,7 +721,7 @@ write('terms.html', shell({
 }));
 
 write('privacy.html', shell({
-  path: '/privacy', file: 'privacy.html', title: '개인정보처리방침', desc: `${BRAND} 개인정보처리방침`,
+  path: '/privacy', file: 'privacy.html', title: '개인정보처리방침', desc: `혼플은 회원 가입을 받지 않고 개인정보를 요구하지 않습니다. 수집하지 않는 것, 처리하는 정보, 보관과 삭제 기준을 정리했습니다.`,
   crumbs: [{ name: '개인정보처리방침', path: '/privacy' }],
   body: `
 <article class="prose wrap read">
@@ -748,7 +748,7 @@ write('privacy.html', shell({
 }));
 
 write('404.html', shell({
-  path: '/404', file: '404.html', title: '찾는 곳이 없어요', desc: '페이지를 찾을 수 없습니다', noTab: true, noIndex: true,
+  path: '/404', file: '404.html', title: '찾는 곳이 없어요', desc: '찾으시는 페이지가 없거나 주소가 바뀌었습니다. 플레이스 목록이나 매거진에서 다시 찾아보세요.', noTab: true, noIndex: true,
   body: `
 <div class="wrap read nf">
   <h1>이 곳은 비어 있어요.</h1>
@@ -767,7 +767,7 @@ write('space.html', shell({
 
 /* 관리자 */
 write('admin.html', shell({
-  path: '/admin', file: 'admin.html', title: '관리자', desc: '혼플 운영 관리', noIndex: true, noTab: true,
+  path: '/admin', file: 'admin.html', title: '관리자', desc: '혼플 운영 관리 화면입니다. 검색에 노출되지 않습니다.', noIndex: true, noTab: true,
   scripts: ['admin.js'],
   body: `
 <div class="wrap admin" data-admin>

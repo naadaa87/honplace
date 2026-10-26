@@ -1,130 +1,159 @@
-# 혼곳 — 운영 안내
+# 혼플 — 운영 안내
 
-혼곳은 ‘혼자 가기 좋은 곳’을 줄인 말입니다. 혼자 가도 어색하지 않은 곳을 모으고, 이름 없이 이야기를 남길 수 있는 서비스입니다.
+혼플은 ‘혼자 가기 좋은 플레이스’를 줄인 말입니다. 혼자 가도 어색하지 않은 곳을 모으고, 이름 없이 이야기를 남길 수 있는 서비스입니다.
 
 - 저장소: https://github.com/naadaa87/honplace
 - 사이트: https://honplace.pages.dev
-
-빌드 과정이 없는 정적 사이트라서, 저장소에 파일을 올리면 Cloudflare Pages가 알아서 다시 배포합니다.
-게시판은 데이터베이스(D1)를 붙이기 전까지 **체험 모드**로 동작하고, 붙이는 순간 실제 게시판이 됩니다.
+- 관리자: https://honplace.pages.dev/admin
 
 ---
 
-## 1. 배포되어 있는 상태 (완료)
+## 1. 이 저장소의 구조
 
-Cloudflare Pages 설정은 아래와 같습니다. 다시 연결할 일이 생기면 이 값을 그대로 쓰면 됩니다.
+페이지는 **빌드로 생성**됩니다. `data/` 안의 JSON을 고치고 빌드를 돌리면 HTML이 다시 만들어집니다.
 
-- Framework preset: **None**
-- Build command: (비워 둠)
-- Build output directory: **/** (슬래시 하나)
+```
+data/spaces.json       플레이스 데이터 (이것만 고치면 됩니다)
+data/guides.json       '혼자 하는 법' 글
+data/magazine.json     매거진 글
+tools/build.mjs        생성기
+tools/shell.mjs        공통 <head>·헤더·푸터 템플릿
 
-이후에는 저장소에 파일을 올리기만 하면 자동으로 다시 배포됩니다. 반영까지 보통 1~2분 걸립니다.
-
-## 2. 파일을 고치고 다시 올리는 법
-
-GitHub 저장소에서 고칠 파일을 열고 연필 아이콘(Edit)을 눌러 수정한 뒤 **Commit changes**를 누르면 됩니다.
-여러 파일을 한 번에 바꿀 때는 **Add file → Upload files**로 같은 이름의 파일을 덮어써도 됩니다.
-
-> **주소가 바뀌면 함께 고쳐야 하는 곳**
-> 나중에 개인 도메인을 연결하면 `sitemap.xml`, `robots.txt`, 그리고 10개 html 파일의 `og:url`·`og:image` 안에 있는
-> `honplace.pages.dev` 를 새 주소로 바꿔야 합니다. 안 바꾸면 카카오톡·SNS 공유 시 썸네일이 뜨지 않습니다.
-
-## 3. 데이터베이스(D1) 만들고 연결하기 — 게시판을 실제로 켜는 단계
-
-1. 대시보드 → **Workers & Pages** → **D1 SQL Database** → **Create database**. 이름은 `honplace-db`.
-2. 만들어진 데이터베이스를 열고 **Console** 탭으로 갑니다.
-3. 저장소에 있는 `schema.sql` 파일 내용을 전부 복사해서 붙여 넣고 **Execute**.
-   (초기 글 12개가 함께 들어갑니다. 빈 게시판으로 시작하고 싶으면 `-- 초기 글` 아래 부분을 지우고 실행하세요.)
-4. Pages 프로젝트로 돌아가서 **Settings → Functions → D1 database bindings** → **Add binding**.
-   - Variable name: **DB** (대문자, 정확히 이 이름)
-   - D1 database: `honplace-db`
-5. 같은 화면의 **Environment variables**에 두 개를 추가합니다.
-   - `ADMIN_KEY` — 운영자용 비밀 문자열. 아무 긴 문자열이나 됩니다.
-   - `IP_SALT` — 선택. 아무 문자열. 도배 방지용 IP 해시에 섞는 값입니다.
-6. **Deployments** 탭에서 최신 배포의 **Retry deployment**(재배포)를 누릅니다.
-
-재배포가 끝나면 게시판 위의 노란 "체험 모드" 안내가 사라지고, 글이 실제로 저장됩니다.
-
-**연결됐는지 확인하는 법**: 주소창에 `https://honplace.pages.dev/api/health` 를 칩니다.
-`{"ready":true,...}` 가 나오면 연결된 것이고, `{"ready":false,...}` 면 아직 바인딩이 안 된 상태입니다.
-
-## 4. 운영자가 할 수 있는 것
-
-브라우저 주소창에 아래를 입력합니다. `KEY` 자리에 위에서 만든 `ADMIN_KEY`를 넣습니다.
-
-- 신고가 쌓인 글 보기: `https://(내 주소)/api/admin?key=KEY`
-- 곳 제보·수정 제안 보기: `https://(내 주소)/api/admin?key=KEY&what=submissions`
-
-신고가 3건 쌓이면 글은 자동으로 숨겨집니다. 숨긴 글을 완전히 지우거나 되살리는 것은 POST 요청이 필요해서, 필요할 때 아래 방법을 씁니다.
-(브라우저 개발자 도구 Console에 붙여 넣기)
-
-```js
-fetch('/api/admin?key=KEY', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ action: 'delete', id: '글ID' }) }).then(r => r.json()).then(console.log)
-// action: 'hide' 숨기기 / 'unhide' 되살리기 / 'delete' 삭제
-// 제보 처리: { action: 'submission', id: '제보ID', status: 'done' }  (또는 'skip')
+index.html             홈
+spaces.html            플레이스 전체 목록
+place/<id>.html        플레이스 상세 (검색 노출의 핵심)
+c/<분류>.html           분류별 모음
+area/<지역>.html        동네별 모음
+guide/index.html       혼자 하는 법 목차
+guide/<id>.html        개별 안내 글
+magazine/index.html    매거진 목차
+magazine/<id>.html     개별 매거진 글
+board.html             익명 게시판
+admin.html             관리자
+sitemap.xml / rss.xml / robots.txt / _redirects / _headers
+functions/api/         Cloudflare Pages Functions (게시판·제보·관리 API)
+schema.sql             D1 테이블 + 초기 글
 ```
 
----
+## 2. 플레이스를 추가하거나 고치는 법
 
-## 오픈 전에 바꿔야 하는 것
+**방법 A — 관리자 화면 (추천)**
+
+1. `/admin` 에 접속해 ADMIN_KEY 로 들어갑니다.
+2. **플레이스** 탭의 편집기에서 내용을 고칩니다.
+3. **검사**를 눌러 형식 오류가 없는지 확인합니다.
+4. **파일 내려받기**로 `spaces.json` 을 받습니다.
+5. 깃허브의 `data/spaces.json` 에 덮어쓰고 커밋합니다.
+6. 아래 3번 빌드를 한 번 돌립니다.
+
+**방법 B — 깃허브에서 직접**
+
+`data/spaces.json` 을 열어 항목을 복사해 붙이고 내용을 바꿉니다.
+
+| 항목 | 설명 |
+|---|---|
+| `id` | 영문 소문자·숫자·하이픈만. 페이지 주소가 됩니다 (`/place/<id>`) |
+| `kind` | `place`(실제 장소) 또는 `type`(타치노미처럼 형태를 소개하는 항목) |
+| `cat` | honsul / honbap / cafe / culture / move / rest / learn / social |
+| `area` | 시·구·동 수준. 동네별 페이지 분류에 쓰입니다 |
+| `addr` | 전체 주소 (없으면 빈 문자열) |
+| `solo` | 1~5. 혼자여도 눈에 안 띄는 정도 |
+| `talk` | 0 조용히 / 1 원하면 한마디 / 2 이야기가 중심 |
+| `price` | 표시용 문구 (예: "1~2만 원") |
+| `tier` | 0 거의 무료 / 1 1~2만 원 / 2 3만 원 이상. 홈 예산 필터에 쓰입니다 |
+| `time` | `day` `evening` `night` 중 해당하는 것들 |
+| `tags` | 짧은 키워드 3~5개 |
+| `intro` `culture` `first` | 어떤 곳인가 / 분위기와 문화 / 처음 가면 |
+| `notes` | 주의사항 배열 |
+| `mapq` | 지도 검색어. 보통 "이름 + 동네" |
+
+## 3. 빌드 — 페이지를 다시 만들기
+
+데이터를 고친 뒤에는 반드시 한 번 실행해야 새 페이지가 만들어집니다.
+
+```bash
+node tools/build.mjs
+```
+
+Node가 설치된 환경이면 어디서든 됩니다. 실행하면 `생성 완료 — N개 파일` 이 찍히고, 바뀐 HTML을 커밋하면 Cloudflare Pages가 1~2분 뒤 자동 배포합니다.
+
+> 빌드를 돌릴 수 없는 환경이라면, 데이터만 고쳐서 커밋해도 목록·필터·검색에는 반영됩니다. 다만 새 플레이스의 전용 페이지(`/place/<id>`)는 빌드를 해야 생깁니다.
+
+## 4. 데이터베이스(D1) — 게시판을 실제로 켜기
+
+1. Cloudflare 대시보드 → **Workers & Pages** → **D1** → **Create database**. 이름은 `honplace-db`.
+2. **Console** 탭에서 `schema.sql` 내용을 붙여 넣고 **Execute**.
+3. Pages 프로젝트 → **Settings → Functions → D1 database bindings** → Variable name **DB**, 데이터베이스 `honplace-db`.
+4. 같은 화면 **Environment variables** 에 추가:
+   - `ADMIN_KEY` — 관리자 접속 키. 길게 만드세요.
+   - `IP_SALT` — 선택. 도배 방지용 IP 해시에 섞는 값.
+5. **Deployments** 탭에서 최신 배포 **Retry deployment**.
+
+**확인**: `https://honplace.pages.dev/api/health` 에서 `{"ready":true}` 가 나오면 연결된 것입니다.
+
+## 5. 관리자 화면
+
+`/admin` 에 접속해 ADMIN_KEY 를 입력합니다. 키는 그 브라우저에만 저장됩니다.
+
+| 탭 | 할 수 있는 것 |
+|---|---|
+| 대시보드 | 글 수, 오늘 올라온 글, 신고·제보 대기, 최근 2주 추이, 분류별·플레이스별 분포 |
+| 글 관리 | 검색·필터·페이징, 숨기기·복구·삭제, 답글 확인과 삭제, 여러 건 일괄 처리 |
+| 신고 | 신고가 쌓인 글만 모아 보기 (신고 3건이면 자동으로 숨겨집니다) |
+| 제보 | 방문자 제보와 수정 제안, 상태 변경, 등록용 JSON 조각 복사 |
+| 플레이스 | 등록 현황, spaces.json 편집·검사·내려받기 |
+| 도움말 | 운영에서 자주 하는 일 정리 |
+
+삭제는 되돌릴 수 없습니다. 애매하면 숨기기를 쓰세요.
+
+## 6. 검색 노출(SEO) 설정
+
+구조는 이미 들어가 있습니다. 남은 것은 등록 작업입니다.
+
+1. **네이버 서치어드바이저** 와 **구글 서치콘솔** 에 사이트를 등록합니다.
+2. 받은 소유 확인 코드를 `tools/shell.mjs` 의 주석 처리된 `naver-site-verification` / `google-site-verification` 줄에 넣고 주석을 풉니다. 그 뒤 빌드하면 모든 페이지에 들어갑니다.
+3. 두 곳에 사이트맵 `https://honplace.pages.dev/sitemap.xml` 을 제출합니다.
+4. 네이버는 RSS도 받습니다. `https://honplace.pages.dev/rss.xml` 을 함께 제출하세요.
+
+이미 적용되어 있는 것:
+
+- 페이지마다 고유한 `<title>`, `description`, `canonical`
+- 구조화 데이터 — Organization, WebSite, ItemList, LocalBusiness, Article, FAQPage, BreadcrumbList
+- 빵부스러기 내비게이션과 촘촘한 내부 링크 (플레이스 ↔ 분류 ↔ 동네 ↔ 매거진)
+- 목록을 빌드 시점에 HTML로 그려 두어 크롤러가 자바스크립트 없이 읽을 수 있음
+- sitemap.xml 자동 생성, robots.txt (네이버 Yeti·구글·다음 명시), RSS
+
+## 7. 오픈 전에 바꿔야 하는 것
 
 | 항목 | 위치 |
 |---|---|
-| 푸터의 운영사·대표·사업자번호·문의 메일 | 모든 `.html` 파일 맨 아래 `<div class="legal">` (10개 파일 모두) |
-| 개인정보처리방침의 문의 메일 | `privacy.html` |
-| 약관·방침 시행일과 "초안" 문구 | `terms.html`, `privacy.html` 상단 |
-| 사이트 주소 (개인 도메인 연결 시) | `sitemap.xml`, `robots.txt`, 각 html의 `og:url`·`og:image` |
+| 푸터의 운영사·대표·사업자번호·문의 메일 | `tools/shell.mjs` 의 `legal` 부분 → 빌드 |
+| 개인정보처리방침 문의 메일 | `tools/build.mjs` 의 privacy 페이지 → 빌드 |
+| 약관·방침 시행일과 ‘초안’ 문구 | `tools/build.mjs` → 빌드 |
+| 개인 도메인 연결 시 사이트 주소 | `tools/shell.mjs` 의 `SITE` 상수 → 빌드 |
 
-## 콘텐츠 고치는 법 (코드 지식 없이)
+## 8. 브랜드 · 디자인
 
-- **곳 추가·수정**: `data/spaces.json` 을 열어 항목을 복사해 붙이고 내용을 바꿉니다.
-  - `kind`: `place`(실제 장소) 또는 `type`(유형 — "타치노미" 처럼 특정 가게가 아닌 형태)
-  - `cat`: honsul / honbap / cafe / culture / move / rest / learn / social
-  - `solo`: 1~5 (혼자여도 눈에 안 띄는 정도) / `talk`: 0 조용히, 1 원하면 한마디, 2 이야기 중심
-  - `tier`: 0 거의 무료, 1 1~2만 원, 2 3만 원 이상 / `time`: `day` `evening` `night` 중 해당하는 것
-  - `mapq`: 네이버 지도 검색어
-- **가이드 글 추가**: `data/guides.json`. `blocks`에 `h`(소제목) `p`(문단) `ul`(목록) `quote`(인용)를 순서대로 넣습니다.
-- **초기 게시글**: 체험 모드는 `data/seed-posts.json`, 실제 DB는 `schema.sql`의 INSERT 부분.
+**이름** 혼플 = 혼자 + 플레이스. 풀어 쓰면 ‘혼자 가기 좋은 플레이스’.
+**한 줄 문구** 오늘은 혼자 가기 좋은 플레이스로.
 
-> 초기 등록된 22곳은 공개된 자료를 바탕으로 정리한 것입니다. 개별 가게(마심, 리타비터바, 제주아홉, 고도 등)는 운영 시간과 규칙이 바뀔 수 있으니 오픈 전에 한 번 확인하고, 틀린 곳은 `spaces.json`에서 바로 고치면 됩니다.
-
-## 폴더 구조
-
-```
-index.html          홈 (문장으로 오늘 갈 곳 고르기)
-spaces.html         곳 찾기 (필터·검색)
-space.html?id=      곳 상세 + 익명 후기
-guide.html?id=      혼자 하는 법 / 혼자에 대하여
-board.html?cat= / ?id=   이름 없는 이야기 (익명 게시판)
-about.html          소개 · 게시판 규칙 (#rules)
-submit.html?fix=    곳 알려 주기 · 정보 수정 제안
-terms.html / privacy.html / 404.html
-assets/             css, js, 아이콘, OG 이미지
-data/               spaces.json, guides.json, seed-posts.json
-functions/api/      Cloudflare Pages Functions (게시판·제보·운영 API)
-schema.sql          D1 테이블 + 초기 글
-_headers            보안·캐시 헤더
-```
-
-## 브랜드 · 디자인 메모
-
-**이름** 혼곳 = 혼자 + 곳. 풀어 쓰면 ‘혼자 가기 좋은 곳’. 영문 표기 honplace.
-**한 줄 문구** 오늘은 혼자 가기 좋은 곳으로.
-
-**모티프** 한 줄에 늘어선 곳들, 그중 하나에 불이 켜져 있는 그림 하나로 통일했습니다.
-- 로고 마크: 바닥선 위에 불 켜진 곳 하나, 아직 불 안 켜진 곳 하나
+**모티프** 한 줄에 늘어선 플레이스, 그중 하나에 불이 켜져 있는 그림 하나로 통일했습니다.
+- 로고: 바닥선 위에 불 켜진 곳 하나, 아직 불 안 켜진 곳 하나
 - 홈 히어로: 같은 그림을 화면 폭으로 늘린 것. 불 켜진 자리는 요일마다 바뀝니다
 - 혼자 지수: 같은 형태의 작은 불빛 다섯 개
 - 페이지는 낮(흰 배경)에서 시작해 밤(어두운 푸터)으로 끝납니다
 
 **색** 흰색 #FFFFFF, 연한 회색 #F3F3F0, 글자 #1C1C21. 포인트는 램프 노랑 #F3B640 하나, 글자용 꿀색 #9A6512.
 
-**서체** 고운바탕(제목·사용자의 문장·게시글) + 프리텐다드(메뉴·표·버튼). CDN에서 불러오므로 설치 불필요.
-
-**용어** 곳 찾기 / 혼자 지수 / 대화 온도 / 이름 없는 이야기. 사이트 전체에서 ‘공간’ 대신 ‘곳’을 씁니다.
+**서체** 고운바탕(제목·문장·글) + 프리텐다드(메뉴·표·버튼). CDN에서 불러옵니다.
 
 **구조 원칙**
-- 홈의 추천은 버튼 나열이 아니라 사용자의 문장입니다. 빈칸을 눌러 채우면 아래에 곳이 나오고, 시간 칸은 접속 시각으로 미리 채워집니다
+- 홈의 추천은 버튼 나열이 아니라 사용자의 문장입니다. 시간 칸은 접속 시각으로 미리 채워집니다
 - 게시글은 편지처럼 본문이 먼저, 끝에 "— 이름"으로 서명합니다
-- 목록은 카드가 아니라 표와 목차(점선 리더)입니다
+- 목록은 카드가 아니라 표와 목차입니다
+
+## 9. 플레이스 정보에 대하여
+
+등록된 곳은 언론 보도, 미쉐린 가이드, 공식 소개, 지역 매체 등 공개 자료를 바탕으로 정리한 것입니다. 운영시간·가격·입장 규칙은 자주 바뀌므로 각 페이지에 ‘방문 전 확인’ 문구를 두었습니다.
+
+조사 과정에서 폐업·영업중단이 확인된 곳은 등록하지 않았습니다. 운영이 불확실한 곳은 `notes` 에 확인이 필요하다고 적어 두었습니다. 틀린 정보를 발견하면 각 페이지의 ‘정보 수정 제안’으로 접수되고, 관리자 **제보** 탭에서 확인할 수 있습니다.
