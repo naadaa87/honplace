@@ -844,8 +844,9 @@ ${articles.map((a) => `  <item>
 </rss>
 `);
 
-  write('_redirects', `/space  /spaces  301
-/places  /spaces  301
+  /* /space 는 리다이렉트하지 않습니다. space.html 이 ?id= 를 읽어
+     /place/<id> 로 보내 주어야 옛 주소가 살아납니다. */
+  write('_redirects', `/places  /spaces  301
 /places.html  /spaces  301
 `);
 }
