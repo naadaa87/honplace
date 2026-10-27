@@ -5,7 +5,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { shell, SITE, BRAND, ICON, esc } from './shell.mjs';
+import { shell, SITE, BRAND, BIZ, ICON, esc } from './shell.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf-8'));
@@ -304,7 +304,7 @@ for (const s of spaces) {
 <article class="wrap read" data-space-id="${esc(s.id)}">
   <div class="sp-head">
     <div class="cat"><a href="/c/${s.cat}">${esc(c.label)}</a>${s.kind === 'type' ? '<span class="tag kind">유형</span>' : ''}</div>
-    <h1>${esc(s.name)}</h1>
+    <h1>${esc(s.name)}${s.host?.verified ? `<span class="hb-badge" title="운영자가 확인한 호스트">${ICON('i-check')}호스트 확인</span>` : ''}</h1>
     <div class="area">${esc(s.area)}</div>
     ${s.addr ? `<div class="addr">${esc(s.addr)}</div>` : ''}
   </div>
@@ -318,6 +318,19 @@ for (const s of spaces) {
     <h2>어떤 곳인가요</h2><p>${esc(s.intro)}</p>
     <h2>분위기와 문화</h2><p>${esc(s.culture)}</p>
     <h2>처음 가면</h2><p>${esc(s.first)}</p>
+    ${s.host?.note ? `<div class="host-box">
+      <div class="hb-head">
+        <span class="hb-badge">${ICON('i-check')}호스트 안내</span>
+        ${s.host.verified ? `<span class="hb-date">${esc(s.host.verified)} 확인</span>` : ''}
+      </div>
+      <h2 style="margin:0 0 10px">${esc(s.host.title || '운영자가 직접 쓴 안내')}</h2>
+      ${s.host.seats || s.host.hours ? `<dl>
+        ${s.host.seats ? `<dt>1인 좌석</dt><dd>${esc(s.host.seats)}</dd>` : ''}
+        ${s.host.hours ? `<dt>운영 시간</dt><dd>${esc(s.host.hours)}</dd>` : ''}
+      </dl>` : ''}
+      <p>${esc(s.host.note)}</p>
+      <div class="hb-foot">이 공간을 운영하는 분이 직접 적은 내용입니다. 혼플은 등급이나 순위를 매기지 않으며, 호스트 등록 여부는 혼자 지수·대화 온도에 영향을 주지 않습니다.${s.host.link ? ` <a href="${esc(s.host.link)}" target="_blank" rel="noopener nofollow">공식 채널</a>` : ''}</div>
+    </div>` : ''}
     ${s.notes?.length ? `<h2>알아 두면 좋아요</h2><ul>${s.notes.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}
     ${s.tags?.length ? `<div class="tags">${s.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}
     <div class="actions">
@@ -343,6 +356,16 @@ for (const s of spaces) {
   ${more.length ? `<h2>비슷한 곳</h2>${sheet(more, { cat: false })}<p style="margin:14px 0 24px"><a class="btn ghost sm" href="/c/${s.cat}">${esc(c.label)} 전부 보기</a></p>` : ''}
   ${sameArea.length ? `<h2>이 근처의 다른 곳</h2>${sheet(sameArea, { cat: true })}` : ''}
 </section>
+
+${s.kind === 'place' && !s.host?.verified ? `<section class="wrap read" style="padding:0 var(--gutter) 44px">
+  <div class="host-cta">
+    <div>
+      <b>이 공간을 운영하고 계신가요</b>
+      호스트로 등록하시면 혼자 오는 손님을 위한 안내를 직접 쓰고, 운영 정보를 바로잡고, 남겨진 후기에 답하실 수 있습니다. 등록과 이용은 무료입니다.
+    </div>
+    <a class="btn" href="/host">호스트 등록 안내</a>
+  </div>
+</section>` : ''}
 `
   }));
 }
@@ -573,6 +596,163 @@ write('board.html', shell({
 `
 }));
 
+/* ── 호스트 등록 ───────────────────────── */
+write('host.html', shell({
+  path: '/host', file: 'host.html',
+  title: '호스트 등록 — 공간을 운영하고 계신가요',
+  desc: '혼자 오는 손님을 받는 공간이라면 호스트로 등록하세요. 혼플에 공식 안내를 올리고, 운영 정보를 직접 고치고, 혼자 다녀간 손님의 이야기에 답할 수 있습니다.',
+  scripts: ['host.js'],
+  crumbs: [{ name: '호스트 등록', path: '/host' }],
+  ld: [faqLd([{ t: 'faq', x: [
+    { q: '호스트 등록은 유료인가요?', a: '아닙니다. 등록과 이용 모두 무료입니다. 광고비를 받고 순위를 올려 주는 구조가 아니기 때문에 비용을 받지 않습니다.' },
+    { q: '사업자등록번호를 왜 받나요?', a: '그 공간을 실제로 운영하는 분인지 확인하기 위해서입니다. 확인 용도로만 쓰고 사이트에 공개하지 않습니다.' },
+    { q: '등록하면 검색 순위가 올라가나요?', a: '올라가지 않습니다. 혼플은 공간에 등급이나 순위를 매기지 않습니다. 대신 혼자 오는 손님이 알아야 할 정보를 호스트가 직접 쓸 수 있습니다.' },
+    { q: '아직 혼플에 등록되지 않은 공간도 신청할 수 있나요?', a: '가능합니다. 신청 내용을 확인한 뒤 새로 등록해 드립니다.' },
+    { q: '확인에는 얼마나 걸리나요?', a: '보통 며칠 안에 적어 주신 메일로 연락드립니다.' }
+  ] }])],
+  body: `
+<section class="ph"><div class="wrap read">
+  <h1>공간을 운영하고 계신가요</h1>
+  <p>혼자 오는 손님을 받는 공간이라면 호스트로 등록하실 수 있습니다. 등록과 이용은 무료입니다.</p>
+</div></section>
+
+<div class="wrap read">
+  <div class="host-why">
+    <h2 class="sec">호스트가 되면</h2>
+    <div class="hw-list">
+      <div class="hw"><span class="hw-n">01</span><div>
+        <b>공식 안내를 직접 씁니다</b>
+        혼자 온 손님이 가장 궁금해하는 것은 ‘혼자 가도 되는지’입니다. 1인 좌석이 몇 개인지, 혼자 와도 편한 시간대가 언제인지, 1인 메뉴가 있는지를 호스트가 직접 적어 두면 손님이 망설이지 않습니다. 이 글은 익명 후기와 구분된 자리에 <b>호스트 안내</b>로 표시됩니다.
+      </div></div>
+      <div class="hw"><span class="hw-n">02</span><div>
+        <b>정보를 바로잡을 수 있습니다</b>
+        운영시간이나 가격이 바뀌면 알려 주세요. 혼플의 정보는 공개 자료를 바탕으로 정리한 것이라 실제와 다를 수 있습니다. 호스트가 알려 주는 정보가 가장 정확합니다.
+      </div></div>
+      <div class="hw"><span class="hw-n">03</span><div>
+        <b>손님의 이야기에 답할 수 있습니다</b>
+        혼자 다녀간 분들이 공간 페이지에 이름 없이 후기를 남깁니다. 인증된 호스트는 그 글에 답을 달 수 있습니다. 답글에는 호스트 표시가 붙습니다.
+      </div></div>
+      <div class="hw"><span class="hw-n">04</span><div>
+        <b>인증 표시가 붙습니다</b>
+        공간 페이지에 ‘호스트 확인’ 표시가 들어갑니다. 운영자가 직접 확인한 공간이라는 뜻입니다.
+      </div></div>
+    </div>
+  </div>
+
+  <div class="host-not">
+    <h2 class="sec">미리 말씀드립니다</h2>
+    <p>혼플은 공간에 <b>등급이나 순위를 매기지 않습니다.</b> 호스트로 등록해도 목록에서 위로 올라가지 않고, 광고비를 받고 노출을 올려 주는 자리도 없습니다. 혼자 지수와 대화 온도는 좋고 나쁨이 아니라 오늘 기분에 맞는 곳을 고르기 위한 표시이고, 이 기준은 호스트 등록 여부와 상관없이 같게 적용합니다.</p>
+    <p>호스트가 쓴 글은 <b>광고가 아니라 안내여야 합니다.</b> ‘맛있습니다’ ‘최고입니다’ 같은 홍보 문구보다, 혼자 온 손님이 문을 열기 전에 알고 싶은 사실을 적어 주세요. 그편이 실제로 손님을 데려옵니다.</p>
+  </div>
+
+  <h2 class="sec" id="form">신청하기</h2>
+  <p class="small muted" style="margin:0 0 18px">적어 주신 연락처는 확인과 회신에만 쓰고 사이트에 공개하지 않습니다. 자세한 내용은 <a href="/privacy">개인정보처리방침</a>을 봐 주세요.</p>
+
+  <form class="form" data-host-form>
+    <div class="field">
+      <label for="h-space">공간 이름 <span class="req">필수</span></label>
+      <input id="h-space" type="text" name="space_name" placeholder="가게 또는 공간의 정식 이름" required>
+      <p class="help" data-match></p>
+      <input type="hidden" name="space_id" value="">
+    </div>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="h-cat">종류</label>
+        <select id="h-cat" name="cat">
+          <option value="">고르지 않음</option>
+${categories.map((c) => `          <option value="${c.id}">${esc(c.label)}</option>`).join('\n')}
+        </select>
+      </div>
+      <div class="field">
+        <label for="h-area">동네 <small>시·구·동</small></label>
+        <input id="h-area" type="text" name="area" placeholder="예: 서울 마포구 연남동">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="h-addr">주소</label>
+      <input id="h-addr" type="text" name="addr" placeholder="도로명 주소">
+    </div>
+
+    <div class="field">
+      <label for="h-biz">사업자등록번호 <span class="req">필수</span></label>
+      <input id="h-biz" type="text" name="biz_no" inputmode="numeric" placeholder="000-00-00000" required>
+      <p class="help">실제 운영자인지 확인하는 용도로만 씁니다. 사이트에 공개하지 않습니다.</p>
+    </div>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="h-owner">담당자 이름 <span class="req">필수</span></label>
+        <input id="h-owner" type="text" name="owner_name" placeholder="연락받으실 분" required>
+      </div>
+      <div class="field">
+        <label for="h-email">이메일 <span class="req">필수</span></label>
+        <input id="h-email" type="email" name="email" placeholder="회신받을 주소" required>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="field">
+        <label for="h-phone">연락처 <small>선택</small></label>
+        <input id="h-phone" type="text" name="phone" inputmode="tel" placeholder="전화번호">
+      </div>
+      <div class="field">
+        <label for="h-link">홈페이지·SNS <small>선택</small></label>
+        <input id="h-link" type="text" name="link" placeholder="인스타그램 주소 등">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="h-seats">1인 좌석 <small>선택</small></label>
+      <input id="h-seats" type="text" name="solo_seats" placeholder="예: 카운터 6석, 창가 1인석 2자리">
+    </div>
+
+    <div class="field">
+      <label for="h-note">혼자 오는 손님을 위한 안내 <span class="req">필수</span></label>
+      <textarea id="h-note" name="solo_note" required placeholder="예: 바 좌석이 여섯 자리 있고 평일 저녁에는 대부분 혼자 오십니다. 주문은 자리에서 QR로 하시면 되고 말을 걸지 않습니다. 주말 7시 이후에는 일행 손님이 많아 혼자 오시기엔 평일이 편합니다."></textarea>
+      <p class="help">혼자 온 손님이 문을 열기 전에 알고 싶은 것을 적어 주세요. 이 내용이 공간 페이지의 호스트 안내로 들어갑니다.</p>
+    </div>
+
+    <div class="field">
+      <label for="h-msg">하고 싶은 말 <small>선택</small></label>
+      <textarea id="h-msg" name="message" placeholder="고쳤으면 하는 정보, 궁금한 점 등"></textarea>
+    </div>
+
+    <label class="agree">
+      <input type="checkbox" data-agree required>
+      <span>개인정보 수집·이용에 동의합니다. 담당자 이름·연락처·사업자등록번호를 호스트 확인과 회신 목적으로 수집하며, 확인 완료 또는 철회 시까지 보관합니다. 동의를 거부하실 수 있으나 그 경우 호스트 등록이 어렵습니다. <a href="/privacy" target="_blank" rel="noopener">자세히</a></span>
+    </label>
+
+    <div class="submit">
+      <button class="btn lamp" type="submit">신청 보내기</button>
+      <a class="small muted" href="/spaces">그만두기</a>
+    </div>
+    <p class="form-err hide" data-err></p>
+  </form>
+
+  <div class="form hide" data-host-done>
+    <div class="ok"><b>신청을 받았습니다.</b>적어 주신 메일로 확인 결과를 알려 드리겠습니다. 보통 며칠 안에 연락드립니다.
+      <p class="hide small" data-done-demo style="margin:10px 0 0;color:var(--honey)">지금은 체험 모드라 이 기기에만 저장되었습니다. 데이터베이스 연결 후에는 운영자에게 바로 전달됩니다.</p>
+    </div>
+    <div class="submit"><a class="btn ghost" href="/spaces">플레이스 둘러보기</a><a class="btn ghost" href="/">처음으로</a></div>
+  </div>
+
+  <h2 class="sec">자주 묻는 것</h2>
+  <div class="faq">
+    <details><summary>호스트 등록은 유료인가요?</summary><p>아닙니다. 등록과 이용 모두 무료입니다. 광고비를 받고 순위를 올려 주는 구조가 아니기 때문에 비용을 받지 않습니다.</p></details>
+    <details><summary>사업자등록번호를 왜 받나요?</summary><p>그 공간을 실제로 운영하는 분인지 확인하기 위해서입니다. 확인 용도로만 쓰고 사이트에 공개하지 않습니다.</p></details>
+    <details><summary>등록하면 검색 순위가 올라가나요?</summary><p>올라가지 않습니다. 혼플은 공간에 등급이나 순위를 매기지 않습니다. 대신 혼자 오는 손님이 알아야 할 정보를 호스트가 직접 쓸 수 있습니다.</p></details>
+    <details><summary>아직 혼플에 등록되지 않은 공간도 신청할 수 있나요?</summary><p>가능합니다. 신청 내용을 확인한 뒤 새로 등록해 드립니다.</p></details>
+    <details><summary>확인에는 얼마나 걸리나요?</summary><p>보통 며칠 안에 적어 주신 메일로 연락드립니다.</p></details>
+    <details><summary>등록을 취소하고 싶으면요?</summary><p>문의 메일로 알려 주시면 호스트 정보와 수집한 연락처를 지워 드립니다.</p></details>
+  </div>
+
+  <p class="small muted" style="margin:28px 0 40px">손님으로서 좋았던 곳을 알려 주시려면 <a href="/submit">플레이스 알려 주기</a>를 이용해 주세요. 그쪽은 이름을 묻지 않습니다.</p>
+</div>
+`
+}));
+
 write('submit.html', shell({
   path: '/submit', file: 'submit.html',
   title: '혼자 가기 좋은 플레이스 알려 주기',
@@ -697,7 +877,7 @@ write('terms.html', shell({
   <h1>이용약관</h1>
   <p class="small muted">시행일 2026년 (월) (일). 초안이며 법률 검토 후 확정합니다.</p>
   <h2>1. 서비스</h2>
-  <p>혼플(이하 ‘서비스’)은 혼자 이용할 수 있는 곳과 활동에 대한 정보를 제공하고, 이용자가 익명으로 글을 남길 수 있는 게시판을 운영합니다. 서비스는 회원 가입 없이 누구나 이용할 수 있습니다.</p>
+  <p>혼플(이하 ‘서비스’)은 ${BIZ.company}가 운영하며, 혼자 이용할 수 있는 곳과 활동에 대한 정보를 제공하고 이용자가 익명으로 글을 남길 수 있는 게시판을 운영합니다. 서비스는 회원 가입 없이 누구나 이용할 수 있습니다.</p>
   <h2>2. 정보의 성격</h2>
   <p>플레이스 정보는 공개된 자료와 이용자 제보를 바탕으로 작성되며, 운영자는 그 정확성과 최신성을 보증하지 않습니다. 운영 시간, 가격, 입장 조건 등은 방문 전 이용자가 직접 확인해야 합니다. 서비스는 특정 장소의 이용을 권유하거나 보증하지 않으며, 이용 과정에서 발생한 손해에 대해 책임지지 않습니다.</p>
   <h2>3. 게시물</h2>
@@ -710,39 +890,88 @@ write('terms.html', shell({
     <li>법령이나 공공질서에 어긋나는 내용</li>
   </ul>
   <p>게시물의 저작권은 작성자에게 있으며, 작성자는 서비스가 게시물을 서비스 내에 게시·보관하는 것을 허락합니다. 익명 게시물의 특성상 작성자 본인 확인이 어려우므로, 게시 후 수정·삭제 요청은 처리하지 못할 수 있습니다.</p>
-  <h2>4. 이용자의 책임</h2>
+  <h2>4. 호스트 등록</h2>
+  <p>공간을 운영하는 자(이하 ‘호스트’)는 호스트 등록을 신청할 수 있습니다. 등록과 이용에는 비용이 들지 않습니다.</p>
+  <ul>
+    <li>신청자는 해당 공간을 실제로 운영할 권한이 있어야 하며, 운영자는 사업자등록번호 등으로 이를 확인합니다. 허위 신청이 확인되면 인증을 취소하고 등록을 거부할 수 있습니다.</li>
+    <li>인증된 호스트는 자신의 공간 페이지에 공식 안내를 게재하고 운영 정보의 정정을 요청할 수 있으며, 그 공간에 달린 익명 후기에 호스트 표시가 붙은 답글을 남길 수 있습니다.</li>
+    <li>호스트가 제공한 정보의 정확성에 대한 책임은 호스트에게 있습니다. 허위·과장 표현, 다른 공간에 대한 비방, 혼자 방문과 무관한 홍보성 내용은 게재를 거부하거나 삭제할 수 있습니다.</li>
+    <li><b>호스트 등록은 노출 순서나 평가에 영향을 주지 않습니다.</b> 운영자는 대가를 받고 특정 공간의 노출을 올리거나 평가를 조정하지 않습니다. 혼자 지수와 대화 온도는 호스트 등록 여부와 무관하게 같은 기준으로 적용합니다.</li>
+    <li>호스트는 언제든 등록 해지를 요청할 수 있으며, 해지 시 호스트 안내와 수집된 연락처를 삭제합니다.</li>
+  </ul>
+
+  <h2>5. 이용자의 책임</h2>
   <p>이용자는 게시물에 대한 법적 책임을 스스로 집니다. 서비스는 이용자 간 분쟁에 개입하지 않습니다.</p>
-  <h2>5. 서비스의 변경과 중단</h2>
+  <h2>6. 서비스의 변경과 중단</h2>
   <p>운영자는 서비스의 내용을 변경하거나 운영을 중단할 수 있으며, 중요한 변경은 서비스 내에 공지합니다.</p>
-  <h2>6. 준거법</h2>
-  <p>이 약관은 대한민국 법률에 따릅니다.</p>
+  <h2>7. 운영자</h2>
+  <p>${BIZ.company} &nbsp;·&nbsp; 대표 ${BIZ.ceo} &nbsp;·&nbsp; 사업자등록번호 ${BIZ.bizNo}<br>${BIZ.addr}<br>문의 <a href="mailto:${BIZ.email}">${BIZ.email}</a></p>
+
+  <h2>8. 준거법</h2>
+  <p>이 약관은 대한민국 법률에 따릅니다. 서비스 이용과 관련한 분쟁은 운영자의 주소지를 관할하는 법원을 전속 관할로 합니다.</p>
 </article>
 `
 }));
 
 write('privacy.html', shell({
-  path: '/privacy', file: 'privacy.html', title: '개인정보처리방침', desc: `혼플은 회원 가입을 받지 않고 개인정보를 요구하지 않습니다. 수집하지 않는 것, 처리하는 정보, 보관과 삭제 기준을 정리했습니다.`,
+  path: '/privacy', file: 'privacy.html', title: '개인정보처리방침',
+  desc: `혼플의 개인정보처리방침 — 일반 이용자에게는 개인정보를 요구하지 않으며, 호스트 등록 신청에 한해 수집하는 항목과 목적, 보유 기간을 정리했습니다.`,
   crumbs: [{ name: '개인정보처리방침', path: '/privacy' }],
   body: `
 <article class="prose wrap read">
   <h1>개인정보처리방침</h1>
-  <p class="small muted">시행일 2026년 (월) (일). 초안이며 법률 검토 후 확정합니다.</p>
-  <h2>1. 수집하지 않는 것</h2>
-  <p>혼플은 회원 가입을 받지 않으며, 이름·이메일·전화번호·프로필 같은 개인정보를 요구하지 않습니다. 게시물에 붙는 이름은 이용자의 기기에서 무작위로 만들어지는 임시 이름이며, 특정 개인과 연결되지 않습니다.</p>
-  <h2>2. 처리하는 정보</h2>
+  <p class="small muted">시행일 2026년 (월) (일). 초안이며 법률 검토 후 확정합니다. 운영자 ${BIZ.company}(이하 ‘회사’)는 아래와 같이 개인정보를 처리합니다.</p>
+
+  <h2>1. 일반 이용자에게는 개인정보를 요구하지 않습니다</h2>
+  <p>플레이스를 찾아보고, 글을 읽고, 익명 게시판에 글을 남기는 데는 회원 가입이 필요하지 않습니다. 이름·이메일·전화번호·프로필을 요구하지 않습니다. 게시물에 붙는 이름은 이용자의 기기에서 무작위로 만들어지는 임시 이름이며 특정 개인과 연결되지 않습니다.</p>
+
+  <h2>2. 호스트 등록 신청 시 수집하는 개인정보</h2>
+  <p>공간 운영자가 <a href="/host">호스트 등록</a>을 신청하는 경우에 한해 아래 정보를 수집합니다. 신청은 선택이며, 신청하지 않으면 수집하지 않습니다.</p>
+  <table class="pv-table">
+    <thead><tr><th>구분</th><th>항목</th><th>목적</th><th>보유 기간</th></tr></thead>
+    <tbody>
+      <tr><td>필수</td><td>담당자 이름, 이메일, 사업자등록번호</td><td>호스트 자격 확인, 심사 결과 회신</td><td>인증 해지 또는 삭제 요청 시까지</td></tr>
+      <tr><td>선택</td><td>전화번호, 홈페이지·SNS 주소</td><td>확인 과정의 연락</td><td>인증 해지 또는 삭제 요청 시까지</td></tr>
+      <tr><td>자동</td><td>접속 IP의 해시값</td><td>중복·악용 신청 방지</td><td>수집 시점부터 최대 6개월</td></tr>
+    </tbody>
+  </table>
+  <p>공간 이름·주소·운영 정보 등 공간에 관한 내용은 개인정보가 아니며, 인증 후 사이트에 공개될 수 있습니다. <b>담당자 이름·연락처·사업자등록번호는 사이트에 공개하지 않습니다.</b></p>
+  <p>이용자는 개인정보 수집·이용에 동의하지 않을 권리가 있습니다. 다만 필수 항목에 동의하지 않으면 호스트 등록 심사가 어렵습니다.</p>
+
+  <h2>3. 게시판 운영을 위해 처리하는 정보</h2>
   <ul>
     <li>게시물 내용, 게시 시각, 임시 이름은 게시판 운영을 위해 저장합니다.</li>
-    <li>접속 IP를 복원할 수 없는 형태(해시)로 변환한 값은 도배와 악용을 막기 위한 목적으로만 짧은 기간 보관하며, 원래 IP는 저장하지 않습니다.</li>
+    <li>접속 IP를 복원할 수 없는 형태(해시)로 변환한 값은 도배와 악용을 막기 위한 목적으로만 보관하며, 원래 IP는 저장하지 않습니다.</li>
     <li>기기에 저장되는 정보(localStorage)인 임시 이름, 반응 기록 등은 이용자의 브라우저에만 저장되며 서버로 전송되지 않습니다. 브라우저 데이터를 지우면 함께 삭제됩니다.</li>
   </ul>
-  <h2>3. 제3자 서비스</h2>
-  <p>웹 글꼴 제공을 위해 외부 CDN을 사용하며, 지도 보기는 외부 지도 서비스로 연결됩니다. 각 서비스의 개인정보 처리는 해당 서비스의 방침을 따릅니다. 별도의 광고 추적 도구를 사용하지 않습니다.</p>
-  <h2>4. 보관과 삭제</h2>
-  <p>게시물은 서비스 운영 기간 동안 보관합니다. 신고가 접수된 게시물은 확인 후 삭제할 수 있습니다. 게시물 삭제 요청은 아래 문의처로 보내 주시되, 익명 게시물의 특성상 작성자 확인이 어려워 처리하지 못할 수 있습니다.</p>
-  <h2>5. 아동의 이용</h2>
-  <p>혼플은 주류 관련 장소 정보를 포함하므로 만 19세 미만의 이용을 권장하지 않습니다.</p>
-  <h2>6. 문의</h2>
-  <p>개인정보 관련 문의: hello@example.com (오픈 전 교체)</p>
+
+  <h2>4. 제3자 제공과 처리 위탁</h2>
+  <p>회사는 수집한 개인정보를 제3자에게 제공하지 않습니다. 다만 서비스 운영을 위해 아래와 같이 처리를 위탁하고 있습니다.</p>
+  <ul>
+    <li><b>Cloudflare, Inc.</b> — 웹사이트 호스팅과 데이터 보관. 데이터는 국외 서버에 저장될 수 있습니다.</li>
+  </ul>
+  <p>웹 글꼴은 외부 CDN에서 불러오며, 지도 보기는 외부 지도 서비스로 연결됩니다. 각 서비스의 개인정보 처리는 해당 서비스의 방침을 따릅니다. 광고 추적 도구는 사용하지 않습니다.</p>
+
+  <h2>5. 파기</h2>
+  <p>보유 기간이 지나거나 처리 목적이 달성된 개인정보는 지체 없이 파기합니다. 전자적 파일은 복구할 수 없는 방법으로 삭제합니다.</p>
+
+  <h2>6. 이용자의 권리</h2>
+  <p>이용자는 자신의 개인정보에 대해 열람·정정·삭제·처리정지를 요구할 수 있습니다. 아래 문의처로 연락하시면 지체 없이 처리합니다. 다만 익명 게시물은 작성자 확인이 어려워 요청을 처리하지 못할 수 있습니다.</p>
+
+  <h2>7. 안전조치</h2>
+  <p>개인정보에 접근할 수 있는 인원을 최소한으로 제한하고, 전송 구간은 암호화(HTTPS)하며, 접속 IP는 복원할 수 없는 해시로만 보관합니다.</p>
+
+  <h2>8. 아동의 이용</h2>
+  <p>혼플은 주류 관련 장소 정보를 포함하므로 만 19세 미만의 이용을 권장하지 않습니다. 만 14세 미만 아동의 개인정보는 수집하지 않습니다.</p>
+
+  <h2>9. 개인정보보호책임자</h2>
+  <p>성명 ${BIZ.privacyOfficer}<br>
+  소속 ${BIZ.company}<br>
+  이메일 <a href="mailto:${BIZ.email}">${BIZ.email}</a>${BIZ.phone ? `<br>전화 ${BIZ.phone}` : ''}</p>
+  <p>개인정보 침해에 대한 신고나 상담이 필요하시면 개인정보침해신고센터(privacy.kisa.or.kr, 118), 개인정보분쟁조정위원회(kopico.go.kr, 1833-6972), 대검찰청 사이버수사과(1301), 경찰청 사이버수사국(182)으로 문의하실 수 있습니다.</p>
+
+  <h2>10. 방침의 변경</h2>
+  <p>이 방침이 변경되는 경우 시행 7일 전부터 사이트에 공지합니다. 다만 이용자 권리에 중대한 영향을 주는 변경은 30일 전에 공지합니다.</p>
 </article>
 `
 }));
@@ -788,6 +1017,7 @@ write('admin.html', shell({
     { loc: '/guide', pri: '0.8', freq: 'weekly' },
     { loc: '/board', pri: '0.7', freq: 'daily' },
     { loc: '/about', pri: '0.5', freq: 'monthly' },
+    { loc: '/host', pri: '0.6', freq: 'monthly' },
     { loc: '/submit', pri: '0.4', freq: 'monthly' },
     { loc: '/terms', pri: '0.2', freq: 'yearly' },
     { loc: '/privacy', pri: '0.2', freq: 'yearly' },

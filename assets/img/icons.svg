@@ -68,4 +68,15 @@
   <symbol id="i-no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
     <circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/>
   </symbol>
+
+  <!-- 호스트 확인 배지 -->
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 12.5l5.5 5.5L20 6.5"/>
+  </symbol>
+
+  <!-- 호스트 -->
+  <symbol id="nav-host" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 10.5 12 4l9 6.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/>
+  </symbol>
+
 </svg>

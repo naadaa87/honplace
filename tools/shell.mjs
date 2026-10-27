@@ -9,6 +9,22 @@
 export const SITE = 'https://honplace.com';
 export const BRAND = '혼플';
 export const TAGLINE = '혼자 가기 좋은 플레이스';
+
+/* 운영 사업자 정보 — 사업자등록증 기준.
+   푸터·이용약관·개인정보처리방침이 모두 이 값을 씁니다. 바뀌면 여기만 고치세요.
+   ※ 전화번호는 공개 여부를 운영자가 정하도록 비워 두었습니다.
+      넣으려면 phone 값을 채우고 빌드하면 푸터와 방침에 함께 표시됩니다. */
+export const BIZ = {
+  company: '주식회사 블랭크',
+  ceo: '최시준',
+  bizNo: '161-86-03494',
+  corpNo: '110111-9085609',
+  addr: '서울특별시 강남구 영동대로 602, 6층 제트71(삼성동, 삼성동 미켈란 107)',
+  email: 'spaceblank0100@gmail.com',
+  phone: '',
+  privacyOfficer: '최시준',
+  opened: '2025년 1월 2일'
+};
 export const ICON = (id, cls = '') => `<svg class="${cls}" aria-hidden="true"><use href="/assets/img/icons.svg#${id}"></use></svg>`;
 
 export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -137,9 +153,15 @@ ${o.body}
   </div>
   <nav class="links" aria-label="푸터 메뉴">
     <a href="/spaces">플레이스 찾기</a><a href="/guide">혼자 하는 법</a><a href="/magazine">매거진</a><a href="/board">이름 없는 이야기</a><a href="/about">소개</a>
-    <a href="/submit">플레이스 알려 주기</a><a href="/about#rules">게시판 규칙</a><a href="/terms">이용약관</a><a href="/privacy">개인정보처리방침</a>
+    <a href="/submit">플레이스 알려 주기</a><a href="/host">호스트 등록</a><a href="/about#rules">게시판 규칙</a><a href="/terms">이용약관</a><a href="/privacy">개인정보처리방침</a>
   </nav>
-  <div class="legal">운영 (회사명) &nbsp; 대표 (이름) &nbsp; 사업자등록번호 000-00-00000 &nbsp; 문의 hello@example.com<br>플레이스 정보는 공개 자료와 방문자 제보를 바탕으로 하며, 운영 시간과 규칙은 방문 전 확인이 필요합니다. © ${new Date().getFullYear()} ${BRAND}</div>
+  <div class="legal">
+    <p>혼플은 <b>주식회사 블랭크</b>가 운영합니다.</p>
+    <p>대표 ${BIZ.ceo} &nbsp;·&nbsp; 사업자등록번호 ${BIZ.bizNo} &nbsp;·&nbsp; 법인등록번호 ${BIZ.corpNo}<br>
+    ${BIZ.addr}<br>
+    개인정보보호책임자 ${BIZ.privacyOfficer} &nbsp;·&nbsp; 문의 <a href="mailto:${BIZ.email}">${BIZ.email}</a></p>
+    <p>플레이스 정보는 공개 자료와 방문자·호스트 제보를 바탕으로 하며, 운영 시간과 규칙은 방문 전 확인이 필요합니다.<br>© ${new Date().getFullYear()} ${BRAND}. All rights reserved.</p>
+  </div>
 </div></footer>
 ${o.noTab ? '' : `<nav class="tabbar" aria-label="하단 메뉴">
   <a href="/">${ICON('nav-home')}<span>홈</span></a>

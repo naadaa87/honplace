@@ -79,3 +79,32 @@ INSERT OR IGNORE INTO comments (id, post_id, nickname, body, created_at) VALUES
 ('c-11-1','seed-11','세 번째 잔','안 나간 날도 괜찮아요.','2026-08-29T00:35:00+09:00'),
 ('c-12-1','seed-12','을지로 이층','매장마다 달라요. 입장 인원 제한하고 사장이 이상한 사람 바로 막아주는 데는 괜찮았고, 음악 크고 성비 안 맞는 데는 별로였어요. 후기 먼저 보고 가세요.','2026-08-28T19:40:00+09:00'),
 ('c-12-2','seed-12','카운터 끝','대화 목적이 아니면 북바나 재즈바가 더 편해요. 아무도 말 안 걸어요.','2026-08-28T20:15:00+09:00');
+
+-- ─────────────────────────────────────────────
+-- 호스트 등록
+-- 공간을 운영하는 사람이 신청하고, 운영자가 확인한 뒤 '인증 호스트'가 됩니다.
+-- status: new(접수) → reviewing(확인 중) → verified(인증 완료) / rejected(반려)
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS hosts (
+  id            TEXT PRIMARY KEY,
+  space_id      TEXT,                     -- 이미 혼플에 등록된 플레이스면 그 id
+  space_name    TEXT NOT NULL,            -- 공간 이름
+  cat           TEXT,                     -- honsul | honbap | cafe | culture | move | rest | learn | social
+  area          TEXT,                     -- 동네
+  addr          TEXT,                     -- 주소
+  biz_no        TEXT,                     -- 사업자등록번호 (호스트 확인용)
+  owner_name    TEXT NOT NULL,            -- 담당자 이름
+  phone         TEXT,                     -- 연락처
+  email         TEXT NOT NULL,            -- 회신받을 메일
+  link          TEXT,                     -- 홈페이지·인스타그램 등
+  solo_seats    TEXT,                     -- 1인 좌석 안내 (예: 카운터 6석)
+  solo_note     TEXT,                     -- 혼자 오는 손님을 위한 안내
+  message       TEXT,                     -- 운영자에게 하고 싶은 말
+  status        TEXT NOT NULL DEFAULT 'new',
+  admin_memo    TEXT,                     -- 운영자 메모
+  verified_at   TEXT,                     -- 인증 완료 시각
+  ip_hash       TEXT,
+  created_at    TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_hosts_status ON hosts (status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_hosts_space ON hosts (space_id);

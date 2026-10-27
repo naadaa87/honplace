@@ -45,6 +45,7 @@
     ['posts', '글 관리'],
     ['reported', '신고'],
     ['subs', '제보'],
+    ['hosts', '호스트'],
     ['places', '플레이스'],
     ['help', '도움말']
   ];
@@ -80,6 +81,7 @@
         ${tile('신고 대기', s.reported, s.reported ? '확인이 필요합니다' : '없음')}
         ${tile('제보 대기', s.subsNew, `전체 제보 ${s.subsAll}`)}
         ${tile('답글', s.comments)}
+        ${tile('호스트 신청 대기', s.hostsNew ?? 0, `인증 완료 ${s.hostsVerified ?? 0}곳`)}
         ${tile('등록 플레이스', cache.places ? cache.places.length : '—', '플레이스 탭에서 확인')}
       </div>
 
@@ -274,6 +276,102 @@
     });
   }
 
+  /* ── 호스트 ───────────────────────────── */
+  let hostStatus = 'pending';
+  const HST = { new: '접수', reviewing: '확인 중', verified: '인증 완료', rejected: '반려' };
+  async function viewHosts() {
+    const { hosts } = await api('what=hosts&status=' + hostStatus);
+    const CATL = { honsul: '혼술', honbap: '혼밥', cafe: '카페·서점', culture: '영화·전시·공연', move: '몸 쓰기', rest: '쉬기', learn: '배우기', social: '가벼운 모임' };
+    const biz = (n) => (n || '').replace(/^(\d{3})(\d{2})(\d{5})$/, '$1-$2-$3');
+    const cards = hosts.map((h) => `
+      <article class="ad-card" data-host="${H.esc(h.id)}">
+        <div class="ad-card-h">
+          <b>${H.esc(h.space_name)}</b>
+          ${h.cat ? `<span class="tag">${CATL[h.cat] || h.cat}</span>` : ''}
+          ${h.space_id ? `<a class="tag kind" href="/place/${encodeURIComponent(h.space_id)}" target="_blank" rel="noopener">등록된 플레이스</a>` : '<span class="tag">신규</span>'}
+          <span class="muted small">${fmt(h.created_at)}</span>
+          <span class="ad-status s-${h.status === 'verified' ? 'ok' : h.status === 'rejected' ? 'no' : 'new'}">${HST[h.status] || h.status}</span>
+        </div>
+        <dl class="ad-dl">
+          <dt>담당자</dt><dd>${H.esc(h.owner_name)}</dd>
+          <dt>이메일</dt><dd><a href="mailto:${H.esc(h.email)}">${H.esc(h.email)}</a></dd>
+          ${h.phone ? `<dt>연락처</dt><dd>${H.esc(h.phone)}</dd>` : ''}
+          <dt>사업자번호</dt><dd>${H.esc(biz(h.biz_no))}</dd>
+          ${h.area ? `<dt>동네</dt><dd>${H.esc(h.area)}</dd>` : ''}
+          ${h.addr ? `<dt>주소</dt><dd>${H.esc(h.addr)}</dd>` : ''}
+          ${h.solo_seats ? `<dt>1인 좌석</dt><dd>${H.esc(h.solo_seats)}</dd>` : ''}
+          ${h.link ? `<dt>채널</dt><dd><a href="${H.esc(h.link)}" target="_blank" rel="noopener nofollow">${H.esc(h.link)}</a></dd>` : ''}
+        </dl>
+        <p class="ad-note"><b>혼자 오는 손님 안내</b>${H.esc(h.solo_note)}</p>
+        ${h.message ? `<p class="ad-note muted"><b>하고 싶은 말</b>${H.esc(h.message)}</p>` : ''}
+        ${h.admin_memo ? `<p class="ad-memo">메모: ${H.esc(h.admin_memo)}</p>` : ''}
+        <div class="ad-card-f">
+          <a class="btn ghost sm" href="https://map.naver.com/p/search/${encodeURIComponent((h.space_name || '') + ' ' + (h.area || ''))}" target="_blank" rel="noopener">지도 확인</a>
+          <a class="btn ghost sm" href="https://www.ftc.go.kr/bizCommPop.do?wrkr_no=${H.esc((h.biz_no || '').replace(/\D/g, ''))}" target="_blank" rel="noopener">사업자 조회</a>
+          <button class="btn ghost sm" data-host-json>spaces.json 조각 복사</button>
+          <span class="sp"></span>
+          ${h.status !== 'reviewing' ? '<button class="btn ghost sm" data-hs="reviewing">확인 중</button>' : ''}
+          ${h.status !== 'verified' ? '<button class="btn lamp sm" data-hs="verified">인증 승인</button>' : ''}
+          ${h.status !== 'rejected' ? '<button class="btn ghost sm danger" data-hs="rejected">반려</button>' : ''}
+        </div>
+      </article>`).join('');
+
+    return `
+      <div class="ad-filters">
+        <div class="chips">
+          ${[['pending', '대기'], ['verified', '인증 완료'], ['rejected', '반려'], ['all', '전체']].map(([v, l]) =>
+            `<button class="chip${hostStatus === v ? ' on' : ''}" data-hoststatus="${v}">${l}</button>`).join('')}
+        </div>
+      </div>
+      <p class="muted small" style="margin:0 0 16px">승인하기 전에 지도와 사업자 조회로 실재하는 공간인지 확인하세요. 승인한 뒤에는 ‘spaces.json 조각 복사’로 받은 내용을 플레이스 탭에 붙여 넣고 빌드해야 공간 페이지에 호스트 안내가 나옵니다.</p>
+      ${cards || '<p class="muted" style="padding:24px 0">해당하는 신청이 없습니다.</p>'}`;
+  }
+
+  function bindHosts() {
+    const body = H.qs('[data-body]');
+    H.qsa('[data-hoststatus]', body).forEach((b) => b.onclick = () => { hostStatus = b.dataset.hoststatus; render(); });
+    body.addEventListener('click', async (e) => {
+      const card = e.target.closest('[data-host]'); if (!card) return;
+      const id = card.dataset.host;
+
+      const st = e.target.closest('[data-hs]');
+      if (st) {
+        const to = st.dataset.hs;
+        if (to === 'verified' && !confirm('이 공간을 인증 호스트로 승인합니다. 실재하는 공간인지 확인하셨나요?')) return;
+        const memo = to === 'rejected' ? (prompt('반려 사유를 적어 두세요(선택). 신청자에게 자동 발송되지는 않습니다.') || '') : '';
+        await post({ action: 'host', id, status: to, memo });
+        H.toast(to === 'verified' ? '인증 승인했습니다' : to === 'rejected' ? '반려했습니다' : '확인 중으로 바꿨습니다');
+        render();
+        return;
+      }
+
+      if (e.target.closest('[data-host-json]')) {
+        const get = (k) => {
+          const dt = H.qsa('.ad-dl dt', card).map((x) => x.textContent);
+          const dd = H.qsa('.ad-dl dd', card).map((x) => x.textContent.trim());
+          return dd[dt.indexOf(k)] || '';
+        };
+        const name = H.qs('.ad-card-h b', card).textContent;
+        const note = (H.qs('.ad-note', card)?.textContent || '').replace(/^혼자 오는 손님 안내\s*/, '').trim();
+        const today = new Date().toISOString().slice(0, 10);
+        const frag = {
+          host: {
+            verified: today,
+            title: '운영자가 직접 쓴 안내',
+            seats: get('1인 좌석'),
+            hours: '',
+            note,
+            link: get('채널')
+          }
+        };
+        navigator.clipboard.writeText(
+          `// ${name} 의 spaces.json 항목 안에 아래 "host" 를 넣으세요\n` + JSON.stringify(frag, null, 2).replace(/^\{\n|\n\}$/g, '')
+        ).then(() => H.toast('복사했습니다. 플레이스 탭에서 해당 항목에 붙여 넣으세요'))
+         .catch(() => H.toast('복사에 실패했습니다'));
+      }
+    });
+  }
+
   /* ── 플레이스 ─────────────────────────── */
   async function viewPlaces() {
     if (!cache.places) {
@@ -372,6 +470,7 @@
         <tr><td><b>글 관리</b></td><td>전체 글 검색·필터, 숨기기·복구·삭제, 답글 확인과 삭제, 여러 건 한 번에 처리</td></tr>
         <tr><td><b>신고</b></td><td>신고가 쌓인 글만 모아 보기. 신고 3건이면 자동으로 숨겨집니다</td></tr>
         <tr><td><b>제보</b></td><td>방문자가 보낸 플레이스 제보와 정보 수정 제안. 처리 상태를 바꾸고 등록용 JSON 조각을 복사할 수 있습니다</td></tr>
+        <tr><td><b>호스트</b></td><td>공간 운영자의 등록 신청 심사. 지도·사업자 조회로 실재 확인 후 승인·반려</td></tr>
         <tr><td><b>플레이스</b></td><td>등록 현황 확인과 spaces.json 편집·내려받기</td></tr>
       </tbody></table>
 
@@ -380,6 +479,7 @@
         <li><b>매일</b> — 대시보드에서 신고 대기 숫자만 확인합니다. 0이면 할 일이 없습니다.</li>
         <li><b>신고가 있으면</b> — 신고 탭에서 내용을 읽고 숨기기 또는 복구를 누릅니다. 명백한 광고·비방은 삭제합니다.</li>
         <li><b>제보가 쌓이면</b> — 제보 탭에서 지도로 실재를 확인하고, 쓸 만하면 JSON 조각을 복사해 플레이스 탭에서 붙여 넣습니다.</li>
+        <li><b>호스트 신청이 오면</b> — 호스트 탭에서 지도와 사업자 조회로 실재하는 공간인지 확인하고, 맞으면 인증 승인합니다. 그다음 ‘spaces.json 조각 복사’로 받은 host 블록을 플레이스 탭의 해당 항목에 붙여 넣고 빌드하면 공간 페이지에 호스트 안내가 나옵니다.</li>
         <li><b>플레이스를 늘리면</b> — spaces.json 을 내려받아 깃허브에 덮어쓰고, 저장소에서 빌드를 한 번 돌립니다.</li>
       </ol>
 
@@ -389,6 +489,7 @@
         <li>익명 게시판이라 작성자를 특정할 수 없습니다. IP는 복원 불가능한 해시로만 저장됩니다.</li>
         <li>관리자 키는 이 브라우저에만 저장됩니다. 공용 PC에서는 나갈 때 ‘키 지우기’를 누르세요.</li>
         <li>이 주소는 검색에 노출되지 않도록 설정되어 있지만, 주소 자체가 비밀은 아닙니다. 키를 길게 만드세요.</li>
+        <li>호스트 신청에는 담당자 이름·연락처·사업자등록번호 같은 개인정보가 들어 있습니다. 화면을 공유하거나 캡처할 때 주의하고, 처리가 끝난 신청은 주기적으로 정리하세요.</li>
       </ul>`;
   }
 
@@ -398,6 +499,7 @@
     if (cache.stats) {
       if (cache.stats.stats.reported) badge.reported = cache.stats.stats.reported;
       if (cache.stats.stats.subsNew) badge.subs = cache.stats.stats.subsNew;
+      if (cache.stats.stats.hostsNew) badge.hosts = cache.stats.stats.hostsNew;
     }
     frame('<div class="sk">불러오는 중</div>', badge);
     try {
@@ -405,6 +507,7 @@
       else if (tab === 'posts') { setBody(await viewPosts(false)); bindPosts(); }
       else if (tab === 'reported') { setBody(await viewPosts(true)); bindPosts(); }
       else if (tab === 'subs') { setBody(await viewSubs()); bindSubs(); }
+      else if (tab === 'hosts') { setBody(await viewHosts()); bindHosts(); }
       else if (tab === 'places') { setBody(await viewPlaces()); bindPlaces(); }
       else setBody(viewHelp());
     } catch (e) {

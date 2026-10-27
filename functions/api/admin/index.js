@@ -11,6 +11,7 @@
    POST /api/admin?key=KEY  {"action":"bulk","ids":[...],"op":"hide"|"unhide"|"delete"}
    POST /api/admin?key=KEY  {"action":"submission","id":"s-...","status":"done"|"skip"|"new"}
    POST /api/admin?key=KEY  {"action":"comment-delete","id":"c-..."}
+   POST /api/admin?key=KEY  {"action":"host","id":"h-...","status":"reviewing|verified|rejected|new","memo":"..."}
 */
 import { json, bad } from '../_util.js';
 
@@ -28,7 +29,7 @@ export async function onRequestGet({ request, env }) {
   if (what === 'stats') {
     const since = (days) => new Date(Date.now() - days * 86400000).toISOString();
     const one = async (sql, ...bind) => (await env.DB.prepare(sql).bind(...bind).first())?.n || 0;
-    const [posts, visible, hidden, today, week, reported, comments, subsNew, subsAll] = await Promise.all([
+    const [posts, visible, hidden, today, week, reported, comments, subsNew, subsAll, hostsNew, hostsVerified] = await Promise.all([
       one('SELECT COUNT(*) AS n FROM posts'),
       one('SELECT COUNT(*) AS n FROM posts WHERE hidden = 0'),
       one('SELECT COUNT(*) AS n FROM posts WHERE hidden = 1'),
@@ -37,7 +38,9 @@ export async function onRequestGet({ request, env }) {
       one('SELECT COUNT(*) AS n FROM posts WHERE reports > 0 AND hidden = 0'),
       one('SELECT COUNT(*) AS n FROM comments'),
       one(`SELECT COUNT(*) AS n FROM submissions WHERE status = 'new'`),
-      one('SELECT COUNT(*) AS n FROM submissions')
+      one('SELECT COUNT(*) AS n FROM submissions'),
+      one(`SELECT COUNT(*) AS n FROM hosts WHERE status IN ('new','reviewing')`).catch(() => 0),
+      one(`SELECT COUNT(*) AS n FROM hosts WHERE status = 'verified'`).catch(() => 0)
     ]);
     const { results: byCat } = await env.DB.prepare(
       'SELECT category, COUNT(*) AS n FROM posts WHERE hidden = 0 GROUP BY category'
@@ -49,7 +52,7 @@ export async function onRequestGet({ request, env }) {
       `SELECT substr(created_at, 1, 10) AS d, COUNT(*) AS n FROM posts WHERE created_at > ? GROUP BY d ORDER BY d`
     ).bind(since(14)).all();
     return json({
-      stats: { posts, visible, hidden, today, week, reported, comments, subsNew, subsAll },
+      stats: { posts, visible, hidden, today, week, reported, comments, subsNew, subsAll, hostsNew, hostsVerified },
       byCat, topSpaces, daily
     });
   }
@@ -85,6 +88,19 @@ export async function onRequestGet({ request, env }) {
       'SELECT id, post_id, nickname, body, hidden, created_at FROM comments WHERE post_id = ? ORDER BY created_at'
     ).bind(post).all();
     return json({ comments: results });
+  }
+
+  /* ── 호스트 등록 신청 ── */
+  if (what === 'hosts') {
+    const status = p.get('status') || 'new';
+    const sql = status === 'all'
+      ? 'SELECT * FROM hosts ORDER BY created_at DESC LIMIT 300'
+      : status === 'pending'
+        ? `SELECT * FROM hosts WHERE status IN ('new','reviewing') ORDER BY created_at DESC LIMIT 300`
+        : 'SELECT * FROM hosts WHERE status = ? ORDER BY created_at DESC LIMIT 300';
+    const stmt = (status === 'all' || status === 'pending') ? env.DB.prepare(sql) : env.DB.prepare(sql).bind(status);
+    const { results } = await stmt.all();
+    return json({ hosts: results });
   }
 
   /* ── 제보·수정 제안 ── */
@@ -141,6 +157,17 @@ export async function onRequestPost({ request, env }) {
     const ok = ['new', 'done', 'skip'];
     const st = ok.includes(b.status) ? b.status : 'done';
     await env.DB.prepare('UPDATE submissions SET status = ? WHERE id = ?').bind(st, b.id).run();
+  } else if (b.action === 'host') {
+    const ok = ['new', 'reviewing', 'verified', 'rejected'];
+    if (!ok.includes(b.status)) return bad('알 수 없는 상태입니다');
+    await env.DB.prepare(
+      `UPDATE hosts SET status = ?, admin_memo = ?, verified_at = ? WHERE id = ?`
+    ).bind(
+      b.status,
+      typeof b.memo === 'string' ? b.memo.slice(0, 1000) : null,
+      b.status === 'verified' ? new Date().toISOString() : null,
+      b.id
+    ).run();
   } else if (b.action === 'comment-delete') {
     const c = await env.DB.prepare('SELECT post_id FROM comments WHERE id = ?').bind(b.id).first();
     await env.DB.batch([
