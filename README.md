@@ -110,10 +110,39 @@ Node가 설치된 환경이면 어디서든 됩니다. 실행하면 `생성 완�
 
 구조는 이미 들어가 있습니다. 남은 것은 등록 작업입니다.
 
-1. **네이버 서치어드바이저** 와 **구글 서치콘솔** 에 사이트를 등록합니다.
-2. 받은 소유 확인 코드를 `tools/shell.mjs` 의 주석 처리된 `naver-site-verification` / `google-site-verification` 줄에 넣고 주석을 풉니다. 그 뒤 빌드하면 모든 페이지에 들어갑니다.
-3. 두 곳에 사이트맵 `https://honplace.pages.dev/sitemap.xml` 을 제출합니다.
-4. 네이버는 RSS도 받습니다. `https://honplace.pages.dev/rss.xml` 을 함께 제출하세요.
+**네이버 — 소유 확인 태그 반영 완료**
+
+`tools/shell.mjs` 에 아래 태그가 들어가 있고, 빌드된 모든 페이지의 `<head>` 에 출력됩니다.
+
+```html
+<meta name="naver-site-verification" content="0efe77b67518e410ae0edd3bf246b4ef150bd949">
+```
+
+서치어드바이저에서 **소유확인** 버튼을 누르면 됩니다. 단, 서치어드바이저에 등록된 주소가 `http://honplace.com` 이므로 **그 도메인이 이 사이트를 가리키고 있어야** 확인이 통과합니다. 아래 ‘도메인 연결’을 먼저 확인하세요.
+
+**구글**
+
+서치콘솔에 등록하고 받은 코드를 `tools/shell.mjs` 의 주석 처리된 `google-site-verification` 줄에 넣고 주석을 푼 뒤 빌드합니다.
+
+**사이트맵 제출**
+
+두 곳 모두 사이트맵을 제출합니다. 네이버는 RSS도 함께 받습니다.
+
+- `/sitemap.xml`
+- `/rss.xml` (네이버)
+
+주소는 아래 ‘도메인 연결’에서 정한 정식 주소를 기준으로 제출하세요.
+
+### 도메인 연결 (honplace.com)
+
+현재 사이트의 정식 주소는 `honplace.pages.dev` 이고, `tools/shell.mjs` 의 `SITE` 상수가 그 값을 씁니다. `honplace.com` 을 쓰려면 순서가 있습니다.
+
+1. Cloudflare Pages 프로젝트 → **Custom domains** → `honplace.com` 추가, DNS 연결.
+2. 브라우저에서 `https://honplace.com` 이 실제로 열리는지 확인합니다.
+3. 그다음에 `tools/shell.mjs` 의 `SITE` 를 `'https://honplace.com'` 으로 바꾸고 `node tools/build.mjs` 를 실행해 커밋합니다.
+4. 서치어드바이저·서치콘솔에 사이트맵을 다시 제출합니다.
+
+> 2번을 건너뛰고 3번을 먼저 하면 모든 페이지의 canonical 이 열리지 않는 주소를 가리키게 되어 검색 노출에 손해가 큽니다. 반드시 연결을 확인한 뒤에 바꾸세요.
 
 이미 적용되어 있는 것:
 

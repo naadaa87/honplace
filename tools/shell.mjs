@@ -1,6 +1,11 @@
 /* 혼플 — 공통 셸 템플릿
    모든 페이지의 <head>, 헤더, 푸터, 탭바를 한 곳에서 만듭니다. */
 
+/* 사이트의 정식 주소. canonical·og:url·sitemap·rss 가 모두 이 값을 씁니다.
+   개인 도메인(honplace.com)을 Cloudflare Pages 에 연결한 뒤에는
+   아래 한 줄을 'https://honplace.com' 으로 바꾸고 `node tools/build.mjs` 를 실행하세요.
+   ※ 도메인이 실제로 연결되기 전에 바꾸면 canonical 이 없는 주소를 가리켜
+      검색 노출에 손해가 크니, 연결을 확인한 뒤에 바꿔야 합니다. */
 export const SITE = 'https://honplace.pages.dev';
 export const BRAND = '혼플';
 export const TAGLINE = '혼자 가기 좋은 플레이스';
@@ -97,8 +102,9 @@ ${o.noIndex ? '<meta name="robots" content="noindex, nofollow">' : '<meta name="
 <meta name="twitter:image" content="${ogImage}">
 <meta name="theme-color" content="#ffffff">
 <meta name="format-detection" content="telephone=no">
-<!-- 검색엔진 소유 확인: 네이버 서치어드바이저·구글 서치콘솔에서 받은 값을 아래에 넣으세요 -->
-<!-- <meta name="naver-site-verification" content="여기에 네이버 코드"> -->
+<!-- 검색엔진 소유 확인 -->
+<meta name="naver-site-verification" content="0efe77b67518e410ae0edd3bf246b4ef150bd949">
+<!-- 구글 서치콘솔에서 받은 값을 넣고 주석을 푸세요 -->
 <!-- <meta name="google-site-verification" content="여기에 구글 코드"> -->
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="alternate" type="application/rss+xml" title="${BRAND} 매거진" href="${SITE}/rss.xml">
