@@ -846,9 +846,36 @@ ${articles.map((a) => `  <item>
 
   /* /space 는 리다이렉트하지 않습니다. space.html 이 ?id= 를 읽어
      /place/<id> 로 보내 주어야 옛 주소가 살아납니다. */
-  write('_redirects', `/places  /spaces  301
+  /* pages.dev 로 들어온 접속은 정식 도메인으로 보냅니다.
+     같은 내용이 두 주소로 열리면 검색엔진이 중복으로 보기 때문입니다.
+     (honplace.com 요청은 아래 규칙에 걸리지 않으므로 무한 반복이 생기지 않습니다.) */
+  write('_redirects', `https://honplace.pages.dev/*  ${SITE}/:splat  301
+/places  /spaces  301
 /places.html  /spaces  301
 `);
+}
+
+/* ══════════════════════════════════════════
+   10. 정리 — 더 이상 생성되지 않는 페이지 삭제
+   데이터에서 항목을 지우면(폐업 등) 그 페이지가 남아 계속 서비스되는 것을 막습니다.
+   아래 폴더만 건드리며, 그 밖의 파일은 손대지 않습니다.
+   ══════════════════════════════════════════ */
+{
+  const managed = ['place', 'c', 'area', 'guide', 'magazine'];
+  const keep = new Set(written.map((f) => f.replace(/\\/g, '/')));
+  const removed = [];
+  for (const dir of managed) {
+    const full = path.join(ROOT, dir);
+    if (!fs.existsSync(full)) continue;
+    for (const name of fs.readdirSync(full)) {
+      if (!name.endsWith('.html')) continue;
+      const rel = `${dir}/${name}`;
+      if (keep.has(rel)) continue;
+      fs.unlinkSync(path.join(ROOT, rel));
+      removed.push(rel);
+    }
+  }
+  if (removed.length) console.log(`정리 — 삭제된 페이지 ${removed.length}개: ${removed.join(', ')}`);
 }
 
 console.log(`생성 완료 — ${written.length}개 파일`);

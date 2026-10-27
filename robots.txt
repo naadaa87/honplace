@@ -15,4 +15,4 @@ Allow: /
 User-agent: Daum
 Allow: /
 
-Sitemap: https://honplace.pages.dev/sitemap.xml
+Sitemap: https://honplace.com/sitemap.xml

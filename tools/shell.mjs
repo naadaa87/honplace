@@ -1,12 +1,12 @@
 /* 혼플 — 공통 셸 템플릿
    모든 페이지의 <head>, 헤더, 푸터, 탭바를 한 곳에서 만듭니다. */
 
-/* 사이트의 정식 주소. canonical·og:url·sitemap·rss 가 모두 이 값을 씁니다.
-   개인 도메인(honplace.com)을 Cloudflare Pages 에 연결한 뒤에는
-   아래 한 줄을 'https://honplace.com' 으로 바꾸고 `node tools/build.mjs` 를 실행하세요.
-   ※ 도메인이 실제로 연결되기 전에 바꾸면 canonical 이 없는 주소를 가리켜
-      검색 노출에 손해가 크니, 연결을 확인한 뒤에 바꿔야 합니다. */
-export const SITE = 'https://honplace.pages.dev';
+/* 사이트의 정식 주소. canonical·og:url·sitemap·rss·JSON-LD 가 모두 이 값을 씁니다.
+   주소를 바꿀 때는 이 한 줄만 고치고 `node tools/build.mjs` 를 실행하면
+   전 페이지에 반영됩니다. 끝에 슬래시를 붙이지 않습니다.
+   ※ 실제로 열리는 주소인지 확인한 뒤에 바꿔야 합니다. 열리지 않는 주소로 바꾸면
+      모든 페이지의 canonical 이 없는 곳을 가리켜 검색 노출에 손해가 큽니다. */
+export const SITE = 'https://honplace.com';
 export const BRAND = '혼플';
 export const TAGLINE = '혼자 가기 좋은 플레이스';
 export const ICON = (id, cls = '') => `<svg class="${cls}" aria-hidden="true"><use href="/assets/img/icons.svg#${id}"></use></svg>`;

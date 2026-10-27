@@ -3,8 +3,10 @@
 혼플은 ‘혼자 가기 좋은 플레이스’를 줄인 말입니다. 혼자 가도 어색하지 않은 곳을 모으고, 이름 없이 이야기를 남길 수 있는 서비스입니다.
 
 - 저장소: https://github.com/naadaa87/honplace
-- 사이트: https://honplace.pages.dev
-- 관리자: https://honplace.pages.dev/admin
+- 사이트: https://honplace.com
+- 관리자: https://honplace.com/admin
+
+> `honplace.pages.dev` 로 들어오는 접속은 `honplace.com` 으로 자동 이동합니다.
 
 ---
 
@@ -77,7 +79,9 @@ node tools/build.mjs
 
 Node가 설치된 환경이면 어디서든 됩니다. 실행하면 `생성 완료 — N개 파일` 이 찍히고, 바뀐 HTML을 커밋하면 Cloudflare Pages가 1~2분 뒤 자동 배포합니다.
 
-> 빌드를 돌릴 수 없는 환경이라면, 데이터만 고쳐서 커밋해도 목록·필터·검색에는 반영됩니다. 다만 새 플레이스의 전용 페이지(`/place/<id>`)는 빌드를 해야 생깁니다.
+빌드는 **더 이상 데이터에 없는 페이지를 자동으로 지웁니다.** 폐업한 곳을 `spaces.json` 에서 빼고 빌드하면 그 페이지(`/place/<id>`)도 함께 사라집니다. 지워진 항목이 있으면 `정리 — 삭제된 페이지 N개` 가 먼저 찍힙니다. 정리 대상은 `place/` `c/` `area/` `guide/` `magazine/` 폴더의 HTML 뿐이고, 그 밖의 파일은 건드리지 않습니다.
+
+> 빌드를 돌릴 수 없는 환경이라면, 데이터만 고쳐서 커밋해도 목록·필터·검색에는 반영됩니다. 다만 새 플레이스의 전용 페이지(`/place/<id>`)는 빌드를 해야 생기고, 지운 항목의 페이지도 빌드를 해야 없어집니다.
 
 ## 4. 데이터베이스(D1) — 게시판을 실제로 켜기
 
@@ -89,7 +93,7 @@ Node가 설치된 환경이면 어디서든 됩니다. 실행하면 `생성 완�
    - `IP_SALT` — 선택. 도배 방지용 IP 해시에 섞는 값.
 5. **Deployments** 탭에서 최신 배포 **Retry deployment**.
 
-**확인**: `https://honplace.pages.dev/api/health` 에서 `{"ready":true}` 가 나오면 연결된 것입니다.
+**확인**: `https://honplace.com/api/health` 에서 `{"ready":true}` 가 나오면 연결된 것입니다.
 
 ## 5. 관리자 화면
 
@@ -108,7 +112,7 @@ Node가 설치된 환경이면 어디서든 됩니다. 실행하면 `생성 완�
 
 ## 6. 검색 노출(SEO) 설정
 
-구조는 이미 들어가 있습니다. 남은 것은 등록 작업입니다.
+정식 주소는 **`https://honplace.com`** 입니다. 모든 canonical·og:url·sitemap·rss·구조화 데이터가 이 주소를 기준으로 생성됩니다.
 
 **네이버 — 소유 확인 태그 반영 완료**
 
@@ -118,31 +122,26 @@ Node가 설치된 환경이면 어디서든 됩니다. 실행하면 `생성 완�
 <meta name="naver-site-verification" content="0efe77b67518e410ae0edd3bf246b4ef150bd949">
 ```
 
-서치어드바이저에서 **소유확인** 버튼을 누르면 됩니다. 단, 서치어드바이저에 등록된 주소가 `http://honplace.com` 이므로 **그 도메인이 이 사이트를 가리키고 있어야** 확인이 통과합니다. 아래 ‘도메인 연결’을 먼저 확인하세요.
+서치어드바이저에서 **소유확인** 버튼을 누르면 통과합니다.
+
+> 서치어드바이저에 `http://honplace.com` 으로 등록되어 있다면, 확인이 끝난 뒤 `https://honplace.com` 도 따로 등록해 두세요. 네이버는 http 와 https 를 다른 사이트로 봅니다. 실제 서비스는 https 이므로 https 쪽에 사이트맵을 넣어야 수집이 제대로 됩니다.
 
 **구글**
 
-서치콘솔에 등록하고 받은 코드를 `tools/shell.mjs` 의 주석 처리된 `google-site-verification` 줄에 넣고 주석을 푼 뒤 빌드합니다.
+서치콘솔에 `honplace.com` 을 등록하고 받은 코드를 `tools/shell.mjs` 의 주석 처리된 `google-site-verification` 줄에 넣고 주석을 푼 뒤 빌드합니다.
 
 **사이트맵 제출**
 
-두 곳 모두 사이트맵을 제출합니다. 네이버는 RSS도 함께 받습니다.
+두 곳 모두 아래를 제출합니다. 네이버는 RSS도 함께 받습니다.
 
-- `/sitemap.xml`
-- `/rss.xml` (네이버)
+- `https://honplace.com/sitemap.xml` — 전체 페이지
+- `https://honplace.com/rss.xml` — 매거진 (네이버)
 
-주소는 아래 ‘도메인 연결’에서 정한 정식 주소를 기준으로 제출하세요.
+### 주소를 또 바꾸게 되면
 
-### 도메인 연결 (honplace.com)
+`tools/shell.mjs` 의 `SITE` 상수 한 줄만 고치고 `node tools/build.mjs` 를 실행하면 전 페이지에 반영됩니다. 단, **실제로 열리는 주소인지 먼저 확인**해야 합니다. 열리지 않는 주소로 바꾸면 모든 페이지의 canonical 이 없는 곳을 가리켜 검색에서 사라질 수 있습니다.
 
-현재 사이트의 정식 주소는 `honplace.pages.dev` 이고, `tools/shell.mjs` 의 `SITE` 상수가 그 값을 씁니다. `honplace.com` 을 쓰려면 순서가 있습니다.
-
-1. Cloudflare Pages 프로젝트 → **Custom domains** → `honplace.com` 추가, DNS 연결.
-2. 브라우저에서 `https://honplace.com` 이 실제로 열리는지 확인합니다.
-3. 그다음에 `tools/shell.mjs` 의 `SITE` 를 `'https://honplace.com'` 으로 바꾸고 `node tools/build.mjs` 를 실행해 커밋합니다.
-4. 서치어드바이저·서치콘솔에 사이트맵을 다시 제출합니다.
-
-> 2번을 건너뛰고 3번을 먼저 하면 모든 페이지의 canonical 이 열리지 않는 주소를 가리키게 되어 검색 노출에 손해가 큽니다. 반드시 연결을 확인한 뒤에 바꾸세요.
+`pages.dev` 로 들어온 접속을 정식 주소로 보내는 규칙은 `_redirects` 에 들어 있고, 이 역시 `SITE` 값을 따라갑니다.
 
 이미 적용되어 있는 것:
 
