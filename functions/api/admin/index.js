@@ -14,6 +14,7 @@
    POST /api/admin?key=KEY  {"action":"host","id":"h-...","status":"reviewing|verified|rejected|new","memo":"..."}
 */
 import { json, bad } from '../_util.js';
+import { newHostKey } from '../host/_auth.js';
 
 const auth = (request, env) => env.ADMIN_KEY && new URL(request.url).searchParams.get('key') === env.ADMIN_KEY;
 const num = (v, d, max) => { const n = parseInt(v, 10); return Number.isFinite(n) ? Math.min(Math.max(n, 0), max) : d; };
@@ -51,9 +52,13 @@ export async function onRequestGet({ request, env }) {
     const { results: daily } = await env.DB.prepare(
       `SELECT substr(created_at, 1, 10) AS d, COUNT(*) AS n FROM posts WHERE created_at > ? GROUP BY d ORDER BY d`
     ).bind(since(14)).all();
+    /* 호스트센터 마이그레이션이 적용됐는지 — 관리자 화면에서 안내용 */
+    let schemaOk = true;
+    try { await env.DB.prepare('SELECT host_key FROM hosts LIMIT 1').first(); }
+    catch { schemaOk = false; }
     return json({
       stats: { posts, visible, hidden, today, week, reported, comments, subsNew, subsAll, hostsNew, hostsVerified },
-      byCat, topSpaces, daily
+      byCat, topSpaces, daily, schemaOk
     });
   }
 
@@ -160,14 +165,27 @@ export async function onRequestPost({ request, env }) {
   } else if (b.action === 'host') {
     const ok = ['new', 'reviewing', 'verified', 'rejected'];
     if (!ok.includes(b.status)) return bad('알 수 없는 상태입니다');
-    await env.DB.prepare(
-      `UPDATE hosts SET status = ?, admin_memo = ?, verified_at = ? WHERE id = ?`
-    ).bind(
-      b.status,
-      typeof b.memo === 'string' ? b.memo.slice(0, 1000) : null,
-      b.status === 'verified' ? new Date().toISOString() : null,
-      b.id
-    ).run();
+    const memo = typeof b.memo === 'string' ? b.memo.slice(0, 1000) : null;
+    if (b.status === 'verified') {
+      /* 승인: 키가 없으면 발급하고, 신청 때 적은 안내를 공개 안내의 초안으로 옮깁니다 */
+      const cur = await env.DB.prepare(`SELECT host_key, pub_note, solo_note, solo_seats, link FROM hosts WHERE id = ?`).bind(b.id).first();
+      if (!cur) return bad('신청을 찾을 수 없습니다', 404);
+      const key = cur.host_key || newHostKey();
+      await env.DB.prepare(
+        `UPDATE hosts SET status = 'verified', admin_memo = ?, verified_at = ?, host_key = ?,
+                pub_note = COALESCE(pub_note, solo_note), pub_seats = COALESCE(pub_seats, solo_seats),
+                pub_link = COALESCE(pub_link, link), pub_title = COALESCE(pub_title, '운영자가 직접 쓴 안내')
+          WHERE id = ?`
+      ).bind(memo, new Date().toISOString(), key, b.id).run();
+      return json({ ok: true, host_key: key });
+    }
+    await env.DB.prepare(`UPDATE hosts SET status = ?, admin_memo = ?, verified_at = NULL WHERE id = ?`)
+      .bind(b.status, memo, b.id).run();
+  } else if (b.action === 'host-rekey') {
+    /* 키 분실 시 재발급. 이전 키는 즉시 무효가 됩니다 */
+    const key = newHostKey();
+    await env.DB.prepare(`UPDATE hosts SET host_key = ? WHERE id = ? AND status = 'verified'`).bind(key, b.id).run();
+    return json({ ok: true, host_key: key });
   } else if (b.action === 'comment-delete') {
     const c = await env.DB.prepare('SELECT post_id FROM comments WHERE id = ?').bind(b.id).first();
     await env.DB.batch([

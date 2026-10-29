@@ -106,6 +106,24 @@
   out.addEventListener('click', (e) => { if (e.target.closest('[data-shuffle]')) run(true); });
   paint(); run();
 
+  /* ── 오늘의 혼플: 빌드일이 아니라 오늘 날짜로 다시 고릅니다 ── */
+  const tpEl = H.qs('[data-today-pick]');
+  if (tpEl) try {
+    const { spaces } = await H.loadSpaces();
+    const places = spaces.filter((s) => s.kind === 'place');
+    const d = new Date();
+    const doy = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+    const s = places[doy % places.length];
+    const c = H.CATS[s.cat] || {};
+    if (s && !tpEl.querySelector(`a[href="/place/${s.id}"]`)) {
+      tpEl.innerHTML = `<a class="tp" href="/place/${encodeURIComponent(s.id)}">
+        <div class="tp-l"><small>오늘의 혼플 · ${H.esc(c.label || '')}</small><b>${H.esc(s.name)}</b><span class="area">${H.esc(s.area)}</span></div>
+        <p>${H.esc(s.intro)}</p>
+        <div class="tp-m">${H.seats(s.solo)}${H.talk(s.talk, true)}<span class="num">${H.esc(s.price)}</span></div>
+      </a>`;
+    }
+  } catch { /* 정적 카드 그대로 */ }
+
   /* ── 최근 이야기 ───────────────────────── */
   const feedEl = H.qs('[data-home-feed]');
   if (feedEl) try {

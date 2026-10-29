@@ -21,6 +21,10 @@ function write(file, html) {
 const { categories, spaces } = read('data/spaces.json');
 const { groups, guides } = read('data/guides.json');
 const { articles } = read('data/magazine.json');
+const test = read('data/test.json');
+const { prompts } = read('data/prompts.json');
+const landing = read('data/landing.json');
+const dayOfYear = (d = new Date()) => Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
 
 const CAT = Object.fromEntries(categories.map((c) => [c.id, c]));
 const TIME = { day: '낮', evening: '저녁', night: '밤늦게' };
@@ -81,6 +85,17 @@ function row(s, opt = {}) {
 const sheetHead = `<div class="thead"><span>혼자 지수</span><span>어떤 곳</span><span>대화</span><span>비용</span><span>시간</span></div>`;
 const sheet = (list, opt) => sheetHead + `<div class="sheet">${list.map((s) => row(s, opt)).join('')}</div>`;
 
+/* 오늘의 혼플 카드 (홈) — home.js 가 날짜에 맞춰 다시 그립니다 */
+function todayCard(s) {
+  const c = CAT[s.cat] || {};
+  return `<a class="tp" href="${placeUrl(s.id)}">
+    <div class="tp-l"><small>오늘의 혼플 · ${esc(c.label || '')}</small><b>${esc(s.name)}</b><span class="area">${esc(s.area)}</span></div>
+    <p>${esc(s.intro)}</p>
+    <div class="tp-m">${seats(s.solo)}<span class="talk t${s.talk}">${TALK_S[s.talk]}</span><span class="num">${esc(s.price)}</span></div>
+  </a>`;
+}
+const TEST_TYPES = Object.entries(test.types).map(([k, t]) => ({ key: k, ...t }));
+
 /* 블록 렌더링 (가이드·매거진 공용) */
 function blocks(bs) {
   return bs.map((b) => {
@@ -114,7 +129,9 @@ const faqLd = (bs) => {
    1. 홈
    ══════════════════════════════════════════ */
 {
-  const featured = spaces.filter((s) => s.kind === 'place').slice(0, 6);
+  const places = spaces.filter((s) => s.kind === 'place');
+  const todayPick = places[dayOfYear() % places.length];
+  const featured = [todayPick, ...places.filter((s) => s.id !== todayPick.id).slice(0, 5)];
   write('index.html', shell({
     path: '/', file: 'index.html',
     title: BRAND,
@@ -174,11 +191,27 @@ ${areas.map((a) => `    <a class="chip" href="/area/${a.slug}">${esc(a.name)} <s
 
 <section class="ed"><div class="wrap">
   <div class="lead">
-    <h2>오늘의<br>플레이스</h2>
-    <p>실제로 운영 중인 곳들입니다. 눌러 보면 분위기와 처음 가면 알아 둘 것이 적혀 있습니다.</p>
+    <h2>오늘의<br>혼플</h2>
+    <p>하루에 한 곳씩, 날짜가 고릅니다. 실제로 운영 중인 곳들이고 눌러 보면 분위기와 처음 가면 알아 둘 것이 적혀 있습니다.</p>
     <a class="more" href="/spaces">전부 보기</a>
   </div>
-  <div>${sheet(featured)}</div>
+  <div>
+    <div class="today-pick" data-today-pick>${todayCard(todayPick)}</div>
+    ${sheet(featured.slice(1))}
+  </div>
+</div></section>
+
+<section class="ed"><div class="wrap">
+  <div class="lead">
+    <h2>혼자력<br>테스트</h2>
+    <p>열 가지 상황을 고르면 어떤 소리와 거리에서 혼자가 편한지 알려 드립니다. 점수는 없고 결과는 다섯 가지입니다.</p>
+  </div>
+  <div class="tt-home">
+    <div class="tt-grid">
+${TEST_TYPES.map((t) => `      <a class="tt-card" href="/test/result/${t.id}"><b>${esc(t.name)}</b><span>${esc(t.sub)}</span></a>`).join('\n')}
+    </div>
+    <p style="margin:16px 0 0"><a class="btn lamp" href="/test">2분이면 끝나요 — 테스트 하기</a></p>
+  </div>
 </div></section>
 
 <section class="ed"><div class="wrap">
@@ -318,7 +351,7 @@ for (const s of spaces) {
     <h2>어떤 곳인가요</h2><p>${esc(s.intro)}</p>
     <h2>분위기와 문화</h2><p>${esc(s.culture)}</p>
     <h2>처음 가면</h2><p>${esc(s.first)}</p>
-    ${s.host?.note ? `<div class="host-box">
+    <div data-host-slot>${s.host?.note ? `<div class="host-box">
       <div class="hb-head">
         <span class="hb-badge">${ICON('i-check')}호스트 안내</span>
         ${s.host.verified ? `<span class="hb-date">${esc(s.host.verified)} 확인</span>` : ''}
@@ -330,7 +363,7 @@ for (const s of spaces) {
       </dl>` : ''}
       <p>${esc(s.host.note)}</p>
       <div class="hb-foot">이 공간을 운영하는 분이 직접 적은 내용입니다. 혼플은 등급이나 순위를 매기지 않으며, 호스트 등록 여부는 혼자 지수·대화 온도에 영향을 주지 않습니다.${s.host.link ? ` <a href="${esc(s.host.link)}" target="_blank" rel="noopener nofollow">공식 채널</a>` : ''}</div>
-    </div>` : ''}
+    </div>` : ''}</div>
     ${s.notes?.length ? `<h2>알아 두면 좋아요</h2><ul>${s.notes.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}
     ${s.tags?.length ? `<div class="tags">${s.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}
     <div class="actions">
@@ -357,7 +390,7 @@ for (const s of spaces) {
   ${sameArea.length ? `<h2>이 근처의 다른 곳</h2>${sheet(sameArea, { cat: true })}` : ''}
 </section>
 
-${s.kind === 'place' && !s.host?.verified ? `<section class="wrap read" style="padding:0 var(--gutter) 44px">
+${s.kind === 'place' && !s.host?.verified ? `<section class="wrap read" style="padding:0 var(--gutter) 44px" data-host-cta>
   <div class="host-cta">
     <div>
       <b>이 공간을 운영하고 계신가요</b>
@@ -381,6 +414,7 @@ for (const c of categories) {
   const cheap = list.filter((s) => s.tier === 0);
   const night = list.filter((s) => s.time.includes('night'));
   const rel = articles.filter((a) => a.blocks.some((b) => b.t === 'places' && b.x.some((id) => byId[id]?.cat === c.id))).slice(0, 4);
+  const L = landing.categories[c.id] || { intro: [], faq: [] };
 
   write(`c/${c.id}.html`, shell({
     path: `/c/${c.id}`, file: `c/${c.id}.html`,
@@ -390,12 +424,13 @@ for (const c of categories) {
     ld: [{
       '@type': 'ItemList', name: `혼자 가기 좋은 ${c.label}`, numberOfItems: list.length,
       itemListElement: list.map((s, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + placeUrl(s.id), name: s.name }))
-    }],
+    }, ...(L.faq?.length ? [faqLd([{ t: 'faq', x: L.faq }])] : [])],
     body: `
 <section class="ph"><div class="wrap">
   <h1>혼자 가기 좋은 ${esc(c.label)}</h1>
   <p>${esc(c.desc)}. 지금 ${list.length}곳이 등록되어 있습니다. 혼자 지수가 높은 순서로 정렬했습니다.</p>
 </div></section>
+${L.intro?.length ? `<div class="wrap read landing-intro">${L.intro.map((t) => `<p>${esc(t)}</p>`).join('')}</div>` : ''}
 <div class="wrap">
   ${quiet.length ? `<h2 class="sec">아무 말도 하기 싫은 날</h2>${sheet(quiet, { cat: false })}` : ''}
   ${talky.length ? `<h2 class="sec">몇 마디 나누고 싶은 날</h2>${sheet(talky, { cat: false })}` : ''}
@@ -404,6 +439,7 @@ for (const c of categories) {
   <h2 class="sec">${esc(c.label)} 전체</h2>
   ${sheet(list, { cat: false })}
 </div>
+${L.faq?.length ? `<div class="wrap read"><div class="faq"><h2 class="sec">${esc(c.label)}, 자주 묻는 것</h2>${L.faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}</div></div>` : ''}
 ${rel.length ? `<section class="ed"><div class="wrap">
   <div class="lead"><h2>함께 읽기</h2><p>${esc(c.label)}과 관련된 글입니다.</p></div>
   <div class="gtoc">${rel.map((a) => `<a class="gi" href="/magazine/${a.id}"><span class="l1"><span class="t">${esc(a.title)}</span><span class="lead-line"></span><span class="m">${a.minutes}분</span></span><span class="sub">${esc(a.lead)}</span></a>`).join('')}</div>
@@ -423,6 +459,8 @@ for (const a of areas) {
   const list = a.items.sort((x, y) => b_solo(y) - b_solo(x));
   function b_solo(s) { return s.solo; }
   const catsHere = categories.filter((c) => list.some((s) => s.cat === c.id));
+  const L = landing.areas[a.slug] || { intro: '', faq: [] };
+  const relA = articles.filter((x) => x.blocks.some((b) => b.t === 'places' && b.x.some((id) => list.some((s) => s.id === id)))).slice(0, 3);
   write(`area/${a.slug}.html`, shell({
     path: `/area/${a.slug}`, file: `area/${a.slug}.html`,
     title: `${a.name}에서 혼자 가기 좋은 곳 ${list.length}곳`,
@@ -431,18 +469,24 @@ for (const a of areas) {
     ld: [{
       '@type': 'ItemList', name: `${a.name} 혼자 가기 좋은 곳`, numberOfItems: list.length,
       itemListElement: list.map((s, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + placeUrl(s.id), name: s.name }))
-    }],
+    }, ...(L.faq?.length ? [faqLd([{ t: 'faq', x: L.faq }])] : [])],
     body: `
 <section class="ph"><div class="wrap">
   <h1>${esc(a.name)}에서 혼자</h1>
   <p>${esc(a.name)} 일대에서 혼자 가기 좋은 곳 ${list.length}곳입니다. 종류별로 묶어 두었습니다.</p>
 </div></section>
+${L.intro ? `<div class="wrap read landing-intro"><p>${esc(L.intro)}</p></div>` : ''}
 <div class="wrap">
 ${catsHere.map((c) => {
   const sub = list.filter((s) => s.cat === c.id);
   return `  <h2 class="sec">${esc(c.label)}</h2>${sheet(sub, { cat: false })}`;
 }).join('\n')}
 </div>
+${L.faq?.length ? `<div class="wrap read"><div class="faq"><h2 class="sec">${esc(a.name)}, 자주 묻는 것</h2>${L.faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}</div></div>` : ''}
+${relA.length ? `<section class="ed"><div class="wrap">
+  <div class="lead"><h2>함께 읽기</h2><p>${esc(a.name)}의 플레이스가 나오는 글입니다.</p></div>
+  <div class="gtoc">${relA.map((x) => `<a class="gi" href="/magazine/${x.id}"><span class="l1"><span class="t">${esc(x.title)}</span><span class="lead-line"></span><span class="m">${x.minutes}분</span></span><span class="sub">${esc(x.lead)}</span></a>`).join('')}</div>
+</div></section>` : ''}
 <section class="wrap" style="padding:30px 0 40px">
   <h2 class="sec">다른 동네</h2>
   <div class="chips wrapchips">${areas.filter((x) => x.slug !== a.slug).map((x) => `<a class="chip" href="/area/${x.slug}">${esc(x.name)} <span class="n">${x.items.length}</span></a>`).join('')}</div>
@@ -589,6 +633,12 @@ write('board.html', shell({
 </div></section>
 <div class="wrap read">
   <div data-notice></div>
+  <div class="today-q" data-today-q>
+    <small>오늘의 질문</small>
+    <p data-today-q-text>${esc(prompts[dayOfYear() % prompts.length])}</p>
+    <button class="btn sm" type="button" data-answer>이 질문에 답하기</button>
+  </div>
+  <div class="week-spaces hide" data-week-spaces></div>
   <div data-composer-slot></div>
   <div class="feed" data-feed><div class="sk">불러오는 중</div></div>
   <p class="small muted" style="margin:26px 0 8px">지켜 주세요. 특정인을 지목하지 않기, 연락처를 주고받지 않기, 홍보하지 않기. <a href="/about#rules">전체 규칙</a></p>
@@ -597,8 +647,8 @@ write('board.html', shell({
 }));
 
 /* ── 호스트 등록 ───────────────────────── */
-write('host.html', shell({
-  path: '/host', file: 'host.html',
+write('host/index.html', shell({
+  path: '/host', file: 'host/index.html',
   title: '호스트 등록 — 공간을 운영하고 계신가요',
   desc: '혼자 오는 손님을 받는 공간이라면 호스트로 등록하세요. 혼플에 공식 안내를 올리고, 운영 정보를 직접 고치고, 혼자 다녀간 손님의 이야기에 답할 수 있습니다.',
   scripts: ['host.js'],
@@ -748,7 +798,54 @@ ${categories.map((c) => `          <option value="${c.id}">${esc(c.label)}</opti
     <details><summary>등록을 취소하고 싶으면요?</summary><p>문의 메일로 알려 주시면 호스트 정보와 수집한 연락처를 지워 드립니다.</p></details>
   </div>
 
+  <div class="host-cta" style="margin-top:28px">
+    <div>
+      <b>이미 인증을 받으셨나요</b>
+      승인 메일로 받은 호스트 키로 들어오시면 안내를 고치고 후기에 답할 수 있습니다.
+    </div>
+    <a class="btn" href="/host/center">호스트센터 열기</a>
+  </div>
+
   <p class="small muted" style="margin:28px 0 40px">손님으로서 좋았던 곳을 알려 주시려면 <a href="/submit">플레이스 알려 주기</a>를 이용해 주세요. 그쪽은 이름을 묻지 않습니다.</p>
+</div>
+`
+}));
+
+/* ── 호스트센터 (인증된 호스트 전용, 검색 제외) ── */
+write('host/center.html', shell({
+  path: '/host/center', file: 'host/center.html',
+  title: '호스트센터',
+  desc: '인증된 호스트가 공간 안내를 고치고 손님의 후기에 답하는 곳입니다.',
+  scripts: ['hostcenter.js'],
+  noIndex: true,
+  crumbs: [{ name: '호스트 등록', path: '/host' }, { name: '호스트센터', path: '/host/center' }],
+  body: `
+<section class="ph"><div class="wrap read hc-wide">
+  <h1>호스트센터</h1>
+  <p>인증된 호스트가 공간 안내를 직접 고치고, 혼자 다녀간 손님의 이야기에 답하는 곳입니다.</p>
+</div></section>
+
+<div class="wrap read hc-wide" data-hc data-biz-email="${BIZ.email}">
+  <div class="hc-login" data-hc-login>
+    <form class="form" data-hc-form>
+      <div class="field">
+        <label for="hc-key">호스트 키</label>
+        <input id="hc-key" type="text" name="key" placeholder="hk-로 시작하는 키" autocomplete="off" spellcheck="false" required>
+        <p class="help">호스트 인증이 끝나면 적어 주신 메일로 키를 보내 드립니다. 키는 비밀번호와 같으니 다른 사람과 나누지 말아 주세요.</p>
+      </div>
+      <div class="submit">
+        <button class="btn lamp" type="submit">들어가기</button>
+        <a class="small muted" href="/host">아직 등록 전이라면 호스트 등록</a>
+      </div>
+      <p class="form-err hide" data-err></p>
+    </form>
+    <div class="host-not">
+      <h2 class="sec">키를 잃어버리셨나요</h2>
+      <p>등록할 때 적은 이메일로 <a href="mailto:${BIZ.email}?subject=${encodeURIComponent('[혼플] 호스트 키 재발급 요청')}">${BIZ.email}</a>에 공간 이름과 함께 보내 주세요. 확인 후 새 키를 보내 드리고, 이전 키는 쓸 수 없게 됩니다.</p>
+    </div>
+  </div>
+
+  <div class="hc-main hide" data-hc-main></div>
 </div>
 `
 }));
@@ -994,6 +1091,107 @@ write('space.html', shell({
   body: `<div class="wrap read nf"><h1>이동 중입니다</h1><p><a href="/spaces">플레이스 목록으로</a></p></div>`
 }));
 
+/* ══════════════════════════════════════════
+   8b. 혼자력 테스트 — /test, /test/result/<type>
+   질문은 정적으로 렌더링(검색엔진이 읽음), 채점은 test.js 가 합니다.
+   ══════════════════════════════════════════ */
+const testPick = (t) => {
+  const f = t.filter;
+  const okCat = new Set(t.cats || []);
+  const pool = spaces.filter((s) => s.solo >= f.solo && f.talk.includes(s.talk) && (!f.tier || f.tier.includes(s.tier)));
+  /* 선호 분류 먼저, 그 안에서 실제 장소를 앞에, 혼자 지수 높은 순 */
+  const score = (s) => (okCat.has(s.cat) ? 0 : 10) + (s.kind === 'place' ? 0 : 1) + (5 - s.solo);
+  return pool.sort((a, b) => score(a) - score(b)).slice(0, 8);
+};
+{
+  const resultUrl = (t) => `/test/result/${t.id}`;
+  const typeCards = TEST_TYPES.map((t) => `<a class="tt-card" href="${resultUrl(t)}"><b>${esc(t.name)}</b><span>${esc(t.sub)}</span></a>`).join('');
+  write('test/index.html', shell({
+    path: '/test', file: 'test/index.html',
+    title: '혼자력 테스트 — 나는 어떤 곳에서 혼자가 편할까',
+    desc: '열 가지 상황을 고르면 당신이 혼자 있기 편한 공간의 결을 알려 드립니다. 입문형·침묵형·배경음형·한마디형·대화형 다섯 가지 결과와 어울리는 플레이스.',
+    scripts: ['test.js'],
+    crumbs: [{ name: '혼자력 테스트', path: '/test' }],
+    head: `<meta name="keywords" content="혼자력 테스트, 혼자 성향 테스트, 혼자 놀기 테스트, 혼밥 레벨 테스트, 혼술 테스트, 혼자 가기 좋은 곳">`,
+    ld: [{ '@type': 'WebPage', name: '혼자력 테스트', description: test.lead, isPartOf: { '@type': 'WebSite', name: BRAND, url: SITE } }],
+    body: `
+<section class="ph"><div class="wrap read">
+  <h1>${esc(test.title)}</h1>
+  <p>${esc(test.lead)}</p>
+</div></section>
+
+<div class="wrap read" data-test>
+  <div class="tq-progress"><span data-progress style="width:0%"></span></div>
+  <form class="tq" data-test-form>
+${test.questions.map((q, i) => `    <fieldset class="tq-q" data-q="${i}">
+      <legend><small>${String(i + 1).padStart(2, '0')} / ${test.questions.length}</small>${esc(q.q)}</legend>
+      <div class="tq-a">
+${q.a.map((a, j) => `        <label><input type="radio" name="q${i}" value="${j}" required><span>${esc(a.t)}</span></label>`).join('\n')}
+      </div>
+    </fieldset>`).join('\n')}
+    <div class="tq-nav">
+      <button class="btn ghost" type="button" data-prev disabled>이전</button>
+      <button class="btn lamp" type="button" data-next>다음</button>
+      <button class="btn lamp hide" type="submit" data-finish>결과 보기</button>
+    </div>
+  </form>
+
+  <div class="tq-types">
+    <h2 class="sec">결과는 다섯 가지 중 하나입니다</h2>
+    <div class="tt-grid">${typeCards}</div>
+    <p class="small muted" style="margin:14px 0 0">점수나 등급이 아니라 ‘어떤 소리와 거리에서 혼자가 편한가’를 나누는 분류입니다. 결과 페이지에는 그 결에 맞는 플레이스와 글을 모아 두었습니다.</p>
+  </div>
+</div>
+`
+  }));
+
+  for (const t of TEST_TYPES) {
+    const picks = testPick(t);
+    const mags = (t.magazine || []).map((id) => articles.find((a) => a.id === id)).filter(Boolean);
+    const others = TEST_TYPES.filter((x) => x.key !== t.key);
+    write(`test/result/${t.id}.html`, shell({
+      path: resultUrl(t), file: `test/result/${t.id}.html`,
+      title: `혼자력 테스트 결과 — ${t.name}, ${t.sub}`,
+      desc: t.line,
+      scripts: ['test.js'],
+      ogType: 'article',
+      crumbs: [{ name: '혼자력 테스트', path: '/test' }, { name: t.name, path: resultUrl(t) }],
+      head: `<meta name="keywords" content="혼자력 테스트 ${esc(t.name)}, ${esc(t.sub)}, 혼자 가기 좋은 곳, 혼자 성향">`,
+      ld: [{ '@type': 'Article', headline: `혼자력 테스트 결과 — ${t.name}`, description: t.line, author: { '@type': 'Organization', name: BRAND }, publisher: { '@type': 'Organization', name: BRAND, url: SITE }, mainEntityOfPage: SITE + resultUrl(t) }],
+      body: `
+<article class="wrap read tr" data-test-result="${t.id}">
+  <div class="tr-head">
+    <div class="cat"><a href="/test">혼자력 테스트</a> 결과</div>
+    <h1><span class="tr-name">${esc(t.name)}</span><span class="tr-sub">${esc(t.sub)}</span></h1>
+    <p class="tr-line">${esc(t.line)}</p>
+    <div class="tr-share">
+      <button class="btn sm" data-share>결과 공유</button>
+      <button class="btn ghost sm" data-copy>링크 복사</button>
+      <a class="btn ghost sm" href="/test">다시 하기</a>
+    </div>
+  </div>
+
+  <div class="tr-body">
+    ${t.desc.map((d) => `<p>${esc(d)}</p>`).join('\n    ')}
+    <div class="tr-avoid"><b>이런 곳은 조금 뒤로</b>${esc(t.avoid)}</div>
+  </div>
+
+  <h2 class="sec">${esc(t.name)}에게 맞는 플레이스</h2>
+  <p class="small muted" style="margin:0 0 14px">혼자 지수와 대화 온도를 기준으로 골랐습니다. 아래 기준으로 <a href="/spaces">플레이스 전체</a>에서 더 찾을 수 있습니다.</p>
+  ${sheet(picks, { intro: true })}
+
+  ${mags.length ? `<h2 class="sec">읽어 보면 좋은 글</h2>
+  <div class="tr-mags">${mags.map((a) => `<a class="tr-mag" href="/magazine/${a.id}"><b>${esc(a.title)}</b><span>${esc(a.lead)}</span></a>`).join('')}</div>` : ''}
+
+  <h2 class="sec">다른 결과도 궁금하다면</h2>
+  <div class="tt-grid">${others.map((o) => `<a class="tt-card" href="${resultUrl(o)}"><b>${esc(o.name)}</b><span>${esc(o.sub)}</span></a>`).join('')}</div>
+  <p style="margin:22px 0 40px"><a class="btn" href="/test">테스트 처음부터</a></p>
+</article>
+`
+    }));
+  }
+}
+
 /* 관리자 */
 write('admin.html', shell({
   path: '/admin', file: 'admin.html', title: '관리자', desc: '혼플 운영 관리 화면입니다. 검색에 노출되지 않습니다.', noIndex: true, noTab: true,
@@ -1018,6 +1216,8 @@ write('admin.html', shell({
     { loc: '/board', pri: '0.7', freq: 'daily' },
     { loc: '/about', pri: '0.5', freq: 'monthly' },
     { loc: '/host', pri: '0.6', freq: 'monthly' },
+    { loc: '/test', pri: '0.7', freq: 'monthly' },
+    ...TEST_TYPES.map((t) => ({ loc: `/test/result/${t.id}`, pri: '0.6', freq: 'monthly' })),
     { loc: '/submit', pri: '0.4', freq: 'monthly' },
     { loc: '/terms', pri: '0.2', freq: 'yearly' },
     { loc: '/privacy', pri: '0.2', freq: 'yearly' },
@@ -1091,7 +1291,7 @@ ${articles.map((a) => `  <item>
    아래 폴더만 건드리며, 그 밖의 파일은 손대지 않습니다.
    ══════════════════════════════════════════ */
 {
-  const managed = ['place', 'c', 'area', 'guide', 'magazine'];
+  const managed = ['place', 'c', 'area', 'guide', 'magazine', 'test/result'];
   const keep = new Set(written.map((f) => f.replace(/\\/g, '/')));
   const removed = [];
   for (const dir of managed) {

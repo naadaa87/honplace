@@ -70,7 +70,7 @@
   /* ── 대시보드 ─────────────────────────── */
   async function viewHome() {
     const d = await api('what=stats');
-    cache.stats = d;
+    cache.stats = d; cache.schemaOk = d.schemaOk;
     const s = d.stats;
     const max = Math.max(1, ...d.daily.map((x) => x.n));
     const tile = (label, v, note = '') => `<div class="ad-tile"><small>${label}</small><b>${v}</b>${note ? `<span>${note}</span>` : ''}</div>`;
@@ -281,7 +281,7 @@
   const HST = { new: '접수', reviewing: '확인 중', verified: '인증 완료', rejected: '반려' };
   async function viewHosts() {
     const { hosts } = await api('what=hosts&status=' + hostStatus);
-    const CATL = { honsul: '혼술', honbap: '혼밥', cafe: '카페·서점', culture: '영화·전시·공연', move: '몸 쓰기', rest: '쉬기', learn: '배우기', social: '가벼운 모임' };
+    const CATL = { honsul: '혼술', honbap: '혼밥', cafe: '카페·서점', culture: '영화·전시·공연', play: '혼자 놀기', move: '몸 쓰기', rest: '쉬기', learn: '배우기', social: '가벼운 모임' };
     const biz = (n) => (n || '').replace(/^(\d{3})(\d{2})(\d{5})$/, '$1-$2-$3');
     const cards = hosts.map((h) => `
       <article class="ad-card" data-host="${H.esc(h.id)}">
@@ -305,6 +305,17 @@
         <p class="ad-note"><b>혼자 오는 손님 안내</b>${H.esc(h.solo_note)}</p>
         ${h.message ? `<p class="ad-note muted"><b>하고 싶은 말</b>${H.esc(h.message)}</p>` : ''}
         ${h.admin_memo ? `<p class="ad-memo">메모: ${H.esc(h.admin_memo)}</p>` : ''}
+        ${h.status === 'verified' ? `
+        <div class="ad-key">
+          <div>
+            <small>호스트 키 · 신청자 이메일로 직접 보내 주세요</small>
+            <code data-key>${h.host_key ? H.esc(h.host_key) : '(키 없음 — 재발급을 누르세요)'}</code>
+          </div>
+          <div class="ad-key-b">
+            ${h.host_key ? '<button class="btn ghost sm" data-key-copy>키 복사</button><button class="btn ghost sm" data-key-mail>안내 메일 열기</button>' : ''}
+            <button class="btn ghost sm" data-rekey>재발급</button>
+          </div>
+        </div>` : ''}
         <div class="ad-card-f">
           <a class="btn ghost sm" href="https://map.naver.com/p/search/${encodeURIComponent((h.space_name || '') + ' ' + (h.area || ''))}" target="_blank" rel="noopener">지도 확인</a>
           <a class="btn ghost sm" href="https://www.ftc.go.kr/bizCommPop.do?wrkr_no=${H.esc((h.biz_no || '').replace(/\D/g, ''))}" target="_blank" rel="noopener">사업자 조회</a>
@@ -323,7 +334,8 @@
             `<button class="chip${hostStatus === v ? ' on' : ''}" data-hoststatus="${v}">${l}</button>`).join('')}
         </div>
       </div>
-      <p class="muted small" style="margin:0 0 16px">승인하기 전에 지도와 사업자 조회로 실재하는 공간인지 확인하세요. 승인한 뒤에는 ‘spaces.json 조각 복사’로 받은 내용을 플레이스 탭에 붙여 넣고 빌드해야 공간 페이지에 호스트 안내가 나옵니다.</p>
+      ${cache.schemaOk === false ? `<p class="form-err" style="margin:0 0 12px">D1에 호스트센터 열이 아직 없습니다. Cloudflare → D1 → honplace-db → 콘솔에서 <code>migrations/002-host-center.sql</code> 내용을 실행한 뒤 다시 열어 주세요. 그 전에는 승인해도 키가 발급되지 않습니다.</p>` : ''}
+      <p class="muted small" style="margin:0 0 16px">승인하기 전에 지도와 사업자 조회로 실재하는 공간인지 확인하세요. 승인하면 호스트 키가 만들어집니다. 키를 신청자 이메일로 보내 주면, 호스트는 <a href="/host/center" target="_blank" rel="noopener">/host/center</a>에서 안내를 고치고 후기에 답할 수 있습니다. 공간 페이지에는 저장 즉시 반영됩니다(검색엔진용 고정본까지 바꾸려면 ‘spaces.json 조각 복사’로 데이터에도 넣어 주세요).</p>
       ${cards || '<p class="muted" style="padding:24px 0">해당하는 신청이 없습니다.</p>'}`;
   }
 
@@ -339,8 +351,47 @@
         const to = st.dataset.hs;
         if (to === 'verified' && !confirm('이 공간을 인증 호스트로 승인합니다. 실재하는 공간인지 확인하셨나요?')) return;
         const memo = to === 'rejected' ? (prompt('반려 사유를 적어 두세요(선택). 신청자에게 자동 발송되지는 않습니다.') || '') : '';
-        await post({ action: 'host', id, status: to, memo });
-        H.toast(to === 'verified' ? '인증 승인했습니다' : to === 'rejected' ? '반려했습니다' : '확인 중으로 바꿨습니다');
+        const r = await post({ action: 'host', id, status: to, memo });
+        if (to === 'verified' && r && r.host_key) {
+          H.toast('승인했습니다. 호스트 키: ' + r.host_key);
+          hostStatus = 'verified';
+        } else {
+          H.toast(to === 'verified' ? '인증 승인했습니다' : to === 'rejected' ? '반려했습니다' : '확인 중으로 바꿨습니다');
+        }
+        render();
+        return;
+      }
+
+      if (e.target.closest('[data-key-copy]')) {
+        const k = H.qs('[data-key]', card).textContent.trim();
+        navigator.clipboard.writeText(k).then(() => H.toast('키를 복사했습니다')).catch(() => H.toast('복사에 실패했습니다'));
+        return;
+      }
+      if (e.target.closest('[data-key-mail]')) {
+        const k = H.qs('[data-key]', card).textContent.trim();
+        const name = H.qs('.ad-card-h b', card).textContent;
+        const to = (H.qs('.ad-dl a[href^="mailto:"]', card)?.textContent || '').trim();
+        const subject = `[혼플] ${name} 호스트 인증이 완료되었습니다`;
+        const bodyText = [
+          `안녕하세요, 혼플입니다.`,
+          ``,
+          `${name}의 호스트 인증이 완료되었습니다. 아래 키로 호스트센터에 들어오실 수 있습니다.`,
+          ``,
+          `호스트센터: https://honplace.com/host/center`,
+          `호스트 키: ${k}`,
+          ``,
+          `호스트센터에서는 공간 페이지에 실리는 ‘호스트 안내’를 직접 고치고, 손님이 남긴 후기에 답글을 달 수 있습니다.`,
+          `키는 비밀번호와 같으니 다른 사람과 공유하지 말아 주세요. 분실하면 이 메일로 회신해 주시면 재발급해 드립니다.`,
+          ``,
+          `혼플 드림`
+        ].join('\n');
+        location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+        return;
+      }
+      if (e.target.closest('[data-rekey]')) {
+        if (!confirm('호스트 키를 새로 만듭니다. 이전 키는 바로 쓸 수 없게 됩니다. 계속할까요?')) return;
+        const r = await post({ action: 'host-rekey', id });
+        H.toast(r && r.host_key ? '새 키: ' + r.host_key : '재발급했습니다');
         render();
         return;
       }
@@ -470,7 +521,7 @@
         <tr><td><b>글 관리</b></td><td>전체 글 검색·필터, 숨기기·복구·삭제, 답글 확인과 삭제, 여러 건 한 번에 처리</td></tr>
         <tr><td><b>신고</b></td><td>신고가 쌓인 글만 모아 보기. 신고 3건이면 자동으로 숨겨집니다</td></tr>
         <tr><td><b>제보</b></td><td>방문자가 보낸 플레이스 제보와 정보 수정 제안. 처리 상태를 바꾸고 등록용 JSON 조각을 복사할 수 있습니다</td></tr>
-        <tr><td><b>호스트</b></td><td>공간 운영자의 등록 신청 심사. 지도·사업자 조회로 실재 확인 후 승인·반려</td></tr>
+        <tr><td><b>호스트</b></td><td>공간 운영자의 등록 신청 심사. 지도·사업자 조회로 실재 확인 후 승인·반려. 승인하면 호스트 키가 생기고, 키를 보내 주면 호스트가 /host/center 에서 직접 안내를 고치고 후기에 답합니다</td></tr>
         <tr><td><b>플레이스</b></td><td>등록 현황 확인과 spaces.json 편집·내려받기</td></tr>
       </tbody></table>
 
@@ -479,7 +530,7 @@
         <li><b>매일</b> — 대시보드에서 신고 대기 숫자만 확인합니다. 0이면 할 일이 없습니다.</li>
         <li><b>신고가 있으면</b> — 신고 탭에서 내용을 읽고 숨기기 또는 복구를 누릅니다. 명백한 광고·비방은 삭제합니다.</li>
         <li><b>제보가 쌓이면</b> — 제보 탭에서 지도로 실재를 확인하고, 쓸 만하면 JSON 조각을 복사해 플레이스 탭에서 붙여 넣습니다.</li>
-        <li><b>호스트 신청이 오면</b> — 호스트 탭에서 지도와 사업자 조회로 실재하는 공간인지 확인하고, 맞으면 인증 승인합니다. 그다음 ‘spaces.json 조각 복사’로 받은 host 블록을 플레이스 탭의 해당 항목에 붙여 넣고 빌드하면 공간 페이지에 호스트 안내가 나옵니다.</li>
+        <li><b>호스트 신청이 오면</b> — 호스트 탭에서 지도와 사업자 조회로 실재하는 공간인지 확인하고, 맞으면 인증 승인합니다. 카드에 생긴 호스트 키를 ‘안내 메일 열기’로 신청자에게 보내 주세요. 호스트가 호스트센터에서 안내를 저장하면 공간 페이지에 바로 보입니다. 검색엔진용 고정본까지 맞추려면 ‘spaces.json 조각 복사’로 플레이스 탭 항목에도 넣고 빌드합니다. 키를 잃어버렸다고 하면 ‘재발급’을 누르면 됩니다.</li>
         <li><b>플레이스를 늘리면</b> — spaces.json 을 내려받아 깃허브에 덮어쓰고, 저장소에서 빌드를 한 번 돌립니다.</li>
       </ol>
 
@@ -517,7 +568,7 @@
   }
 
   async function start() {
-    try { cache.stats = await api('what=stats'); } catch (e) {
+    try { cache.stats = await api('what=stats'); cache.schemaOk = cache.stats.schemaOk; } catch (e) {
       if (/권한/.test(e.message)) return login(key ? '키가 맞지 않습니다' : '');
     }
     render();

@@ -1,9 +1,9 @@
 /* 호스트 등록 신청 접수
    POST /api/host
    공간을 운영하는 사람이 신청하면 hosts 테이블에 쌓이고, 운영자가 /admin 에서 확인합니다. */
-import { json, bad, uid, now, clean, ipHash, tooMany } from './_util.js';
+import { json, bad, uid, now, clean, ipHash, tooMany } from '../_util.js';
 
-const CATS = new Set(['honsul', 'honbap', 'cafe', 'culture', 'move', 'rest', 'learn', 'social']);
+const CATS = new Set(['honsul', 'honbap', 'cafe', 'culture', 'play', 'move', 'rest', 'learn', 'social']);
 
 /* 사업자등록번호 10자리 검증식 (국세청 체크섬) */
 function validBizNo(raw) {

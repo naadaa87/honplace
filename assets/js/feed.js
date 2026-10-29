@@ -37,7 +37,9 @@
     </article>`;
   };
 
-  F.replyHtml = (c) => `<div class="reply"><p>${H.esc(c.body)}</p><div class="sign"><b>— ${H.esc(c.nickname)}</b> ${H.fmtTime(c.created_at)}</div></div>`;
+  F.replyHtml = (c) => c.is_host
+    ? `<div class="reply host"><p>${H.esc(c.body)}</p><div class="sign"><b>— ${H.esc(c.nickname)}</b> <span class="host-tag">${H.icon('i-check')}인증 호스트</span> ${H.fmtTime(c.created_at)}</div></div>`
+    : `<div class="reply"><p>${H.esc(c.body)}</p><div class="sign"><b>— ${H.esc(c.nickname)}</b> ${H.fmtTime(c.created_at)}</div></div>`;
 
   F.render = (el, posts, opts = {}) => {
     if (!posts.length) {

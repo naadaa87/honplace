@@ -42,5 +42,41 @@
   }
   Feed.composer(comp, { onPosted: load });
   Feed.bind(feed);
+
+  /* 오늘의 질문 — 누르면 작성기에 질문을 인용해 넣고 '오늘 한마디'로 맞춥니다 */
+  const tq = H.qs('[data-today-q]');
+  if (tq) {
+    const txt = H.qs('[data-today-q-text]', tq)?.textContent?.trim() || '';
+    const btn = H.qs('[data-answer]', tq);
+    /* 빌드 시점이 아니라 오늘 날짜의 질문으로 바꿔 둡니다 */
+    fetch('/data/prompts.json', { cache: 'no-cache' }).then((r) => r.json()).then(({ prompts }) => {
+      const d = new Date(); const doy = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+      const q = prompts[doy % prompts.length]; if (q) H.qs('[data-today-q-text]', tq).textContent = q;
+    }).catch(() => {});
+    btn.onclick = () => {
+      const form = comp.querySelector('form'); if (!form) return;
+      const q = H.qs('[data-today-q-text]', tq).textContent.trim() || txt;
+      if (form.category && form.category.tagName === 'SELECT') form.category.value = 'today';
+      if (!form.body.value.trim()) form.body.value = `Q. ${q}\n`;
+      form.body.focus(); form.body.setSelectionRange(form.body.value.length, form.body.value.length);
+      form.body.dispatchEvent(new Event('input'));
+      comp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+  }
+
+  /* 이번 주 다녀온 곳 — 후기가 달린 플레이스 (DB가 있을 때만) */
+  const ws = H.qs('[data-week-spaces]');
+  if (ws && !H.api.demo) try {
+    const r = await fetch('/api/stats/spaces?days=7');
+    if (r.ok) {
+      const { spaces } = await r.json();
+      if (spaces && spaces.length) {
+        ws.innerHTML = `<small>이번 주 다녀왔다는 곳</small><div class="chips">${spaces.map((x) =>
+          `<a class="chip" href="/place/${encodeURIComponent(x.space_id)}">${H.esc(x.space_name || x.space_id)} <span class="n">${x.n}</span></a>`).join('')}</div>`;
+        ws.classList.remove('hide');
+      }
+    }
+  } catch { /* 없으면 숨긴 채로 */ }
+
   await load();
 })();

@@ -1,6 +1,6 @@
 /* 혼플 API 공통 */
-export const json = (data, status = 200) =>
-  new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
+export const json = (data, status = 200, headers = {}) =>
+  new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...headers } });
 
 export const bad = (msg, status = 400) => json({ error: msg }, status);
 

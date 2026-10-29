@@ -18,7 +18,7 @@ export async function onRequestGet({ request, env }) {
   const replies = {};
   if (ids.length) {
     const ph = ids.map(() => '?').join(',');
-    const { results: cs } = await env.DB.prepare(`SELECT id, post_id, nickname, body, created_at FROM comments WHERE hidden = 0 AND post_id IN (${ph}) ORDER BY created_at ASC`).bind(...ids).all();
+    const { results: cs } = await env.DB.prepare(`SELECT id, post_id, nickname, body, is_host, created_at FROM comments WHERE hidden = 0 AND post_id IN (${ph}) ORDER BY created_at ASC`).bind(...ids).all();
     for (const c of cs) (replies[c.post_id] = replies[c.post_id] || []).push(c);
   }
   return json({ ready: true, posts: results.map((p) => ({ ...p, replies: replies[p.id] || [] })) });

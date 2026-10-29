@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS comments (
   post_id     TEXT NOT NULL,
   nickname    TEXT NOT NULL,
   body        TEXT NOT NULL,
+  is_host     INTEGER NOT NULL DEFAULT 0,  -- 1이면 인증 호스트의 답글 (호스트 표시가 붙음)
   reports     INTEGER NOT NULL DEFAULT 0,
   hidden      INTEGER NOT NULL DEFAULT 0,
   ip_hash     TEXT,
@@ -104,7 +105,17 @@ CREATE TABLE IF NOT EXISTS hosts (
   admin_memo    TEXT,                     -- 운영자 메모
   verified_at   TEXT,                     -- 인증 완료 시각
   ip_hash       TEXT,
-  created_at    TEXT NOT NULL
+  created_at    TEXT NOT NULL,
+
+  -- 호스트센터 (인증 후 호스트가 직접 관리하는 영역)
+  host_key      TEXT,                     -- 호스트센터 접속 키. 승인 시 발급, 운영자가 메일로 전달
+  pub_title     TEXT,                     -- 공개 안내 제목 (기본: 운영자가 직접 쓴 안내)
+  pub_note      TEXT,                     -- 공개 안내 본문
+  pub_seats     TEXT,                     -- 1인 좌석
+  pub_hours     TEXT,                     -- 운영 시간
+  pub_link      TEXT,                     -- 공식 채널
+  pub_updated_at TEXT                     -- 마지막 수정 시각
 );
 CREATE INDEX IF NOT EXISTS idx_hosts_status ON hosts (status, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_hosts_space ON hosts (space_id);
+CREATE INDEX IF NOT EXISTS idx_hosts_key ON hosts (host_key);
