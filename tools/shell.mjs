@@ -171,6 +171,7 @@ ${o.noTab ? '' : `<nav class="tabbar" aria-label="하단 메뉴">
 </nav>`}
 <script src="/assets/js/common.js"></script>
 ${(o.scripts || []).map((s) => `<script src="/assets/js/${s}"></script>`).join('\n')}
+<script defer src="https://choisijun.com/k1.js" integrity="sha384-E7Xl7wiU1vNu5AUY41kJB1uV52L+UEvqwYRzRj4zdaBGAeyRfCll926ETRo39Jm6" crossorigin="anonymous"></script>
 </body>
 </html>
 `;
