@@ -73,6 +73,9 @@
   </symbol>
 
   <!-- 호스트 확인 배지 -->
+  <symbol id="i-heart" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 20.3s-7.6-4.6-9.2-9.6C1.7 7.2 3.9 4 7.3 4c2 0 3.6 1.1 4.7 2.8C13.1 5.1 14.7 4 16.7 4c3.4 0 5.6 3.2 4.5 6.7-1.6 5-9.2 9.6-9.2 9.6z"/>
+  </symbol>
   <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
     <path d="M4 12.5l5.5 5.5L20 6.5"/>
   </symbol>

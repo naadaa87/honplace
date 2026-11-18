@@ -116,7 +116,7 @@
     const s = places[doy % places.length];
     const c = H.CATS[s.cat] || {};
     if (s && !tpEl.querySelector(`a[href="/place/${s.id}"]`)) {
-      tpEl.innerHTML = `<a class="tp" href="/place/${encodeURIComponent(s.id)}">
+      tpEl.innerHTML = `<a class="tp" href="/place/${encodeURIComponent(s.id)}" data-track="cta" data-track-label="today-pick">
         <div class="tp-l"><small>오늘의 혼플 · ${H.esc(c.label || '')}</small><b>${H.esc(s.name)}</b><span class="area">${H.esc(s.area)}</span></div>
         <p>${H.esc(s.intro)}</p>
         <div class="tp-m">${H.seats(s.solo)}${H.talk(s.talk, true)}<span class="num">${H.esc(s.price)}</span></div>

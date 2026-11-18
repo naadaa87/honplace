@@ -6,8 +6,17 @@
     cat: url.searchParams.get('cat') || '',
     talk: url.searchParams.get('talk') || '',   // '', '0', '1', '2', '12'
     time: url.searchParams.get('time') || '',
-    q: url.searchParams.get('q') || ''
+    q: url.searchParams.get('q') || '',
+    saved: url.searchParams.get('saved') || ''
   };
+  /* 플레이스 페이지에서 '가고 싶어요'로 저장한 곳 (이 기기에만 있음) */
+  let saved = [];
+  try { saved = JSON.parse(localStorage.getItem('hp_liked') || '[]'); } catch { saved = []; }
+  const savedRow = H.qs('[data-f-saved]');
+  if (savedRow && (saved.length || state.saved)) {
+    savedRow.classList.remove('hide');
+    H.qs('[data-saved-n]', savedRow).textContent = saved.length;
+  }
 
   const catRow = H.qs('[data-f-cat]');
   catRow.innerHTML = `<button class="chip" data-k="cat" data-v="">전체</button>` +
@@ -26,7 +35,7 @@
     });
   }
   function apply() {
-    if (first && !state.cat && !state.talk && !state.time && !state.q) { first = false; paint(); return; }
+    if (first && !state.cat && !state.talk && !state.time && !state.q && !state.saved) { first = false; paint(); return; }
     first = false;
     let r = spaces.slice();
     if (state.cat) r = r.filter((s) => s.cat === state.cat);
@@ -35,12 +44,18 @@
     if (state.talk === '2') r = r.filter((s) => s.talk === 2);
     if (state.talk === '12') r = r.filter((s) => s.talk >= 1);
     if (state.time) r = r.filter((s) => s.time.includes(state.time));
+    if (state.saved) r = r.filter((s) => saved.includes(s.id));
     if (state.q) {
       const q = state.q.toLowerCase();
       r = r.filter((s) => [s.name, s.area, s.intro, ...(s.tags || [])].join(' ').toLowerCase().includes(q));
     }
     r.sort((a, b) => b.solo - a.solo || a.name.localeCompare(b.name, 'ko'));
     count.textContent = r.length ? `${r.length}곳` : '';
+    if (!r.length && state.saved && !saved.length) {
+      list.innerHTML = `<div class="empty"><b>아직 저장한 곳이 없어요</b>플레이스 페이지에서 ‘가고 싶어요’를 누르면 이 기기에 저장되고 여기 모입니다.</div>`;
+      count.textContent = '';
+      return;
+    }
     if (!r.length) {
       list.innerHTML = `<div class="empty"><b>이 조건에 맞는 곳이 아직 없어요</b>조건을 하나 풀어 보거나, 아는 곳이 있다면 <a href="/submit" style="text-decoration:underline">알려 주세요</a>.</div>`;
       return;
@@ -56,7 +71,13 @@
   root.addEventListener('click', (e) => {
     const c = e.target.closest('.chip'); if (!c) return;
     state[c.dataset.k] = c.dataset.v; apply();
+    if (c.dataset.v) H.track('filter', c.dataset.k + ':' + c.dataset.v);
   });
-  let tm; input.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { state.q = input.value.trim(); apply(); }, 180); });
+  let tm, tq, lastQ = '';
+  input.addEventListener('input', () => {
+    clearTimeout(tm); tm = setTimeout(() => { state.q = input.value.trim(); apply(); }, 180);
+    /* 검색어는 입력을 멈춘 뒤에 한 번만 기록 */
+    clearTimeout(tq); tq = setTimeout(() => { const v = input.value.trim(); if (v.length >= 2 && v !== lastQ) { lastQ = v; H.track('search', v); } }, 1200);
+  });
   apply();
 })();

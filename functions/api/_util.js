@@ -30,3 +30,13 @@ export async function tooMany(env, table, hash, limit = 5) {
   const r = await env.DB.prepare(`SELECT COUNT(*) AS n FROM ${table} WHERE ip_hash = ? AND created_at > ?`).bind(hash, since).first();
   return (r?.n || 0) >= limit;
 }
+
+/* 한국 시간 기준 날짜(YYYY-MM-DD)와 시(0~23) */
+export const kst = (d = new Date()) => {
+  const k = new Date(d.getTime() + 9 * 3600 * 1000);
+  return { day: k.toISOString().slice(0, 10), hour: k.getUTCHours() };
+};
+
+/* 검색엔진·미리보기 봇은 통계에서 뺍니다 */
+const BOTS = /bot|crawl|spider|slurp|yeti|daumoa|bingpreview|headless|lighthouse|facebookexternalhit|embedly|preview|monitor|uptime|curl|wget|python|go-http|java\/|node-fetch|axios/i;
+export const isBot = (request) => BOTS.test(request.headers.get('User-Agent') || '') || !request.headers.get('User-Agent');

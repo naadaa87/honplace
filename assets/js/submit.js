@@ -32,6 +32,7 @@
     const btn = form.querySelector('[type=submit]'); btn.disabled = true;
     try {
       const r = await H.api.submitSpace(data);
+      H.track('submit', data.kind || '');
       form.classList.add('hide');
       done.classList.remove('hide');
       if (r.demo) H.qs('[data-done-demo]').classList.remove('hide');

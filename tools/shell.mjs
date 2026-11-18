@@ -140,7 +140,7 @@ ${o.head || ''}
   <nav class="nav" aria-label="주요 메뉴">
 ${nav.map(([h, t]) => `    <a href="${h}">${t}</a>`).join('\n')}
   </nav>
-  <a class="btn lamp sm write-link" href="/board">한마디 남기기</a>
+  <a class="btn lamp sm write-link" href="/board" data-track="cta" data-track-label="header-write">한마디 남기기</a>
 </div></header>
 ${o.crumbs?.length ? `<nav class="crumbs" aria-label="현재 위치"><div class="wrap"><a href="/">홈</a>${o.crumbs.map((c, i) => i === o.crumbs.length - 1 ? `<span aria-current="page">${esc(c.name)}</span>` : `<a href="${c.path}">${esc(c.name)}</a>`).join('')}</div></nav>` : ''}
 <main id="main">

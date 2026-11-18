@@ -138,6 +138,7 @@
         form.body.value = ''; el.querySelector('[data-cnt]').textContent = '0';
         if (q) { q.value = ''; }
         H.toast('올렸어요');
+        H.track('post', data.category);
         opts.onPosted && opts.onPosted(p);
       } catch (err) { H.toast(err.message || '올리지 못했어요'); }
       btn.disabled = false;

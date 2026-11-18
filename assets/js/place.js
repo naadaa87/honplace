@@ -10,8 +10,61 @@
   const nEl = H.qs('[data-space-notice]');
   if (!fEl) return;
 
+  /* ── 가고 싶어요 (좋아요) ──
+     이 기기에는 저장한 곳 목록으로 남고(/spaces?saved=1), DB가 있으면 공간별 수를 셉니다. */
+  const likeBtn = H.qs('[data-like]');
+  const LIKED = 'hp_liked';
+  const likedList = () => { try { return JSON.parse(localStorage.getItem(LIKED) || '[]'); } catch { return []; } };
+  const saveLiked = (on) => {
+    const l = likedList().filter((x) => x !== id);
+    if (on) l.unshift(id);
+    try { localStorage.setItem(LIKED, JSON.stringify(l.slice(0, 300))); } catch { /* */ }
+  };
+  let likeN = null;
+  const paintLike = (on) => {
+    if (!likeBtn) return;
+    likeBtn.setAttribute('aria-pressed', String(on));
+    likeBtn.classList.toggle('on', on);
+    H.qs('[data-like-label]', likeBtn).textContent = on ? '저장했어요' : '가고 싶어요';
+    H.qs('[data-like-n]', likeBtn).textContent = likeN ? likeN.toLocaleString() : '';
+  };
+  if (likeBtn) {
+    paintLike(likedList().includes(id));
+    likeBtn.addEventListener('click', async () => {
+      const on = likeBtn.getAttribute('aria-pressed') !== 'true';
+      saveLiked(on);
+      if (likeN !== null) likeN = Math.max(0, likeN + (on ? 1 : -1));
+      paintLike(on);
+      H.track(on ? 'like' : 'unlike');
+      if (on) H.toast('저장했어요. 플레이스 목록의 ‘저장한 곳’에서 다시 볼 수 있어요');
+      if (H.api.demo) return;
+      try {
+        const r = await fetch('/api/like', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ space_id: id, vid: H.vid(), on }) });
+        if (r.ok) { const j = await r.json(); likeN = j.n; paintLike(j.liked); }
+      } catch { /* 이 기기의 저장은 그대로 */ }
+    });
+  }
+
   await H.api.ready();
   if (H.api.demo && nEl) nEl.innerHTML = H.demoNotice();
+
+  if (likeBtn && !H.api.demo) {
+    fetch('/api/like?space=' + encodeURIComponent(id) + '&vid=' + encodeURIComponent(H.vid()))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (!j || typeof j.n !== 'number') return;
+        likeN = j.n;
+        /* 서버 기록이 있으면 그쪽을 따르고, 이 기기 목록도 맞춰 둡니다 */
+        const local = likedList().includes(id);
+        if (j.liked) saveLiked(true);
+        else if (local) {
+          /* 체험 모드 때 저장했던 곳이면 서버에도 맞춰 둡니다 */
+          fetch('/api/like', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ space_id: id, vid: H.vid(), on: true }) })
+            .then((r) => (r.ok ? r.json() : null)).then((k) => { if (k) { likeN = k.n; paintLike(k.liked); } }).catch(() => {});
+        }
+        paintLike(j.liked || local);
+      }).catch(() => {});
+  }
 
   /* 호스트센터에서 저장한 안내가 있으면 정적 본문의 호스트 박스를 바꿉니다.
      (빌드 때 넣은 spaces.json의 host 는 검색엔진용 고정본, D1 쪽이 최신) */

@@ -42,6 +42,7 @@
   /* ── 뼈대 ─────────────────────────────── */
   const TABS = [
     ['home', '대시보드'],
+    ['kpi', 'KPI'],
     ['posts', '글 관리'],
     ['reported', '신고'],
     ['subs', '제보'],
@@ -84,6 +85,8 @@
         ${tile('호스트 신청 대기', s.hostsNew ?? 0, `인증 완료 ${s.hostsVerified ?? 0}곳`)}
         ${tile('등록 플레이스', cache.places ? cache.places.length : '—', '플레이스 탭에서 확인')}
       </div>
+
+      <p class="muted small" style="margin:14px 0 0">방문자·클릭·체류시간·인기 지점은 <a href="#kpi">KPI</a> 탭에서 봅니다.</p>
 
       <h2 class="ad-h">최근 2주 글 추이</h2>
       <div class="ad-chart">
@@ -518,6 +521,7 @@
       <h2 class="ad-h">이 화면에서 할 수 있는 것</h2>
       <table class="ad-table"><tbody>
         <tr><td><b>대시보드</b></td><td>글 수, 오늘 올라온 글, 신고·제보 대기 건수, 최근 2주 추이</td></tr>
+        <tr><td><b>KPI</b></td><td>방문자·페이지뷰·체류시간·이탈률, 지도 열기와 전환율, 인기 지점, 페이지별 방문, 유입 경로, 기기, 시간대, 클릭·검색·테스트, 커뮤니티, 회원(호스트) 목록. 기간을 고르면 직전 같은 기간과 비교하고, 표는 CSV로 내려받을 수 있습니다</td></tr>
         <tr><td><b>글 관리</b></td><td>전체 글 검색·필터, 숨기기·복구·삭제, 답글 확인과 삭제, 여러 건 한 번에 처리</td></tr>
         <tr><td><b>신고</b></td><td>신고가 쌓인 글만 모아 보기. 신고 3건이면 자동으로 숨겨집니다</td></tr>
         <tr><td><b>제보</b></td><td>방문자가 보낸 플레이스 제보와 정보 수정 제안. 처리 상태를 바꾸고 등록용 JSON 조각을 복사할 수 있습니다</td></tr>
@@ -555,6 +559,7 @@
     frame('<div class="sk">불러오는 중</div>', badge);
     try {
       if (tab === 'home') setBody(await viewHome());
+      else if (tab === 'kpi') await window.HPKPI.mount(H.qs('[data-body]'), api);
       else if (tab === 'posts') { setBody(await viewPosts(false)); bindPosts(); }
       else if (tab === 'reported') { setBody(await viewPosts(true)); bindPosts(); }
       else if (tab === 'subs') { setBody(await viewSubs()); bindSubs(); }

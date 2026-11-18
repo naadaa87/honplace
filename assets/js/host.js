@@ -93,6 +93,7 @@
         localStorage.setItem('hp_hosts', JSON.stringify(q));
         H.qs('[data-done-demo]')?.classList.remove('hide');
       }
+      H.track('host_apply', data.cat || '');
       form.classList.add('hide');
       done.classList.remove('hide');
       done.scrollIntoView({ behavior: 'smooth', block: 'center' });

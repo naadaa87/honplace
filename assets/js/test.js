@@ -12,9 +12,12 @@
     const copy = H.qs('[data-copy]', res);
     if (share) {
       if (!navigator.share) share.classList.add('hide');
-      share.onclick = () => navigator.share({ title, text: H.qs('.tr-line')?.textContent || title, url }).catch(() => {});
+      share.onclick = () => { H.track('share', 'test-' + res.dataset.testResult); navigator.share({ title, text: H.qs('.tr-line')?.textContent || title, url }).catch(() => {}); };
     }
-    if (copy) copy.onclick = () => navigator.clipboard.writeText(url).then(() => H.toast('링크를 복사했습니다')).catch(() => H.toast('복사에 실패했습니다'));
+    if (copy) copy.onclick = () => {
+      H.track('share', 'test-copy-' + res.dataset.testResult);
+      navigator.clipboard.writeText(url).then(() => H.toast('링크를 복사했습니다')).catch(() => H.toast('복사에 실패했습니다'));
+    };
     /* 방금 테스트를 마친 사람이면 '내 결과' 표시 */
     try {
       const mine = localStorage.getItem('hp_test_result');
@@ -50,9 +53,11 @@
     qs[cur].scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  let started = false;
   form.addEventListener('change', (e) => {
     if (e.target.name !== `q${cur}`) return;
     next.disabled = false; finish.disabled = false;
+    if (!started) { started = true; H.track('test_start'); }
     /* 고르면 잠깐 뒤 자동으로 다음 문항 */
     if (cur < qs.length - 1) setTimeout(() => show(cur + 1), 260);
   });
@@ -75,6 +80,7 @@
     const best = Object.keys(score).sort((a, b) => score[b] - score[a] || order.indexOf(a) - order.indexOf(b))[0];
     const t = data.types[best];
     try { localStorage.setItem('hp_test_result', t.id); } catch { /* */ }
+    H.track('test_result', t.id);
     bar.style.width = '100%';
     location.href = `/test/result/${t.id}`;
   });

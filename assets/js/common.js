@@ -179,6 +179,123 @@
     }
   };
 
+  /* ── 방문 통계 ─────────────────────────────
+     관리자 KPI용. 이름·연락처는 보내지 않고, 이 브라우저에서 만든 무작위 id 로만 방문자를 구분합니다.
+     관리자 화면에서 '내 방문 제외'를 켜면 이 브라우저의 기록은 보내지 않습니다. */
+  const rid = () => (Date.now().toString(36) + Math.random().toString(36).slice(2, 10)).slice(0, 16);
+  const ls = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch { /* */ } } };
+  let firstVisit = false;
+  H.vid = () => {
+    let v = ls.get('hp_vid');
+    if (!v || !/^[a-z0-9]{6,24}$/.test(v)) { v = rid(); ls.set('hp_vid', v); firstVisit = true; }
+    return v;
+  };
+  H.track = () => {};
+  (function tracker() {
+    const path = location.pathname.replace(/\.html$/, '').replace(/\/index$/, '/') || '/';
+    if (/^\/admin/.test(path)) return;
+    /* 브라우저에서 '추적 안 함(DNT)'이나 GPC 를 켠 경우에도 보내지 않습니다 */
+    let off = ls.get('hp_notrack') === '1' || navigator.doNotTrack === '1' || window.doNotTrack === '1' || navigator.globalPrivacyControl === true;
+    try { off = off || sessionStorage.getItem('hp_t_off') === '1'; } catch { /* */ }
+    if (off) return;
+
+    const vid = H.vid();
+    /* 방문(세션): 30분 동안 움직임이 없으면 새 방문 */
+    let sess = null; try { sess = JSON.parse(ls.get('hp_sess') || 'null'); } catch { /* */ }
+    const t0 = Date.now();
+    const entry = !sess || !sess.id || t0 - (sess.t || 0) > 30 * 60 * 1000;
+    if (entry) sess = { id: rid(), t: t0 };
+    const touch = () => { sess.t = Date.now(); ls.set('hp_sess', JSON.stringify(sess)); };
+    touch();
+
+    const kind = path === '/' ? 'home'
+      : /^\/place\//.test(path) ? 'place' : /^\/c\//.test(path) ? 'cat' : /^\/area\//.test(path) ? 'area'
+      : /^\/guide/.test(path) ? 'guide' : /^\/magazine/.test(path) ? 'magazine' : /^\/test/.test(path) ? 'test'
+      : /^\/board/.test(path) ? 'board' : /^\/spaces/.test(path) ? 'spaces' : /^\/host\/center/.test(path) ? 'hostcenter'
+      : /^\/host/.test(path) ? 'host' : /^\/submit/.test(path) ? 'submit' : 'etc';
+    const sp = (document.querySelector('[data-space-id]') || {}).dataset?.spaceId || '';
+
+    /* 어디서 왔나: 검색·SNS·외부 링크·직접·캠페인(utm) */
+    let rt = 'direct', rh = '', kw = '';
+    const qp = new URLSearchParams(location.search);
+    if (qp.get('utm_source')) { rt = 'campaign'; rh = qp.get('utm_source'); kw = qp.get('utm_campaign') || ''; }
+    else if (document.referrer) {
+      try {
+        const r = new URL(document.referrer);
+        const h = r.hostname.replace(/^(www|m)\./, '');
+        if (r.hostname === location.hostname) rt = 'internal';
+        else if (/(^|\.)search\.naver\.com$/.test(h) || h === 'naver.com') { rt = 'search'; rh = 'naver'; kw = r.searchParams.get('query') || ''; }
+        else if (/(^|\.)google\.[a-z.]+$/.test(h)) { rt = 'search'; rh = 'google'; kw = r.searchParams.get('q') || ''; }
+        else if (/(^|\.)(daum\.net|search\.daum\.net)$/.test(h)) { rt = 'search'; rh = 'daum'; kw = r.searchParams.get('q') || ''; }
+        else if (/(^|\.)bing\.com$/.test(h)) { rt = 'search'; rh = 'bing'; kw = r.searchParams.get('q') || ''; }
+        else if (/(^|\.)(zum\.com|duckduckgo\.com|yahoo\.com|ecosia\.org)$/.test(h)) { rt = 'search'; rh = h.split('.').slice(-2, -1)[0]; }
+        else if (/(^|\.)(instagram\.com|facebook\.com|threads\.net|x\.com|twitter\.com|t\.co|youtube\.com|kakao\.com|band\.us|blog\.naver\.com|cafe\.naver\.com|tistory\.com|brunch\.co\.kr)$/.test(h)) {
+          rt = 'social'; rh = h.replace(/^(l|lm)\./, '');
+        } else { rt = 'ref'; rh = h; }
+      } catch { /* */ }
+    }
+    const ua = navigator.userAgent;
+    const dv = /iPad|Tablet/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) ? 'tablet' : /Mobi|Android|iPhone/i.test(ua) ? 'mobile' : 'desktop';
+
+    let dead = false;
+    const beacon = (o) => {
+      if (dead) return;
+      const body = JSON.stringify(o);
+      try { if (navigator.sendBeacon && navigator.sendBeacon('/api/t', new Blob([body], { type: 'application/json' }))) return; } catch { /* */ }
+      fetch('/api/t', { method: 'POST', body, headers: { 'Content-Type': 'application/json' }, keepalive: true }).catch(() => {});
+    };
+
+    /* 페이지 조회 — DB가 없으면(503) 이번 방문 동안은 더 보내지 않습니다 */
+    let pvid = rid();
+    const sendPv = (isEntry, isNew) => fetch('/api/t', {
+      method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ t: 'pv', id: pvid, vid, sid: sess.id, path, kind, sp, rt: isEntry ? rt : 'internal', rh: isEntry ? rh : '', kw: isEntry ? kw : '', dv, nw: isNew ? 1 : 0, en: isEntry ? 1 : 0 })
+    }).then((r) => { if (r.status === 503) { dead = true; try { sessionStorage.setItem('hp_t_off', '1'); } catch { /* */ } } }).catch(() => {});
+    sendPv(entry, firstVisit);
+
+    /* 체류시간 — 화면이 보이는 동안만 셉니다 */
+    let acc = 0, since = document.visibilityState === 'visible' ? performance.now() : 0, sent = 0;
+    const flush = () => {
+      if (since) { acc += performance.now() - since; since = 0; }
+      const ms = Math.round(acc);
+      if (ms - sent >= 1000) { sent = ms; beacon({ t: 'dw', id: pvid, vid, ms }); }
+    };
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') flush();
+      else { since = performance.now(); touch(); }
+    });
+    addEventListener('pagehide', flush);
+    /* 뒤로 가기로 돌아온 경우(bfcache)는 새 조회로 셉니다 */
+    addEventListener('pageshow', (e) => {
+      if (!e.persisted) return;
+      pvid = rid(); acc = 0; sent = 0; since = performance.now();
+      const idle = Date.now() - (sess.t || 0) > 30 * 60 * 1000;
+      if (idle) sess = { id: rid(), t: Date.now() };
+      touch(); sendPv(idle, false);
+    });
+
+    /* 클릭·행동 */
+    H.track = (type, label = '') => {
+      if (!type) return;
+      touch();
+      beacon({ t: 'ev', vid, sid: sess.id, path, sp, type, label: String(label || '').slice(0, 80) });
+    };
+    document.addEventListener('click', (e) => {
+      const el = e.target.closest('a[href], [data-track]');
+      if (!el) return;
+      if (el.dataset.track) return H.track(el.dataset.track, el.dataset.trackLabel || '');
+      let u; try { u = new URL(el.href, location.href); } catch { return; }
+      if (u.protocol === 'mailto:') return H.track('mail', u.pathname.split('@')[1] || '');
+      if (u.protocol === 'tel:') return H.track('out', 'tel');
+      if (u.hostname === location.hostname) return;
+      const h = u.hostname.replace(/^www\./, '');
+      if (/(^|\.)map\.naver\.com$/.test(h) || h === 'naver.me') return H.track('map', 'naver');
+      if (/(^|\.)google\.[a-z.]+$/.test(h) && /^\/maps/.test(u.pathname)) return H.track('map', 'google');
+      if (/(^|\.)map\.kakao\.com$/.test(h) || h === 'kko.to') return H.track('map', 'kakao');
+      H.track('out', h);
+    }, true);
+  })();
+
   /* ── 공통 UI ───────────────────────────── */
   H.CAT_LABEL = { today: '오늘 한마디', story: '그냥 이야기', review: '다녀왔어요', ask: '어디 갈까요' };
 

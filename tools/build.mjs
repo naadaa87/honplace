@@ -88,7 +88,7 @@ const sheet = (list, opt) => sheetHead + `<div class="sheet">${list.map((s) => r
 /* 오늘의 혼플 카드 (홈) — home.js 가 날짜에 맞춰 다시 그립니다 */
 function todayCard(s) {
   const c = CAT[s.cat] || {};
-  return `<a class="tp" href="${placeUrl(s.id)}">
+  return `<a class="tp" href="${placeUrl(s.id)}" data-track="cta" data-track-label="today-pick">
     <div class="tp-l"><small>오늘의 혼플 · ${esc(c.label || '')}</small><b>${esc(s.name)}</b><span class="area">${esc(s.area)}</span></div>
     <p>${esc(s.intro)}</p>
     <div class="tp-m">${seats(s.solo)}<span class="talk t${s.talk}">${TALK_S[s.talk]}</span><span class="num">${esc(s.price)}</span></div>
@@ -210,7 +210,7 @@ ${areas.map((a) => `    <a class="chip" href="/area/${a.slug}">${esc(a.name)} <s
     <div class="tt-grid">
 ${TEST_TYPES.map((t) => `      <a class="tt-card" href="/test/result/${t.id}"><b>${esc(t.name)}</b><span>${esc(t.sub)}</span></a>`).join('\n')}
     </div>
-    <p style="margin:16px 0 0"><a class="btn lamp" href="/test">2분이면 끝나요 — 테스트 하기</a></p>
+    <p style="margin:16px 0 0"><a class="btn lamp" href="/test" data-track="cta" data-track-label="home-test">2분이면 끝나요 — 테스트 하기</a></p>
   </div>
 </div></section>
 
@@ -280,6 +280,10 @@ ${articles.slice(0, 5).map((a) => `    <a class="gi" href="/magazine/${a.id}"><s
       <button class="chip" data-k="time" data-v="evening">저녁</button>
       <button class="chip" data-k="time" data-v="night">밤늦게</button>
     </div></div>
+    <div class="frow hide" data-f-saved><span class="fl">저장</span><div class="chips scroll">
+      <button class="chip" data-k="saved" data-v="">전부</button>
+      <button class="chip" data-k="saved" data-v="1">${ICON('i-heart')}저장한 곳 <span class="n" data-saved-n></span></button>
+    </div></div>
   </div>
   <div class="count" data-count>${spaces.length}곳</div>
   <div data-list>${sheet(sorted)}</div>
@@ -340,6 +344,10 @@ for (const s of spaces) {
     <h1>${esc(s.name)}${s.host?.verified ? `<span class="hb-badge" title="운영자가 확인한 호스트">${ICON('i-check')}호스트 확인</span>` : ''}</h1>
     <div class="area">${esc(s.area)}</div>
     ${s.addr ? `<div class="addr">${esc(s.addr)}</div>` : ''}
+    <div class="sp-like">
+      <button class="like-btn" type="button" data-like aria-pressed="false">${ICON('i-heart')}<span data-like-label>가고 싶어요</span><b class="num" data-like-n></b></button>
+      <a class="small muted" href="/spaces?saved=1">저장한 곳 보기</a>
+    </div>
   </div>
   <div class="facts">
     <div class="f"><small>혼자 지수</small>${seats(s.solo)}</div>
@@ -396,7 +404,7 @@ ${s.kind === 'place' && !s.host?.verified ? `<section class="wrap read" style="p
       <b>이 공간을 운영하고 계신가요</b>
       호스트로 등록하시면 혼자 오는 손님을 위한 안내를 직접 쓰고, 운영 정보를 바로잡고, 남겨진 후기에 답하실 수 있습니다. 등록과 이용은 무료입니다.
     </div>
-    <a class="btn" href="/host">호스트 등록 안내</a>
+    <a class="btn" href="/host" data-track="cta" data-track-label="place-host">호스트 등록 안내</a>
   </div>
 </section>` : ''}
 `
@@ -636,7 +644,7 @@ write('board.html', shell({
   <div class="today-q" data-today-q>
     <small>오늘의 질문</small>
     <p data-today-q-text>${esc(prompts[dayOfYear() % prompts.length])}</p>
-    <button class="btn sm" type="button" data-answer>이 질문에 답하기</button>
+    <button class="btn sm" type="button" data-answer data-track="cta" data-track-label="today-q">이 질문에 답하기</button>
   </div>
   <div class="week-spaces hide" data-week-spaces></div>
   <div data-composer-slot></div>
@@ -1039,8 +1047,21 @@ write('privacy.html', shell({
   <ul>
     <li>게시물 내용, 게시 시각, 임시 이름은 게시판 운영을 위해 저장합니다.</li>
     <li>접속 IP를 복원할 수 없는 형태(해시)로 변환한 값은 도배와 악용을 막기 위한 목적으로만 보관하며, 원래 IP는 저장하지 않습니다.</li>
-    <li>기기에 저장되는 정보(localStorage)인 임시 이름, 반응 기록 등은 이용자의 브라우저에만 저장되며 서버로 전송되지 않습니다. 브라우저 데이터를 지우면 함께 삭제됩니다.</li>
+    <li>기기에 저장되는 정보(localStorage) 중 임시 이름, 반응 기록, ‘저장한 곳’ 목록은 이용자의 브라우저에만 저장되며 서버로 전송되지 않습니다. 브라우저 데이터를 지우면 함께 삭제됩니다.</li>
   </ul>
+
+  <h2>3-1. 방문 통계</h2>
+  <p>어떤 페이지와 장소가 도움이 되는지 알고 서비스를 고치기 위해, 회사가 직접 아래의 방문 통계를 수집합니다. 외부 분석·광고 도구는 쓰지 않으며, 이 정보로 개인을 식별하거나 다른 정보와 결합하지 않습니다.</p>
+  <table class="pv-table">
+    <thead><tr><th>항목</th><th>내용</th><th>보유 기간</th></tr></thead>
+    <tbody>
+      <tr><td>방문 기록</td><td>본 페이지 주소, 방문 시각, 들어온 경로(검색엔진·SNS 등 이전 사이트의 도메인), 기기 종류(휴대폰·컴퓨터·태블릿), 페이지를 화면에 띄워 둔 시간</td><td>최대 400일 후 자동 삭제</td></tr>
+      <tr><td>행동 기록</td><td>지도 버튼·외부 링크·공유 버튼을 누른 것, 플레이스 목록에서 입력한 검색어와 고른 조건, 혼자력 테스트 결과 유형</td><td>최대 400일 후 자동 삭제</td></tr>
+      <tr><td>브라우저 식별값</td><td>브라우저에서 무작위로 만든 번호. 같은 브라우저의 방문을 묶어 세는 데만 쓰며, 이름·연락처·IP 주소와 연결하지 않습니다</td><td>브라우저 데이터를 지우면 새 번호가 됩니다</td></tr>
+      <tr><td>가고 싶어요</td><td>누른 플레이스, 브라우저 식별값, 반복 누르기를 막기 위한 접속 IP의 해시값</td><td>버튼을 다시 눌러 취소하면 삭제</td></tr>
+    </tbody>
+  </table>
+  <p>쿠키는 사용하지 않습니다. 브라우저 설정에서 ‘추적 안 함(Do Not Track)’ 또는 GPC(Global Privacy Control)를 켜 두면 방문 통계를 보내지 않으며, 브라우저의 사이트 데이터를 지우면 그때까지의 식별값과 연결이 끊어집니다.</p>
 
   <h2>4. 제3자 제공과 처리 위탁</h2>
   <p>회사는 수집한 개인정보를 제3자에게 제공하지 않습니다. 다만 서비스 운영을 위해 아래와 같이 처리를 위탁하고 있습니다.</p>
@@ -1056,7 +1077,7 @@ write('privacy.html', shell({
   <p>이용자는 자신의 개인정보에 대해 열람·정정·삭제·처리정지를 요구할 수 있습니다. 아래 문의처로 연락하시면 지체 없이 처리합니다. 다만 익명 게시물은 작성자 확인이 어려워 요청을 처리하지 못할 수 있습니다.</p>
 
   <h2>7. 안전조치</h2>
-  <p>개인정보에 접근할 수 있는 인원을 최소한으로 제한하고, 전송 구간은 암호화(HTTPS)하며, 접속 IP는 복원할 수 없는 해시로만 보관합니다.</p>
+  <p>개인정보에 접근할 수 있는 인원을 최소한으로 제한하고, 전송 구간은 암호화(HTTPS)하며, 접속 IP는 복원할 수 없는 해시로만 보관합니다. 방문 통계는 관리자만 볼 수 있고 개별 방문이 아닌 합계로만 확인합니다.</p>
 
   <h2>8. 아동의 이용</h2>
   <p>혼플은 주류 관련 장소 정보를 포함하므로 만 19세 미만의 이용을 권장하지 않습니다. 만 14세 미만 아동의 개인정보는 수집하지 않습니다.</p>
@@ -1195,7 +1216,7 @@ ${q.a.map((a, j) => `        <label><input type="radio" name="q${i}" value="${j}
 /* 관리자 */
 write('admin.html', shell({
   path: '/admin', file: 'admin.html', title: '관리자', desc: '혼플 운영 관리 화면입니다. 검색에 노출되지 않습니다.', noIndex: true, noTab: true,
-  scripts: ['admin.js'],
+  scripts: ['admin-kpi.js', 'admin.js'],
   body: `
 <div class="wrap admin" data-admin>
   <div class="sk">불러오는 중</div>

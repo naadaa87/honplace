@@ -6,6 +6,7 @@
    GET  /api/admin?key=KEY&what=reported                신고 쌓였거나 숨겨진 글
    GET  /api/admin?key=KEY&what=submissions&status=new  제보·수정 제안
    GET  /api/admin?key=KEY&what=comments&post=ID        특정 글의 답글
+   GET  /api/admin?key=KEY&what=kpi&days=7              KPI (방문·클릭·체류·플레이스·회원). from/to 로 기간 지정 가능
 
    POST /api/admin?key=KEY  {"action":"hide"|"unhide"|"delete","id":"p-..."}
    POST /api/admin?key=KEY  {"action":"bulk","ids":[...],"op":"hide"|"unhide"|"delete"}
@@ -15,6 +16,7 @@
 */
 import { json, bad } from '../_util.js';
 import { newHostKey } from '../host/_auth.js';
+import { kpi } from './_kpi.js';
 
 const auth = (request, env) => env.ADMIN_KEY && new URL(request.url).searchParams.get('key') === env.ADMIN_KEY;
 const num = (v, d, max) => { const n = parseInt(v, 10); return Number.isFinite(n) ? Math.min(Math.max(n, 0), max) : d; };
@@ -25,6 +27,9 @@ export async function onRequestGet({ request, env }) {
 
   const p = new URL(request.url).searchParams;
   const what = p.get('what') || 'reported';
+
+  /* ── KPI ── */
+  if (what === 'kpi') return json(await kpi(env, p));
 
   /* ── 대시보드 ── */
   if (what === 'stats') {
