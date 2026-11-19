@@ -506,8 +506,10 @@ ${relA.length ? `<section class="ed"><div class="wrap">
 /* ══════════════════════════════════════════
    6. 가이드 (목차 + 정적 글)
    ══════════════════════════════════════════ */
-write('guide/index.html', shell({
-  path: '/guide', file: 'guide/index.html',
+// 폴더 대표 페이지는 guide.html 처럼 한 단계 위에 둔다.
+// (guide/index.html 로 두면 /guide 가 /guide/ 로 한 번 넘어가 사이트맵·대표 주소와 어긋난다)
+write('guide.html', shell({
+  path: '/guide', file: 'guide.html',
   title: '혼자 하는 법',
   desc: '혼술바에 처음 가는 법, 혼밥이 어색한 사람을 위한 순서, 잠 안 오는 밤에 갈 수 있는 곳. 혼자 하는 법을 정리한 안내 모음입니다.',
   crumbs: [{ name: '혼자 하는 법', path: '/guide' }],
@@ -566,8 +568,8 @@ ${others.length ? `<section class="ed"><div class="wrap"><div class="lead"><h2>�
 /* ══════════════════════════════════════════
    7. 매거진
    ══════════════════════════════════════════ */
-write('magazine/index.html', shell({
-  path: '/magazine', file: 'magazine/index.html',
+write('magazine.html', shell({
+  path: '/magazine', file: 'magazine.html',
   title: '매거진 — 혼자 보내는 시간에 대하여',
   desc: '서울 혼술 지도, 혼밥 레벨, 주말에 혼자 뭐 하지, 비 오는 날 갈 만한 곳. 혼자 보내는 시간을 다룬 글 모음입니다.',
   crumbs: [{ name: '매거진', path: '/magazine' }],
@@ -655,8 +657,8 @@ write('board.html', shell({
 }));
 
 /* ── 호스트 등록 ───────────────────────── */
-write('host/index.html', shell({
-  path: '/host', file: 'host/index.html',
+write('host.html', shell({
+  path: '/host', file: 'host.html',
   title: '호스트 등록 — 공간을 운영하고 계신가요',
   desc: '혼자 오는 손님을 받는 공간이라면 호스트로 등록하세요. 혼플에 공식 안내를 올리고, 운영 정보를 직접 고치고, 혼자 다녀간 손님의 이야기에 답할 수 있습니다.',
   scripts: ['host.js'],
@@ -1127,8 +1129,8 @@ const testPick = (t) => {
 {
   const resultUrl = (t) => `/test/result/${t.id}`;
   const typeCards = TEST_TYPES.map((t) => `<a class="tt-card" href="${resultUrl(t)}"><b>${esc(t.name)}</b><span>${esc(t.sub)}</span></a>`).join('');
-  write('test/index.html', shell({
-    path: '/test', file: 'test/index.html',
+  write('test.html', shell({
+    path: '/test', file: 'test.html',
     title: '혼자력 테스트 — 나는 어떤 곳에서 혼자가 편할까',
     desc: '열 가지 상황을 고르면 당신이 혼자 있기 편한 공간의 결을 알려 드립니다. 입문형·침묵형·배경음형·한마디형·대화형 다섯 가지 결과와 어울리는 플레이스.',
     scripts: ['test.js'],
@@ -1254,22 +1256,13 @@ ${urls.map((u) => `  <url><loc>${SITE}${u.loc}</loc><lastmod>${u.date || today}<
 </urlset>
 `);
 
+  // 검색로봇별 묶음을 따로 두면 그 로봇은 자기 묶음만 따르고 공통 규칙(* 묶음)을 건너뛴다.
+  // 그래서 한 묶음으로 두고 제외 경로를 모두에게 똑같이 적용한다.
   write('robots.txt', `User-agent: *
 Allow: /
 Disallow: /admin
-Disallow: /space.html
-
-# 네이버
-User-agent: Yeti
-Allow: /
-
-# 구글
-User-agent: Googlebot
-Allow: /
-
-# 다음
-User-agent: Daum
-Allow: /
+Disallow: /api/
+Disallow: /cdn-cgi/
 
 Sitemap: ${SITE}/sitemap.xml
 `);

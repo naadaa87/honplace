@@ -1,18 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /admin
-Disallow: /space.html
-
-# 네이버
-User-agent: Yeti
-Allow: /
-
-# 구글
-User-agent: Googlebot
-Allow: /
-
-# 다음
-User-agent: Daum
-Allow: /
+Disallow: /api/
+Disallow: /cdn-cgi/
 
 Sitemap: https://honplace.com/sitemap.xml
