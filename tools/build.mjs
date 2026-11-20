@@ -40,22 +40,34 @@ const byId = Object.fromEntries(spaces.map((s) => [s.id, s]));
 const AREA_DEFS = [
   { slug: 'seoul-mapo', name: '마포·홍대·연남', match: /마포|홍대|연남|합정|망원|상수|서교/ },
   { slug: 'seoul-jung', name: '을지로·중구·종로', match: /중구|을지로|종로|서촌|광화문|경희궁|삼청|인사동/ },
-  { slug: 'seoul-seongdong', name: '성수·성동', match: /성동|성수|뚝섬|왕십리/ },
+  { slug: 'seoul-seongdong', name: '성수·성동', match: /성동구|성수|뚝섬|왕십리/ },
   { slug: 'seoul-yongsan', name: '용산·삼각지·이태원', match: /용산|삼각지|이태원|한남|해방촌/ },
-  { slug: 'seoul-gangnam', name: '강남·서초·송파', match: /강남|서초|신사|압구정|청담|잠실|송파|삼성동|역삼/ },
+  { slug: 'seoul-gangnam', name: '강남·서초·송파', match: /강남|서초|압구정|청담|잠실|송파|삼성동|역삼|가로수길/ },
   { slug: 'seoul-gwanak', name: '관악·동작·서울대입구', match: /관악|신림|동작|사당|서울대입구|노량진/ },
   { slug: 'seoul-yeongdeungpo', name: '영등포·문래·여의도', match: /영등포|문래|여의도|당산/ },
   { slug: 'seoul-seodaemun', name: '서대문·연희·신촌', match: /서대문|연희|신촌|이대|홍제/ },
   { slug: 'seoul-etc', name: '서울 그 밖', match: /서울/ },
-  { slug: 'busan', name: '부산', match: /부산/ },
-  { slug: 'daegu', name: '대구', match: /대구/ },
-  { slug: 'incheon', name: '인천', match: /인천/ },
-  { slug: 'daejeon', name: '대전', match: /대전/ },
-  { slug: 'gwangju', name: '광주', match: /광주/ },
-  { slug: 'jeju', name: '제주', match: /제주/ },
-  { slug: 'gyeonggi', name: '경기·수도권', match: /경기|고양|성남|수원|용인|부천|일산|분당/ }
+  { slug: 'busan', name: '부산', region: '부산', match: /부산/ },
+  { slug: 'daegu', name: '대구', region: '대구', match: /대구/ },
+  { slug: 'incheon', name: '인천', region: '인천', match: /인천/ },
+  { slug: 'daejeon', name: '대전', region: '대전', match: /대전/ },
+  { slug: 'gwangju', name: '광주', region: '광주', match: /광주/ },
+  { slug: 'jeju', name: '제주', region: '제주', match: /제주/ },
+  { slug: 'gyeonggi', name: '경기·수도권', region: '경기', match: /경기|고양|성남|수원|용인|부천|일산|분당/ },
+  { slug: 'gangwon', name: '강원 강릉·속초', region: '강원', match: /강원|강릉|속초/ }
 ];
+const REGIONS = ['서울', ...AREA_DEFS.filter((a) => a.region).map((a) => a.region)];
 function areasOf(s) {
+  const head = s.area.split(' ')[0];
+  /* 주소가 한 곳으로 정해진 지점은 시·도와 구·동으로만 묶습니다.
+     ('해운대구'가 대구로, '삼성동'이 성동으로, '부산 중구'가 서울 중구로 걸리지 않게) */
+  if (s.kind === 'place' && s.addr && REGIONS.includes(head) && !/지점|일대|전역/.test(s.area)) {
+    if (head !== '서울') return AREA_DEFS.filter((a) => a.region === head);
+    const hay = `${s.area} ${s.addr}`;
+    const hit = AREA_DEFS.filter((a) => a.slug.startsWith('seoul-') && a.slug !== 'seoul-etc' && a.match.test(hay));
+    return hit.length ? hit : AREA_DEFS.filter((a) => a.slug === 'seoul-etc');
+  }
+  /* 유형 항목과 지점이 여럿인 곳은 이름이 걸리는 동네에 모두 넣습니다 */
   const hay = `${s.area} ${s.addr || ''} ${(s.notes || []).join(' ')}`;
   const hit = AREA_DEFS.filter((a) => a.match.test(hay));
   // '서울 그 밖'은 다른 서울 구역에 안 걸렸을 때만
@@ -84,6 +96,37 @@ function row(s, opt = {}) {
 }
 const sheetHead = `<div class="thead"><span>혼자 지수</span><span>어떤 곳</span><span>대화</span><span>비용</span><span>시간</span></div>`;
 const sheet = (list, opt) => sheetHead + `<div class="sheet">${list.map((s) => row(s, opt)).join('')}</div>`;
+
+/* ── 사진과 카드 ───────────────────────────
+   data/photos.json 에 적힌 사진은 빌드할 때 페이지에 그대로 들어갑니다(검색·공유 미리보기용).
+   관리자·호스트가 올린 사진은 D1 에 있고, 페이지가 열릴 때 place.js·cards.js 가 끼워 넣습니다. */
+const photoData = read('data/photos.json').photos || {};
+const photosOf = (id) => (photoData[id] || []).filter((p) => p && p.src);
+const hasPhoto = (s) => photosOf(s.id).length > 0;
+const absUrl = (u) => (/^https?:/.test(u) ? u : SITE + u);
+const photoFirst = (list) => [...list].sort((a, b) => Number(hasPhoto(b)) - Number(hasPhoto(a)));
+
+/* 사진이 없을 때의 표지 — 한 줄에 늘어선 자리, 혼자 지수만큼 불이 켜짐 */
+const bench = (n) => `<span class="bench" aria-hidden="true">${[1, 2, 3, 4, 5].map((i) => `<i${n >= i ? ' class="on"' : ''}></i>`).join('')}</span>`;
+/* 표지 안쪽: 이 곳을 가장 잘 말해 주는 꼬리표 두세 개 + 분류 그림 + 자리 */
+const coverInner = (s, n = 2) => `<span class="cv-tags" aria-hidden="true">${(s.tags || []).slice(0, n).map((t) => `<span>${esc(t)}</span>`).join('')}</span>${ICON('cat-' + s.cat)}${bench(s.solo)}`;
+function media(s) {
+  const p = photosOf(s.id)[0];
+  return `<span class="pc-media${p ? ' has' : ''}" data-cover><span class="pc-ph">${coverInner(s)}</span>${p ? `<img src="${esc(p.thumb || p.src)}" alt="${esc(p.alt || s.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('has');this.remove()">` : ''}</span>`;
+}
+function card(s, opt = {}) {
+  const c = CAT[s.cat] || {};
+  return `<a class="pc" href="${placeUrl(s.id)}" data-id="${esc(s.id)}">
+  ${media(s)}
+  <span class="pc-body">
+    <span class="pc-top"><span>${esc(s.area)}</span>${opt.cat === false ? '' : `<span class="pc-cat">${esc(c.label || '')}</span>`}</span>
+    <b class="pc-name">${esc(s.name)}${s.kind === 'type' ? '<span class="tag kind">유형</span>' : ''}</b>
+    <span class="pc-intro">${esc(s.intro)}</span>
+    <span class="pc-facts">${seats(s.solo)}<span class="talk t${s.talk}">${TALK_S[s.talk]}</span><span class="num">${esc(s.price)}</span></span>
+  </span>
+</a>`;
+}
+const grid = (list, opt = {}) => `<div class="pgrid${opt.cols ? ' c' + opt.cols : ''}">${list.map((s) => card(s, opt)).join('')}</div>`;
 
 /* 오늘의 혼플 카드 (홈) — home.js 가 날짜에 맞춰 다시 그립니다 */
 function todayCard(s) {
@@ -131,7 +174,7 @@ const faqLd = (bs) => {
 {
   const places = spaces.filter((s) => s.kind === 'place');
   const todayPick = places[dayOfYear() % places.length];
-  const featured = [todayPick, ...places.filter((s) => s.id !== todayPick.id).slice(0, 5)];
+  const featured = [todayPick, ...photoFirst(places.filter((s) => s.id !== todayPick.id)).slice(0, 6)];
   write('index.html', shell({
     path: '/', file: 'index.html',
     title: BRAND,
@@ -197,7 +240,7 @@ ${areas.map((a) => `    <a class="chip" href="/area/${a.slug}">${esc(a.name)} <s
   </div>
   <div>
     <div class="today-pick" data-today-pick>${todayCard(todayPick)}</div>
-    ${sheet(featured.slice(1))}
+    ${grid(featured.slice(1), { cols: 3 })}
   </div>
 </div></section>
 
@@ -285,8 +328,14 @@ ${articles.slice(0, 5).map((a) => `    <a class="gi" href="/magazine/${a.id}"><s
       <button class="chip" data-k="saved" data-v="1">${ICON('i-heart')}저장한 곳 <span class="n" data-saved-n></span></button>
     </div></div>
   </div>
-  <div class="count" data-count>${spaces.length}곳</div>
-  <div data-list>${sheet(sorted)}</div>
+  <div class="listbar">
+    <div class="count" data-count>${spaces.length}곳</div>
+    <div class="viewsw" role="group" aria-label="보기 방식">
+      <button type="button" class="on" data-view="card" aria-pressed="true">${ICON('i-grid')}사진으로</button>
+      <button type="button" data-view="row" aria-pressed="false">${ICON('i-rows')}표로</button>
+    </div>
+  </div>
+  <div data-list>${grid(photoFirst(sorted))}</div>
   <p class="small muted" style="margin:28px 0 8px">여기 없는 곳을 알고 있다면 <a href="/submit">알려 주세요</a>. 보내는 사람의 이름은 묻지 않습니다.</p>
 </div></section>
 
@@ -302,15 +351,112 @@ ${areas.map((a) => `    <a class="chip" href="/area/${a.slug}">${esc(a.name)} <s
 
 /* ══════════════════════════════════════════
    3. 플레이스 상세 (정적)
+   사진 → 이름·요약 → [본문 | 요약 카드] → 이야기 → 근처·비슷한 곳 → 관련 글
    ══════════════════════════════════════════ */
+const SOLO_L = { 5: '혼자 오는 것이 기본인 곳', 4: '혼자 온 손님이 흔한 곳', 3: '혼자 가도 무리 없는 곳', 2: '조금 용기가 필요한 곳', 1: '혼자는 드문 곳' };
+const FEE_CATS = new Set(['culture', 'rest', 'play', 'move', 'learn', 'social']);
+const ymText = (v) => (v || '').replace(/^(\d{4})-(\d{2})$/, (_, y, m) => `${y}년 ${+m}월`);
+const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
+const siteLabel = (u) => (/instagram\.com/.test(u) ? '인스타그램' : /cafe\.naver\.com/.test(u) ? '네이버 카페' : '공식 홈페이지');
+
+/* 사진 출처 한 줄 — 같은 출처는 한 번만 */
+function creditLine(ps) {
+  const seen = new Set();
+  const parts = [];
+  for (const p of ps) {
+    const key = `${p.credit || ''}|${p.license || ''}`;
+    if (!p.credit || seen.has(key)) continue;
+    seen.add(key);
+    const text = esc(p.credit) + (p.license ? ` (${esc(p.license)})` : '');
+    parts.push(p.source ? `<a href="${esc(p.source)}" target="_blank" rel="noopener nofollow">${text}</a>` : text);
+  }
+  return parts.length ? `사진 ${parts.join(', ')}` : '';
+}
+
+function gallery(s) {
+  const ps = photosOf(s.id);
+  const q = encodeURIComponent(s.mapq || s.name);
+  const naverLink = `<a href="https://map.naver.com/p/search/${q}" target="_blank" rel="noopener nofollow">네이버지도에서 사진 보기</a>`;
+  if (!ps.length) {
+    return `<div class="gal none" data-gallery><div class="gal-cover">${coverInner(s, 3)}</div></div>
+  <p class="gal-note" data-gal-note>${s.kind === 'type' ? '특정 가게가 아닌 유형이라 대표 사진이 없습니다.' : `아직 등록된 사진이 없습니다. ${naverLink}`}</p>`;
+  }
+  const show = ps.slice(0, 3);
+  return `<div class="gal n${show.length}" data-gallery>
+    ${show.map((p, i) => `<button type="button" class="gal-i" data-i="${i}" aria-label="사진 ${i + 1} 크게 보기"><img src="${esc(i === 0 ? p.src : (p.thumb || p.src))}" alt="${esc(p.alt || s.name)}" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" referrerpolicy="no-referrer">${i === 2 && ps.length > 3 ? `<span class="gal-more">사진 ${ps.length}장 모두 보기</span>` : ''}</button>`).join('\n    ')}
+    ${show.length === 1 ? `<span class="gal-side" aria-hidden="true">${coverInner(s, 3)}</span>` : ''}
+  </div>
+  <p class="gal-note" data-gal-note>${creditLine(ps)}${s.kind === 'place' ? `${creditLine(ps) ? '<span class="sep"></span>' : ''}${naverLink}` : ''}</p>`;
+}
+
+/* 지점마다 달라지는 값으로 만든 자주 묻는 것 */
+function placeFaq(s) {
+  const out = [];
+  const time = s.time.map((t) => TIME[t]).join(', ');
+  out.push({
+    q: `${s.name}, 혼자 가도 괜찮나요?`,
+    a: ({
+      5: '네. 혼자 오는 손님이 기본인 곳입니다.',
+      4: '네. 혼자 온 손님이 흔하고 혼자 앉을 자리가 있습니다.',
+      3: '갈 수 있습니다. 다만 일행과 온 손님이 더 많은 편이라 붐비는 시간은 피하는 것이 편합니다.',
+      2: '갈 수는 있지만 조금 용기가 필요한 곳입니다. 한가한 시간대를 고르세요.',
+      1: '혼자 온 손님은 드문 곳입니다.'
+    })[s.solo] + ` 혼플의 혼자 지수는 5점 만점에 ${s.solo}점입니다.`
+  });
+  out.push({
+    q: '가면 말을 걸어 오나요?',
+    a: [
+      '거의 걸지 않습니다. 조용히 있어도 되는 곳으로 분류했습니다.',
+      '사장님이나 직원이 가볍게 말을 걸 수 있지만, 원하지 않으면 짧게 답하고 있어도 됩니다.',
+      '네. 사장님이나 다른 손님과 이야기를 나누는 것이 이곳의 중심입니다. 조용히 있고 싶은 날에는 맞지 않을 수 있습니다.'
+    ][s.talk]
+  });
+  out.push({
+    q: '비용은 얼마나 드나요?',
+    a: `혼자 한 번 다녀오는 데 ${s.price} 정도입니다${s.menu ? ` (${s.menu})` : ''}. 가격은 바뀔 수 있습니다.`
+  });
+  out.push({
+    q: '언제 가는 게 좋나요?',
+    a: `${time}에 어울리는 곳입니다.`
+      + (s.hours ? ` 평소 운영 시간은 ${s.hours}${/[.다]$/.test(s.hours) ? '' : '입니다.'}` : '')
+      + (s.closed ? (/연중무휴|없음/.test(s.closed) ? ' 정기 휴무는 없습니다.' : ` 쉬는 날은 ${s.closed}${/[.다]$/.test(s.closed) ? '' : '입니다.'}`) : '')
+      + ' 운영 시간은 바뀔 수 있으니 가기 전에 지도에서 한 번 확인하세요.'
+  });
+  if (s.kind === 'place' && (s.transit || s.addr)) {
+    out.push({ q: '어떻게 가나요?', a: (s.transit ? `${s.transit}${/[.다]$/.test(s.transit) ? '' : '.'} ` : '') + (s.addr ? `주소는 ${s.addr}입니다.` : '') });
+  }
+  if (s.kind === 'type') {
+    out.push({ q: '어디에 있나요?', a: '특정 가게가 아니라 이런 종류의 곳을 묶어 소개한 항목입니다. 지도 버튼을 누르면 가까운 곳을 찾을 수 있습니다.' });
+  }
+  return out;
+}
+
+/* 이 지점이 나오는 글 (매거진·가이드) */
+const mentionsOf = (id) => [
+  ...articles.filter((a) => a.blocks.some((b) => b.t === 'places' && (b.x || []).includes(id))).map((a) => ({ url: `/magazine/${a.id}`, title: a.title, lead: a.lead, minutes: a.minutes })),
+  ...guides.filter((g) => (g.blocks || []).some((b) => b.t === 'places' && (b.x ?? b.items ?? []).includes(id))).map((g) => ({ url: `/guide/${g.id}`, title: g.title, lead: g.lead || g.summary || '', minutes: g.minutes }))
+].slice(0, 4);
+
 for (const s of spaces) {
   const c = CAT[s.cat] || {};
   const q = encodeURIComponent(s.mapq || s.name);
   const naver = 'https://map.naver.com/p/search/' + q;
   const google = 'https://www.google.com/maps/search/?api=1&query=' + q;
   const kakao = 'https://map.kakao.com/?q=' + q;
-  const more = spaces.filter((x) => x.cat === s.cat && x.id !== s.id).slice(0, 4);
-  const sameArea = spaces.filter((x) => x.id !== s.id && areasOf(x).some((a) => areasOf(s).some((b) => b.slug === a.slug))).slice(0, 4);
+  const myAreas = areasOf(s);
+  const sameArea = s.kind === 'place'
+    ? photoFirst(spaces.filter((x) => x.id !== s.id && x.kind === 'place' && areasOf(x).some((a) => myAreas.some((b) => b.slug === a.slug)))).slice(0, 3)
+    : [];
+  const more = photoFirst(spaces.filter((x) => x.cat === s.cat && x.id !== s.id && !sameArea.includes(x))).slice(0, 3);
+  const ps = photosOf(s.id);
+  const faq = placeFaq(s);
+  const mentions = mentionsOf(s.id);
+  const dong = s.kind === 'place' ? s.area.split(' ').slice(-1)[0] : '';
+  const time = s.time.map((t) => TIME[t]).join(', ');
+  const info = [
+    s.seats && ['자리', s.seats],
+    s.menu && [FEE_CATS.has(s.cat) ? '요금' : '메뉴와 가격', s.menu]
+  ].filter(Boolean);
 
   const ld = [{
     '@type': s.kind === 'place' ? 'LocalBusiness' : 'Thing',
@@ -318,70 +464,126 @@ for (const s of spaces) {
     name: s.name,
     description: s.intro,
     url: SITE + placeUrl(s.id),
+    ...(ps.length ? { image: ps.map((p) => absUrl(p.src)) } : {}),
     ...(s.addr ? { address: { '@type': 'PostalAddress', streetAddress: s.addr, addressCountry: 'KR' } } : {}),
-    ...(s.kind === 'place' ? { areaServed: s.area } : {})
+    ...(s.kind === 'place' ? { areaServed: s.area } : {}),
+    ...(s.site ? { sameAs: [s.site] } : {})
   }, {
     '@type': 'WebPage',
     url: SITE + placeUrl(s.id),
     name: `${s.name} — 혼자 가기 좋은 플레이스`,
     isPartOf: { '@id': SITE + '/#website' },
-    primaryImageOfPage: SITE + '/assets/img/og.png'
+    primaryImageOfPage: ps.length ? absUrl(ps[0].src) : SITE + '/assets/img/og.png'
+  }, {
+    '@type': 'FAQPage',
+    mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } }))
   }];
 
   write(`place/${s.id}.html`, shell({
     path: placeUrl(s.id), file: `place/${s.id}.html`,
-    title: `${s.name} — 혼자 가도 되는 ${c.label}`,
-    desc: `${s.name}(${s.area}) — ${s.intro} 혼자 지수 ${s.solo}/5, 대화 온도 ‘${TALK[s.talk]}’, 비용 ${s.price}.`,
-    scripts: ['feed.js', 'place.js'],
+    title: `${s.name}${dong && !s.name.includes(dong) ? `(${dong})` : ''} — 혼자 가도 되는 ${c.label}`,
+    desc: `${s.name}(${s.area}) — ${s.intro} 혼자 지수 ${s.solo}/5, 대화 온도 ‘${TALK[s.talk]}’, 비용 ${s.price}.${s.transit ? ' ' + s.transit + '.' : ''}`.slice(0, 220),
+    scripts: ['gallery.js', 'feed.js', 'place.js'],
     ogType: 'article',
+    ...(ps.length ? { ogImage: absUrl(ps[0].src) } : {}),
     crumbs: [{ name: '플레이스', path: '/spaces' }, { name: c.label, path: `/c/${s.cat}` }, { name: s.name, path: placeUrl(s.id) }],
     ld,
-    head: `<meta name="keywords" content="${esc([s.name, s.area, c.label, '혼자 가기 좋은 곳', ...(s.tags || [])].join(', '))}">`,
+    head: `<meta name="keywords" content="${esc([s.name, s.area, c.label, dong ? `${dong} 혼자` : '', '혼자 가기 좋은 곳', ...(s.tags || [])].filter(Boolean).join(', '))}">`,
     body: `
-<article class="wrap read" data-space-id="${esc(s.id)}">
-  <div class="sp-head">
-    <div class="cat"><a href="/c/${s.cat}">${esc(c.label)}</a>${s.kind === 'type' ? '<span class="tag kind">유형</span>' : ''}</div>
+<article class="sp" data-space-id="${esc(s.id)}" data-space-name="${esc(s.name)}" data-cat="${esc(s.cat)}" data-solo="${s.solo}" data-tags="${esc((s.tags || []).slice(0, 3).join('|'))}">
+<div class="wrap sp-top">
+  ${gallery(s)}
+  <script type="application/json" data-photos>${JSON.stringify(ps).replace(/</g, '\\u003c')}</script>
+
+</div>
+
+<div class="wrap sp-cols">
+  <header class="sp-head">
+    <div class="cat"><a href="/c/${s.cat}">${esc(c.label)}</a>${s.kind === 'type' ? '<span class="tag kind">유형</span>' : ''}<span class="sp-area">${esc(s.area)}</span></div>
     <h1>${esc(s.name)}${s.host?.verified ? `<span class="hb-badge" title="운영자가 확인한 호스트">${ICON('i-check')}호스트 확인</span>` : ''}</h1>
-    <div class="area">${esc(s.area)}</div>
-    ${s.addr ? `<div class="addr">${esc(s.addr)}</div>` : ''}
+    <p class="sp-lede">${esc(s.intro)}</p>
     <div class="sp-like">
       <button class="like-btn" type="button" data-like aria-pressed="false">${ICON('i-heart')}<span data-like-label>가고 싶어요</span><b class="num" data-like-n></b></button>
+      <button class="like-btn" type="button" data-share>${ICON('i-share')}<span>공유</span></button>
       <a class="small muted" href="/spaces?saved=1">저장한 곳 보기</a>
     </div>
-  </div>
-  <div class="facts">
-    <div class="f"><small>혼자 지수</small>${seats(s.solo)}</div>
-    <div class="f"><small>대화 온도</small><span class="talk t${s.talk}">${TALK[s.talk]}</span></div>
-    <div class="f"><small>비용</small><b class="num">${esc(s.price)}</b></div>
-    <div class="f"><small>어울리는 시간</small><b>${s.time.map((t) => TIME[t]).join(', ')}</b></div>
-  </div>
-  <div class="sp-body">
-    <h2>어떤 곳인가요</h2><p>${esc(s.intro)}</p>
-    <h2>분위기와 문화</h2><p>${esc(s.culture)}</p>
-    <h2>처음 가면</h2><p>${esc(s.first)}</p>
-    <div data-host-slot>${s.host?.note ? `<div class="host-box">
-      <div class="hb-head">
-        <span class="hb-badge">${ICON('i-check')}호스트 안내</span>
-        ${s.host.verified ? `<span class="hb-date">${esc(s.host.verified)} 확인</span>` : ''}
+  </header>
+  <aside class="sp-side" aria-label="한눈에 보기">
+    <div class="sp-card">
+      <h2>한눈에 보기</h2>
+      <dl>
+        <dt>혼자 지수</dt><dd>${seats(s.solo)}<span class="sub">${SOLO_L[s.solo] || ''}</span></dd>
+        <dt>대화 온도</dt><dd><span class="talk t${s.talk}">${TALK[s.talk]}</span></dd>
+        <dt>비용</dt><dd class="num">${esc(s.price)}</dd>
+        <dt>어울리는 시간</dt><dd>${time}</dd>
+        ${s.hours ? `<dt>운영 시간</dt><dd>${esc(s.hours)}</dd>` : ''}
+        ${s.closed ? `<dt>쉬는 날</dt><dd>${esc(s.closed)}</dd>` : ''}
+        ${s.kind === 'place' ? `<dt>위치</dt><dd>${esc(s.addr || s.area)}${s.transit ? `<span class="sub">${esc(s.transit)}</span>` : ''}</dd>` : ''}
+      </dl>
+      <div class="sp-card-b">
+        <a class="btn" href="${naver}" target="_blank" rel="noopener nofollow">${ICON('i-pin')}네이버지도</a>
+        <a class="btn ghost" href="${google}" target="_blank" rel="noopener nofollow">구글지도</a>
       </div>
-      <h2 style="margin:0 0 10px">${esc(s.host.title || '운영자가 직접 쓴 안내')}</h2>
-      ${s.host.seats || s.host.hours ? `<dl>
-        ${s.host.seats ? `<dt>1인 좌석</dt><dd>${esc(s.host.seats)}</dd>` : ''}
-        ${s.host.hours ? `<dt>운영 시간</dt><dd>${esc(s.host.hours)}</dd>` : ''}
-      </dl>` : ''}
-      <p>${esc(s.host.note)}</p>
-      <div class="hb-foot">이 공간을 운영하는 분이 직접 적은 내용입니다. 혼플은 등급이나 순위를 매기지 않으며, 호스트 등록 여부는 혼자 지수·대화 온도에 영향을 주지 않습니다.${s.host.link ? ` <a href="${esc(s.host.link)}" target="_blank" rel="noopener nofollow">공식 채널</a>` : ''}</div>
-    </div>` : ''}</div>
-    ${s.notes?.length ? `<h2>알아 두면 좋아요</h2><ul>${s.notes.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}
-    ${s.tags?.length ? `<div class="tags">${s.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}
-    <div class="actions">
-      <a class="btn" href="${naver}" target="_blank" rel="noopener nofollow">${ICON('i-pin')}네이버지도${s.kind === 'type' ? '에서 찾기' : ''}</a>
-      <a class="btn" href="${google}" target="_blank" rel="noopener nofollow">${ICON('i-pin')}구글지도${s.kind === 'type' ? '에서 찾기' : ''}</a>
-      <a class="btn ghost" href="${kakao}" target="_blank" rel="noopener nofollow">카카오맵</a>
-      <a class="btn ghost" href="/submit?fix=${encodeURIComponent(s.id)}">정보 수정 제안</a>
+      <p class="sp-checked">${s.kind === 'type' ? '유형 항목이라 가게마다 다릅니다.' : s.checked ? `${ymText(s.checked)}에 확인한 정보입니다. 운영 시간과 가격은 바뀔 수 있으니 가기 전에 지도에서 한 번 확인하세요.` : '운영 시간과 규칙은 바뀔 수 있습니다. 가기 전에 지도에서 한 번 확인하세요.'}</p>
+      <a class="sp-fix" href="/submit?fix=${encodeURIComponent(s.id)}">정보가 다르다면 알려 주세요</a>
     </div>
-    <p class="small muted" style="margin-top:10px">${s.kind === 'type' ? '유형이라 특정 가게가 아닙니다. 지도 버튼을 누르면 가까운 곳을 찾을 수 있습니다.' : '운영 시간과 규칙은 바뀔 수 있습니다. 방문 전 지도에서 한 번 확인해 주세요.'}</p>
+  </aside>
+  <div class="sp-main">
+    ${s.verify ? `<div class="notice">${ICON('i-info')}<div>최근 영업 여부를 다시 확인하고 있는 곳입니다. 가기 전에 지도에서 영업 중인지 꼭 확인해 주세요.</div></div>` : ''}
+    <div class="sp-body">
+      <h2>분위기</h2>
+      <p>${esc(s.culture)}</p>
+
+      ${info.length ? `<h2>이용 정보</h2>
+      <dl class="sp-info">
+        ${info.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('\n        ')}
+        ${s.site ? `<dt>공식 채널</dt><dd><a href="${esc(s.site)}" target="_blank" rel="noopener nofollow">${siteLabel(s.site)}</a> <span class="muted small">${esc(hostOf(s.site))}</span></dd>` : ''}
+      </dl>` : (s.site ? `<h2>이용 정보</h2><dl class="sp-info"><dt>공식 채널</dt><dd><a href="${esc(s.site)}" target="_blank" rel="noopener nofollow">${siteLabel(s.site)}</a> <span class="muted small">${esc(hostOf(s.site))}</span></dd></dl>` : '')}
+
+      <h2>처음 간다면</h2>
+      <p>${esc(s.first)}</p>
+
+      <div data-host-slot>${s.host?.note ? `<div class="host-box">
+        <div class="hb-head">
+          <span class="hb-badge">${ICON('i-check')}호스트 안내</span>
+          ${s.host.verified ? `<span class="hb-date">${esc(s.host.verified)} 확인</span>` : ''}
+        </div>
+        <h2 style="margin:0 0 10px">${esc(s.host.title || '운영자가 직접 쓴 안내')}</h2>
+        ${s.host.seats || s.host.hours ? `<dl>
+          ${s.host.seats ? `<dt>1인 좌석</dt><dd>${esc(s.host.seats)}</dd>` : ''}
+          ${s.host.hours ? `<dt>운영 시간</dt><dd>${esc(s.host.hours)}</dd>` : ''}
+        </dl>` : ''}
+        <p>${esc(s.host.note)}</p>
+        <div class="hb-foot">이 공간을 운영하는 분이 직접 적은 내용입니다. 혼플은 등급이나 순위를 매기지 않으며, 호스트 등록 여부는 혼자 지수·대화 온도에 영향을 주지 않습니다.${s.host.link ? ` <a href="${esc(s.host.link)}" target="_blank" rel="noopener nofollow">공식 채널</a>` : ''}</div>
+      </div>` : ''}</div>
+
+      ${s.notes?.length ? `<h2>알아 둘 것</h2>
+      <ul>${s.notes.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>` : ''}
+      ${s.tags?.length ? `<div class="tags">${s.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : ''}
+
+      <h2 id="way">${s.kind === 'type' ? '가까운 곳 찾기' : '찾아가는 길'}</h2>
+      ${s.kind === 'type' ? `<p>특정 가게가 아니라 이런 종류의 곳을 묶어 소개한 항목입니다. 지도에서 가까운 곳을 찾아보세요.</p>` : `<dl class="sp-info">
+        ${s.addr ? `<dt>주소</dt><dd>${esc(s.addr)} <button type="button" class="linkbtn" data-copy="${esc(s.addr)}">주소 복사</button></dd>` : `<dt>위치</dt><dd>${esc(s.area)}</dd>`}
+        ${s.transit ? `<dt>가는 길</dt><dd>${esc(s.transit)}</dd>` : ''}
+      </dl>
+      <div class="sp-map" data-map="${esc(`${s.name} ${s.addr || s.area}`)}">
+        <button type="button" class="btn ghost" data-map-open>${ICON('i-pin')}여기에 지도 펼치기</button>
+        <span class="muted small">구글 지도를 불러옵니다</span>
+      </div>`}
+      <div class="actions">
+        <a class="btn" href="${naver}" target="_blank" rel="noopener nofollow">${ICON('i-pin')}네이버지도${s.kind === 'type' ? '에서 찾기' : ''}</a>
+        <a class="btn" href="${google}" target="_blank" rel="noopener nofollow">${ICON('i-pin')}구글지도${s.kind === 'type' ? '에서 찾기' : ''}</a>
+        <a class="btn ghost" href="${kakao}" target="_blank" rel="noopener nofollow">카카오맵</a>
+      </div>
+
+      <div class="faq sp-faq">
+        <h2>자주 묻는 것</h2>
+        ${faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('\n        ')}
+      </div>
+    </div>
   </div>
+
+</div>
 </article>
 
 <section class="ed"><div class="wrap">
@@ -393,16 +595,23 @@ for (const s of spaces) {
   </div>
 </div></section>
 
-<section class="sp-more wrap read">
-  ${more.length ? `<h2>비슷한 곳</h2>${sheet(more, { cat: false })}<p style="margin:14px 0 24px"><a class="btn ghost sm" href="/c/${s.cat}">${esc(c.label)} 전부 보기</a></p>` : ''}
-  ${sameArea.length ? `<h2>이 근처의 다른 곳</h2>${sheet(sameArea, { cat: true })}` : ''}
-</section>
+${sameArea.length || more.length ? `<section class="sp-more"><div class="wrap">
+  ${sameArea.length ? `<div class="sp-more-h"><h2>${esc(myAreas[0]?.name || '근처')}의 다른 곳</h2>${myAreas[0] ? `<a href="/area/${myAreas[0].slug}">이 동네 전부 보기</a>` : ''}</div>
+  ${grid(sameArea, { cols: 3 })}` : ''}
+  ${more.length ? `<div class="sp-more-h"><h2>비슷한 ${esc(c.label)}</h2><a href="/c/${s.cat}">${esc(c.label)} 전부 보기</a></div>
+  ${grid(more, { cols: 3, cat: false })}` : ''}
+</div></section>` : ''}
 
-${s.kind === 'place' && !s.host?.verified ? `<section class="wrap read" style="padding:0 var(--gutter) 44px" data-host-cta>
+${mentions.length ? `<section class="ed"><div class="wrap">
+  <div class="lead"><h2>이 곳이<br>나오는 글</h2><p>이 곳을 다룬 글입니다.</p></div>
+  <div class="gtoc">${mentions.map((m) => `<a class="gi" href="${m.url}"><span class="l1"><span class="t">${esc(m.title)}</span><span class="lead-line"></span>${m.minutes ? `<span class="m">${m.minutes}분</span>` : ''}</span><span class="sub">${esc(m.lead)}</span></a>`).join('')}</div>
+</div></section>` : ''}
+
+${s.kind === 'place' && !s.host?.verified ? `<section class="wrap" style="padding-top:8px;padding-bottom:44px" data-host-cta>
   <div class="host-cta">
     <div>
       <b>이 공간을 운영하고 계신가요</b>
-      호스트로 등록하시면 혼자 오는 손님을 위한 안내를 직접 쓰고, 운영 정보를 바로잡고, 남겨진 후기에 답하실 수 있습니다. 등록과 이용은 무료입니다.
+      호스트로 등록하시면 사진과 안내를 직접 올리고, 운영 정보를 바로잡고, 남겨진 후기에 답하실 수 있습니다. 등록과 이용은 무료입니다.
     </div>
     <a class="btn" href="/host" data-track="cta" data-track-label="place-host">호스트 등록 안내</a>
   </div>
@@ -440,12 +649,12 @@ for (const c of categories) {
 </div></section>
 ${L.intro?.length ? `<div class="wrap read landing-intro">${L.intro.map((t) => `<p>${esc(t)}</p>`).join('')}</div>` : ''}
 <div class="wrap">
-  ${quiet.length ? `<h2 class="sec">아무 말도 하기 싫은 날</h2>${sheet(quiet, { cat: false })}` : ''}
-  ${talky.length ? `<h2 class="sec">몇 마디 나누고 싶은 날</h2>${sheet(talky, { cat: false })}` : ''}
-  ${cheap.length ? `<h2 class="sec">돈이 거의 들지 않는 곳</h2>${sheet(cheap, { cat: false })}` : ''}
-  ${night.length ? `<h2 class="sec">밤늦게도 되는 곳</h2>${sheet(night, { cat: false })}` : ''}
-  <h2 class="sec">${esc(c.label)} 전체</h2>
-  ${sheet(list, { cat: false })}
+  <h2 class="sec">${esc(c.label)} ${list.length}곳</h2>
+  ${grid(photoFirst(list), { cat: false })}
+  ${quiet.length && quiet.length < list.length ? `<h2 class="sec">아무 말도 하기 싫은 날</h2>${sheet(quiet, { cat: false, intro: false })}` : ''}
+  ${talky.length ? `<h2 class="sec">몇 마디 나누고 싶은 날</h2>${sheet(talky, { cat: false, intro: false })}` : ''}
+  ${cheap.length && cheap.length < list.length ? `<h2 class="sec">돈이 거의 들지 않는 곳</h2>${sheet(cheap, { cat: false, intro: false })}` : ''}
+  ${night.length && night.length < list.length ? `<h2 class="sec">밤늦게도 되는 곳</h2>${sheet(night, { cat: false, intro: false })}` : ''}
 </div>
 ${L.faq?.length ? `<div class="wrap read"><div class="faq"><h2 class="sec">${esc(c.label)}, 자주 묻는 것</h2>${L.faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}</div></div>` : ''}
 ${rel.length ? `<section class="ed"><div class="wrap">
@@ -487,7 +696,7 @@ ${L.intro ? `<div class="wrap read landing-intro"><p>${esc(L.intro)}</p></div>` 
 <div class="wrap">
 ${catsHere.map((c) => {
   const sub = list.filter((s) => s.cat === c.id);
-  return `  <h2 class="sec">${esc(c.label)}</h2>${sheet(sub, { cat: false })}`;
+  return `  <h2 class="sec">${esc(c.label)} <small>${sub.length}곳</small></h2>${grid(photoFirst(sub), { cat: false })}`;
 }).join('\n')}
 </div>
 ${L.faq?.length ? `<div class="wrap read"><div class="faq"><h2 class="sec">${esc(a.name)}, 자주 묻는 것</h2>${L.faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}</div></div>` : ''}
@@ -826,7 +1035,7 @@ write('host/center.html', shell({
   path: '/host/center', file: 'host/center.html',
   title: '호스트센터',
   desc: '인증된 호스트가 공간 안내를 고치고 손님의 후기에 답하는 곳입니다.',
-  scripts: ['hostcenter.js'],
+  scripts: ['upload.js', 'hostcenter.js'],
   noIndex: true,
   crumbs: [{ name: '호스트 등록', path: '/host' }, { name: '호스트센터', path: '/host/center' }],
   body: `
@@ -997,11 +1206,18 @@ write('terms.html', shell({
     <li>법령이나 공공질서에 어긋나는 내용</li>
   </ul>
   <p>게시물의 저작권은 작성자에게 있으며, 작성자는 서비스가 게시물을 서비스 내에 게시·보관하는 것을 허락합니다. 익명 게시물의 특성상 작성자 본인 확인이 어려우므로, 게시 후 수정·삭제 요청은 처리하지 못할 수 있습니다.</p>
+  <h2>3-1. 사진</h2>
+  <p>플레이스 페이지의 사진은 운영자가 직접 찍었거나, 누구나 쓸 수 있도록 공개된 자료(크리에이티브 커먼즈, 공공누리 등)이거나, 그 공간의 호스트가 제공한 것입니다. 사진마다 출처와 이용 조건을 함께 적습니다.</p>
+  <ul>
+    <li>호스트는 직접 찍었거나 사용할 권리가 있는 사진만 올릴 수 있습니다. 올린 사진의 저작권은 호스트에게 그대로 있으며, 호스트는 서비스가 그 사진을 해당 플레이스 페이지와 목록, 검색·공유 미리보기에 쓰는 것을 허락합니다.</li>
+    <li>다른 사람의 얼굴을 알아볼 수 있는 사진, 다른 곳에서 가져온 사진, 실제와 다르게 보이도록 꾸민 사진은 숨기거나 삭제할 수 있습니다.</li>
+    <li>호스트는 호스트센터에서 자신이 올린 사진을 언제든 지울 수 있습니다. 사진의 권리자가 삭제를 요청하면 확인 후 지체 없이 내립니다.</li>
+  </ul>
   <h2>4. 호스트 등록</h2>
   <p>공간을 운영하는 자(이하 ‘호스트’)는 호스트 등록을 신청할 수 있습니다. 등록과 이용에는 비용이 들지 않습니다.</p>
   <ul>
     <li>신청자는 해당 공간을 실제로 운영할 권한이 있어야 하며, 운영자는 사업자등록번호 등으로 이를 확인합니다. 허위 신청이 확인되면 인증을 취소하고 등록을 거부할 수 있습니다.</li>
-    <li>인증된 호스트는 자신의 공간 페이지에 공식 안내를 게재하고 운영 정보의 정정을 요청할 수 있으며, 그 공간에 달린 익명 후기에 호스트 표시가 붙은 답글을 남길 수 있습니다.</li>
+    <li>인증된 호스트는 자신의 공간 페이지에 공식 안내와 사진을 게재하고 운영 정보의 정정을 요청할 수 있으며, 그 공간에 달린 익명 후기에 호스트 표시가 붙은 답글을 남길 수 있습니다.</li>
     <li>호스트가 제공한 정보의 정확성에 대한 책임은 호스트에게 있습니다. 허위·과장 표현, 다른 공간에 대한 비방, 혼자 방문과 무관한 홍보성 내용은 게재를 거부하거나 삭제할 수 있습니다.</li>
     <li><b>호스트 등록은 노출 순서나 평가에 영향을 주지 않습니다.</b> 운영자는 대가를 받고 특정 공간의 노출을 올리거나 평가를 조정하지 않습니다. 혼자 지수와 대화 온도는 호스트 등록 여부와 무관하게 같은 기준으로 적용합니다.</li>
     <li>호스트는 언제든 등록 해지를 요청할 수 있으며, 해지 시 호스트 안내와 수집된 연락처를 삭제합니다.</li>
@@ -1042,7 +1258,7 @@ write('privacy.html', shell({
       <tr><td>자동</td><td>접속 IP의 해시값</td><td>중복·악용 신청 방지</td><td>수집 시점부터 최대 6개월</td></tr>
     </tbody>
   </table>
-  <p>공간 이름·주소·운영 정보 등 공간에 관한 내용은 개인정보가 아니며, 인증 후 사이트에 공개될 수 있습니다. <b>담당자 이름·연락처·사업자등록번호는 사이트에 공개하지 않습니다.</b></p>
+  <p>공간 이름·주소·운영 정보·사진 등 공간에 관한 내용은 개인정보가 아니며, 인증 후 사이트에 공개될 수 있습니다. <b>담당자 이름·연락처·사업자등록번호는 사이트에 공개하지 않습니다.</b></p>
   <p>이용자는 개인정보 수집·이용에 동의하지 않을 권리가 있습니다. 다만 필수 항목에 동의하지 않으면 호스트 등록 심사가 어렵습니다.</p>
 
   <h2>3. 게시판 운영을 위해 처리하는 정보</h2>
@@ -1058,7 +1274,7 @@ write('privacy.html', shell({
     <thead><tr><th>항목</th><th>내용</th><th>보유 기간</th></tr></thead>
     <tbody>
       <tr><td>방문 기록</td><td>본 페이지 주소, 방문 시각, 들어온 경로(검색엔진·SNS 등 이전 사이트의 도메인), 기기 종류(휴대폰·컴퓨터·태블릿), 페이지를 화면에 띄워 둔 시간</td><td>최대 400일 후 자동 삭제</td></tr>
-      <tr><td>행동 기록</td><td>지도 버튼·외부 링크·공유 버튼을 누른 것, 플레이스 목록에서 입력한 검색어와 고른 조건, 혼자력 테스트 결과 유형</td><td>최대 400일 후 자동 삭제</td></tr>
+      <tr><td>행동 기록</td><td>지도 버튼·외부 링크·공유 버튼을 누른 것, 사진을 크게 보거나 지도를 펼친 것, 플레이스 목록에서 입력한 검색어와 고른 조건, 혼자력 테스트 결과 유형</td><td>최대 400일 후 자동 삭제</td></tr>
       <tr><td>브라우저 식별값</td><td>브라우저에서 무작위로 만든 번호. 같은 브라우저의 방문을 묶어 세는 데만 쓰며, 이름·연락처·IP 주소와 연결하지 않습니다</td><td>브라우저 데이터를 지우면 새 번호가 됩니다</td></tr>
       <tr><td>가고 싶어요</td><td>누른 플레이스, 브라우저 식별값, 반복 누르기를 막기 위한 접속 IP의 해시값</td><td>버튼을 다시 눌러 취소하면 삭제</td></tr>
     </tbody>
@@ -1070,7 +1286,7 @@ write('privacy.html', shell({
   <ul>
     <li><b>Cloudflare, Inc.</b> — 웹사이트 호스팅과 데이터 보관. 데이터는 국외 서버에 저장될 수 있습니다.</li>
   </ul>
-  <p>웹 글꼴은 외부 CDN에서 불러오며, 지도 보기는 외부 지도 서비스로 연결됩니다. 각 서비스의 개인정보 처리는 해당 서비스의 방침을 따릅니다. 광고 추적 도구는 사용하지 않습니다.</p>
+  <p>웹 글꼴은 외부 CDN에서 불러오며, 지도 버튼은 외부 지도 서비스로 연결됩니다. 플레이스 페이지의 ‘여기에 지도 펼치기’는 누른 뒤에만 구글 지도를 페이지 안에 불러옵니다. 일부 사진은 위키미디어 공용 같은 외부 서버에서 불러오며, 이때 보고 있던 페이지 주소는 함께 보내지 않습니다. 각 서비스의 개인정보 처리는 해당 서비스의 방침을 따릅니다. 광고 추적 도구는 사용하지 않습니다.</p>
 
   <h2>5. 파기</h2>
   <p>보유 기간이 지나거나 처리 목적이 달성된 개인정보는 지체 없이 파기합니다. 전자적 파일은 복구할 수 없는 방법으로 삭제합니다.</p>
@@ -1201,7 +1417,7 @@ ${q.a.map((a, j) => `        <label><input type="radio" name="q${i}" value="${j}
 
   <h2 class="sec">${esc(t.name)}에게 맞는 플레이스</h2>
   <p class="small muted" style="margin:0 0 14px">혼자 지수와 대화 온도를 기준으로 골랐습니다. 아래 기준으로 <a href="/spaces">플레이스 전체</a>에서 더 찾을 수 있습니다.</p>
-  ${sheet(picks, { intro: true })}
+  ${grid(picks, { cols: 2 })}
 
   ${mags.length ? `<h2 class="sec">읽어 보면 좋은 글</h2>
   <div class="tr-mags">${mags.map((a) => `<a class="tr-mag" href="/magazine/${a.id}"><b>${esc(a.title)}</b><span>${esc(a.lead)}</span></a>`).join('')}</div>` : ''}
@@ -1218,7 +1434,7 @@ ${q.a.map((a, j) => `        <label><input type="radio" name="q${i}" value="${j}
 /* 관리자 */
 write('admin.html', shell({
   path: '/admin', file: 'admin.html', title: '관리자', desc: '혼플 운영 관리 화면입니다. 검색에 노출되지 않습니다.', noIndex: true, noTab: true,
-  scripts: ['admin-kpi.js', 'admin.js'],
+  scripts: ['upload.js', 'admin-kpi.js', 'admin-photos.js', 'admin.js'],
   body: `
 <div class="wrap admin" data-admin>
   <div class="sk">불러오는 중</div>

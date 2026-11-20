@@ -3,7 +3,7 @@
   const root = H.qs('[data-space-id]');
   if (!root) return;
   const id = root.dataset.spaceId;
-  const name = (H.qs('.sp-head h1')?.textContent || '').trim();
+  const name = root.dataset.spaceName || (H.qs('.sp-head h1')?.textContent || '').trim();
 
   const fEl = H.qs('[data-space-feed]');
   const cEl = H.qs('[data-space-composer]');

@@ -13,7 +13,7 @@ const ID = /^[a-z0-9]{6,24}$/;
 const KINDS = new Set(['home', 'place', 'cat', 'area', 'guide', 'magazine', 'test', 'board', 'spaces', 'host', 'hostcenter', 'submit', 'etc']);
 const REFS = new Set(['direct', 'search', 'social', 'ref', 'campaign', 'internal']);
 const DEVICES = new Set(['mobile', 'tablet', 'desktop']);
-const TYPES = new Set(['map', 'out', 'mail', 'like', 'unlike', 'share', 'search', 'filter', 'test_start', 'test_result', 'post', 'host_apply', 'submit', 'cta']);
+const TYPES = new Set(['map', 'out', 'mail', 'like', 'unlike', 'share', 'search', 'filter', 'test_start', 'test_result', 'post', 'host_apply', 'submit', 'cta', 'photo', 'map_embed']);
 
 const s = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f]/g, '').trim().slice(0, max) : '') || null;
 const pathOf = (v) => {

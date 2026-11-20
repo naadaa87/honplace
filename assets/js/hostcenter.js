@@ -99,16 +99,117 @@
 
       <div class="chips hc-tabs">
         <button class="chip${tab === 'guide' ? ' on' : ''}" data-tab="guide">호스트 안내</button>
+        <button class="chip${tab === 'photos' ? ' on' : ''}" data-tab="photos">사진</button>
         <button class="chip${tab === 'reviews' ? ' on' : ''}" data-tab="reviews">후기와 답글${st.posts ? ` <em>${st.posts}</em>` : ''}</button>
         <button class="chip${tab === 'help' ? ' on' : ''}" data-tab="help">잘 쓰는 법</button>
       </div>
 
-      <div data-hc-body>${tab === 'guide' ? viewGuide() : tab === 'reviews' ? '<p class="muted small">불러오는 중…</p>' : viewHelp()}</div>
+      <div data-hc-body>${tab === 'guide' ? viewGuide() : tab === 'reviews' || tab === 'photos' ? '<p class="muted small">불러오는 중…</p>' : viewHelp()}</div>
     `;
     H.qs('[data-leave]', mainEl).onclick = () => { if (confirm('이 기기에서 호스트 키를 지우고 나갑니다. 다시 들어오려면 키가 필요합니다.')) leave(); };
     H.qsa('[data-tab]', mainEl).forEach((b) => b.onclick = () => render(b.dataset.tab));
     if (tab === 'guide') bindGuide();
     if (tab === 'reviews') loadReviews();
+    if (tab === 'photos') loadPhotos();
+  }
+
+  /* ── 사진 ────────────────────────────── */
+  let photos = [], photoLimit = 8;
+  async function loadPhotos() {
+    const body = H.qs('[data-hc-body]', mainEl);
+    try {
+      const r = await call('/api/host/photos');
+      photos = r.photos || []; photoLimit = r.limit || 8;
+    } catch (ex) {
+      body.innerHTML = `<div class="ad-err">${H.esc(ex.message)}</div>`; return;
+    }
+    paintPhotos();
+  }
+  function paintPhotos() {
+    const body = H.qs('[data-hc-body]', mainEl);
+    const h = me.host;
+    const left = Math.max(0, photoLimit - photos.length);
+    body.innerHTML = `
+      <div class="hc-grid">
+        <div>
+          ${!h.space_id ? `<div class="notice">${H.icon('i-info')}<div>공간 페이지가 만들어진 뒤에 사진을 올릴 수 있습니다. 운영자가 등록을 마치면 알려 드립니다.</div></div>` : `
+          <form class="form hc-form hc-up" data-photo-form>
+            <div class="field">
+              <label for="ph-files">사진 고르기 <small>${photos.length} / ${photoLimit}장</small></label>
+              <input id="ph-files" type="file" name="files" accept="image/jpeg,image/png,image/webp,image/*" multiple ${left ? '' : 'disabled'}>
+              <p class="help">한 번에 여러 장을 고를 수 있습니다. 긴 변 1600px 로 줄여서 올리니 원본 그대로 고르셔도 됩니다.</p>
+            </div>
+            <div class="field">
+              <label for="ph-alt">사진 설명 <small>선택</small></label>
+              <input id="ph-alt" type="text" name="alt" maxlength="80" placeholder="예: 창가 1인석, 카운터 자리">
+            </div>
+            <label class="agree"><input type="checkbox" name="rights" required> <span>직접 찍었거나 사용할 권리가 있는 사진이며, 손님 얼굴이 알아볼 수 있게 찍힌 사진이 아닙니다.</span></label>
+            <div class="submit">
+              <button class="btn lamp" type="submit" ${left ? '' : 'disabled'}>사진 올리기</button>
+              <span class="small muted" data-photo-msg>${left ? `${left}장 더 올릴 수 있습니다` : '지우면 새로 올릴 수 있습니다'}</span>
+            </div>
+          </form>`}
+
+          <h2 class="sec">올린 사진</h2>
+          ${photos.length ? `<div class="apx-grid hc-photos">${photos.map((p, i) => `
+            <figure class="apx-ph${p.hidden ? ' hid' : ''}" data-ph="${H.esc(p.id)}">
+              <img src="${H.esc(p.thumb)}" alt="${H.esc(p.alt || '')}" loading="lazy">
+              <figcaption>
+                <span class="apx-meta">${i === 0 && !p.hidden ? '<i class="tag kind">대표</i>' : ''}${p.hidden ? '<i class="tag">운영자가 숨김</i>' : ''}</span>
+                ${p.alt ? `<span class="apx-cr">${H.esc(p.alt)}</span>` : ''}
+                <span class="apx-act">${i === 0 || p.hidden ? '' : '<button type="button" class="linkbtn" data-cover>대표로</button>'}<button type="button" class="linkbtn" data-del>지우기</button></span>
+              </figcaption>
+            </figure>`).join('')}</div>` : '<p class="muted small">아직 올린 사진이 없습니다. 첫 사진이 공간 페이지와 목록 카드의 대표 사진이 됩니다.</p>'}
+        </div>
+
+        <aside class="hc-aside">
+          <div class="host-not" style="margin:0">
+            <h2 class="sec">이런 사진이 도움이 됩니다</h2>
+            <p><b>혼자 앉는 자리.</b> 카운터, 창가 1인석, 벽을 보는 자리. 혼자 오는 손님이 가장 먼저 찾는 사진입니다.</p>
+            <p><b>들어가는 문과 간판.</b> 2층이나 지하에 있는 곳은 입구 사진 한 장이 헛걸음을 줄입니다.</p>
+            <p><b>손님이 없는 시간의 전체 모습.</b> 조명과 자리 간격이 보이면 분위기를 미리 알 수 있습니다.</p>
+            <p><b>메뉴판.</b> 가격이 보이는 사진은 처음 오는 손님의 부담을 덜어 줍니다.</p>
+            <p>손님 얼굴이 보이는 사진, 다른 곳에서 가져온 사진, 글자를 덧씌운 홍보 그림은 올리지 말아 주세요. 운영자가 숨길 수 있습니다.</p>
+          </div>
+        </aside>
+      </div>`;
+
+    const f = H.qs('[data-photo-form]', body);
+    if (f) f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const files = [...f.files.files].slice(0, left);
+      const msg = H.qs('[data-photo-msg]', f), btn = f.querySelector('button[type="submit"]');
+      if (!files.length) { msg.textContent = '사진을 골라 주세요'; return; }
+      btn.disabled = true;
+      let ok = 0; const fails = [];
+      for (let i = 0; i < files.length; i++) {
+        msg.textContent = `${i + 1} / ${files.length} 올리는 중…`;
+        try {
+          const img = await H.shrinkImage(files[i]);
+          const r = await call('/api/host/photos', { method: 'POST', body: JSON.stringify({ ...img, alt: f.alt.value.trim(), rights: true }) });
+          photos.push(r.photo); ok++;
+        } catch (ex) { fails.push(`${files[i].name}: ${ex.message}`); }
+      }
+      H.toast(ok ? `${ok}장 올렸습니다. 공간 페이지에 1분 안에 보입니다` : '올리지 못했습니다');
+      paintPhotos();
+      if (fails.length) { const m = H.qs('[data-photo-msg]', mainEl); if (m) m.textContent = fails.join(' / '); }
+    });
+    body.onclick = async (e) => {
+      const fig = e.target.closest('[data-ph]'); if (!fig) return;
+      const id = fig.dataset.ph;
+      try {
+        if (e.target.closest('[data-cover]')) {
+          await call('/api/host/photos', { method: 'POST', body: JSON.stringify({ action: 'cover', id }) });
+          const p = photos.find((x) => x.id === id); photos = [p, ...photos.filter((x) => x.id !== id)];
+          H.toast('대표 사진으로 바꿨습니다'); paintPhotos();
+        } else if (e.target.closest('[data-del]')) {
+          if (!confirm('이 사진을 지웁니다. 되돌릴 수 없습니다.')) return;
+          await call('/api/host/photos?id=' + encodeURIComponent(id), { method: 'DELETE' });
+          photos = photos.filter((x) => x.id !== id);
+          H.toast('지웠습니다'); paintPhotos();
+        }
+      } catch (ex) { H.toast(ex.message); }
+    };
   }
 
   /* ── 호스트 안내 ─────────────────────── */

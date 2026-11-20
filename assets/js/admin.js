@@ -4,7 +4,7 @@
   const root = H.qs('[data-admin]');
   const KEY = 'hp_admin_key';
   let key = localStorage.getItem(KEY) || H.param('key') || '';
-  let tab = location.hash.replace('#', '') || 'home';
+  let tab = location.hash.replace('#', '').split('?')[0] || 'home';
   let cache = {};
 
   const api = async (qs, opt) => {
@@ -48,6 +48,7 @@
     ['subs', '제보'],
     ['hosts', '호스트'],
     ['places', '플레이스'],
+    ['photos', '사진'],
     ['help', '도움말']
   ];
   function frame(inner, badge = {}) {
@@ -521,6 +522,7 @@
       <h2 class="ad-h">이 화면에서 할 수 있는 것</h2>
       <table class="ad-table"><tbody>
         <tr><td><b>대시보드</b></td><td>글 수, 오늘 올라온 글, 신고·제보 대기 건수, 최근 2주 추이</td></tr>
+        <tr><td><b>사진</b></td><td>지점을 골라 사진을 올리거나, 위키미디어 공용에서 자유 이용 사진을 찾아 등록하거나, 주소로 등록합니다. 대표 사진 지정·숨김·삭제. 호스트가 올린 사진도 여기서 관리합니다</td></tr>
         <tr><td><b>KPI</b></td><td>방문자·페이지뷰·체류시간·이탈률, 지도 열기와 전환율, 인기 지점, 페이지별 방문, 유입 경로, 기기, 시간대, 클릭·검색·테스트, 커뮤니티, 회원(호스트) 목록. 기간을 고르면 직전 같은 기간과 비교하고, 표는 CSV로 내려받을 수 있습니다</td></tr>
         <tr><td><b>글 관리</b></td><td>전체 글 검색·필터, 숨기기·복구·삭제, 답글 확인과 삭제, 여러 건 한 번에 처리</td></tr>
         <tr><td><b>신고</b></td><td>신고가 쌓인 글만 모아 보기. 신고 3건이면 자동으로 숨겨집니다</td></tr>
@@ -560,6 +562,7 @@
     try {
       if (tab === 'home') setBody(await viewHome());
       else if (tab === 'kpi') await window.HPKPI.mount(H.qs('[data-body]'), api);
+      else if (tab === 'photos') await window.HPPHOTOS.mount(H.qs('[data-body]'), api, post);
       else if (tab === 'posts') { setBody(await viewPosts(false)); bindPosts(); }
       else if (tab === 'reported') { setBody(await viewPosts(true)); bindPosts(); }
       else if (tab === 'subs') { setBody(await viewSubs()); bindSubs(); }
@@ -579,6 +582,6 @@
     render();
   }
 
-  window.addEventListener('hashchange', () => { const t = location.hash.replace('#', ''); if (t && t !== tab) { tab = t; render(); } });
+  window.addEventListener('hashchange', () => { const t = location.hash.replace('#', '').split('?')[0]; if (t && t !== tab) { tab = t; render(); } });
   if (!key) login(); else start();
 })();

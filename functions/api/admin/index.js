@@ -7,6 +7,9 @@
    GET  /api/admin?key=KEY&what=submissions&status=new  제보·수정 제안
    GET  /api/admin?key=KEY&what=comments&post=ID        특정 글의 답글
    GET  /api/admin?key=KEY&what=kpi&days=7              KPI (방문·클릭·체류·플레이스·회원). from/to 로 기간 지정 가능
+   GET  /api/admin?key=KEY&what=photos&space=ID         한 지점의 사진 (숨긴 것 포함)
+   GET  /api/admin?key=KEY&what=photo-summary           지점별 사진 수
+   POST action: photo-add | photo-hide | photo-cover | photo-delete
 
    POST /api/admin?key=KEY  {"action":"hide"|"unhide"|"delete","id":"p-..."}
    POST /api/admin?key=KEY  {"action":"bulk","ids":[...],"op":"hide"|"unhide"|"delete"}
@@ -17,6 +20,7 @@
 import { json, bad } from '../_util.js';
 import { newHostKey } from '../host/_auth.js';
 import { kpi } from './_kpi.js';
+import { COLS as PHOTO_COLS, SPACE_ID, toPublic as photoPublic, parsePhoto, insertPhoto, makeCover } from '../_photos.js';
 
 const auth = (request, env) => env.ADMIN_KEY && new URL(request.url).searchParams.get('key') === env.ADMIN_KEY;
 const num = (v, d, max) => { const n = parseInt(v, 10); return Number.isFinite(n) ? Math.min(Math.max(n, 0), max) : d; };
@@ -101,6 +105,25 @@ export async function onRequestGet({ request, env }) {
   }
 
   /* ── 호스트 등록 신청 ── */
+  /* ── 사진 ── */
+  if (what === 'photos' || what === 'photo-summary') {
+    try {
+      if (what === 'photo-summary') {
+        const { results } = await env.DB.prepare(
+          `SELECT space_id, COUNT(*) AS n, SUM(hidden) AS hidden, SUM(by = 'host') AS host FROM photos GROUP BY space_id`
+        ).all();
+        return json({ ready: true, spaces: results });
+      }
+      const space = p.get('space') || '';
+      if (!SPACE_ID.test(space)) return bad('지점을 골라 주세요');
+      const { results } = await env.DB.prepare(`SELECT ${PHOTO_COLS} FROM photos WHERE space_id = ? ORDER BY sort ASC, created_at ASC`).bind(space).all();
+      return json({ ready: true, photos: results.map((r) => ({ ...photoPublic(r), kind: r.kind, hidden: !!r.hidden, created_at: r.created_at })) });
+    } catch {
+      /* 004 마이그레이션 전 */
+      return json({ ready: false, photos: [], spaces: [] });
+    }
+  }
+
   if (what === 'hosts') {
     const status = p.get('status') || 'new';
     const sql = status === 'all'
@@ -191,6 +214,25 @@ export async function onRequestPost({ request, env }) {
     const key = newHostKey();
     await env.DB.prepare(`UPDATE hosts SET host_key = ? WHERE id = ? AND status = 'verified'`).bind(key, b.id).run();
     return json({ ok: true, host_key: key });
+  } else if (b.action === 'photo-add') {
+    const space = String(b.space_id || '');
+    if (!SPACE_ID.test(space)) return bad('지점을 골라 주세요');
+    const ph = parsePhoto(b);
+    if (ph.error) return bad(ph.error);
+    try {
+      const n = await env.DB.prepare('SELECT COUNT(*) AS n FROM photos WHERE space_id = ?').bind(space).first();
+      if ((n?.n || 0) >= 30) return bad('한 지점에 사진은 30장까지 둘 수 있습니다');
+      const row = await insertPhoto(env, space, ph, { by: 'admin' });
+      return json({ ok: true, photo: { ...photoPublic(row), kind: row.kind, hidden: false, created_at: row.created_at } }, 201);
+    } catch { return bad('사진 테이블이 아직 없습니다. migrations/004-photos.sql 을 실행해 주세요', 503); }
+  } else if (b.action === 'photo-hide') {
+    await env.DB.prepare('UPDATE photos SET hidden = ? WHERE id = ?').bind(b.hidden ? 1 : 0, String(b.id || '')).run();
+  } else if (b.action === 'photo-cover') {
+    const row = await env.DB.prepare('SELECT id, space_id FROM photos WHERE id = ?').bind(String(b.id || '')).first();
+    if (!row) return bad('사진을 찾을 수 없습니다', 404);
+    await makeCover(env, row.id, row.space_id);
+  } else if (b.action === 'photo-delete') {
+    await env.DB.prepare('DELETE FROM photos WHERE id = ?').bind(String(b.id || '')).run();
   } else if (b.action === 'comment-delete') {
     const c = await env.DB.prepare('SELECT post_id FROM comments WHERE id = ?').bind(b.id).first();
     await env.DB.batch([

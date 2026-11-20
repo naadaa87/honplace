@@ -179,6 +179,59 @@
     }
   };
 
+  /* ── 사진 카드 ─────────────────────────────
+     고정 사진은 /data/photos.json, 관리자·호스트가 올린 사진은 /api/photos/covers 에서 옵니다.
+     사진이 없는 곳은 '한 줄에 늘어선 자리' 표지를 씁니다. */
+  H.bench = (n) => `<span class="bench" aria-hidden="true">${[1, 2, 3, 4, 5].map((i) => `<i${n >= i ? ' class="on"' : ''}></i>`).join('')}</span>`;
+  const IMG_ERR = "this.parentNode.classList.remove('has');this.remove()";
+  H.coverInner = (cat, solo, tags = []) => `<span class="cv-tags" aria-hidden="true">${tags.map((t) => `<span>${H.esc(t)}</span>`).join('')}</span>${H.icon('cat-' + cat)}${H.bench(solo)}`;
+  H.coverHtml = (s, src) => `<span class="pc-media${src ? ' has' : ''}" data-cover><span class="pc-ph">${H.coverInner(s.cat, s.solo, (s.tags || []).slice(0, 2))}</span>${src ? `<img src="${H.esc(src)}" alt="${H.esc(s.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="${IMG_ERR}">` : ''}</span>`;
+  H.spaceCard = (s, covers = {}, opts = {}) => {
+    const c = H.CATS[s.cat] || {};
+    return `<a class="pc" href="/place/${encodeURIComponent(s.id)}" data-id="${H.esc(s.id)}">
+      ${H.coverHtml(s, covers[s.id])}
+      <span class="pc-body">
+        <span class="pc-top"><span>${H.esc(s.area)}</span>${opts.cat === false ? '' : `<span class="pc-cat">${H.esc(c.label || '')}</span>`}</span>
+        <b class="pc-name">${H.esc(s.name)}${s.kind === 'type' ? '<span class="tag kind">유형</span>' : ''}</b>
+        <span class="pc-intro">${H.esc(s.intro)}</span>
+        <span class="pc-facts">${H.seats(s.solo)}${H.talk(s.talk, true)}<span class="num">${H.esc(s.price)}</span></span>
+      </span>
+    </a>`;
+  };
+  /* 올린 사진의 대표 그림 — 한 번 받아 오면 10분 동안 다시 묻지 않습니다 */
+  let dynP = null;
+  H.dynCovers = () => dynP || (dynP = (async () => {
+    try { const c = JSON.parse(sessionStorage.getItem('hp_covers') || 'null'); if (c && Date.now() - c.t < 600000) return c.v; } catch { /* */ }
+    let v = {};
+    try { const r = await fetch('/api/photos/covers'); if (r.ok) v = (await r.json()).covers || {}; } catch { /* */ }
+    try { sessionStorage.setItem('hp_covers', JSON.stringify({ t: Date.now(), v })); } catch { /* */ }
+    return v;
+  })());
+  let allP = null;
+  H.loadCovers = () => allP || (allP = (async () => {
+    const out = {};
+    try {
+      const j = await fetch('/data/photos.json').then((r) => r.json());
+      Object.entries(j.photos || {}).forEach(([id, ps]) => { if (ps && ps[0] && ps[0].src) out[id] = ps[0].thumb || ps[0].src; });
+    } catch { /* */ }
+    return Object.assign(out, await H.dynCovers());
+  })());
+  /* 이미 그려진 카드에 올린 사진을 끼워 넣습니다 */
+  H.hydrateCovers = async (root = document) => {
+    const cards = H.qsa('.pc[data-id]', root);
+    if (!cards.length) return;
+    const dyn = await H.dynCovers();
+    cards.forEach((a) => {
+      const src = dyn[a.dataset.id]; if (!src) return;
+      const m = a.querySelector('[data-cover]'); if (!m) return;
+      const old = m.querySelector('img');
+      if (old && old.getAttribute('src') === src) return;
+      if (old) old.remove();
+      m.classList.add('has');
+      m.insertAdjacentHTML('beforeend', `<img src="${H.esc(src)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="${IMG_ERR}">`);
+    });
+  };
+
   /* ── 방문 통계 ─────────────────────────────
      관리자 KPI용. 이름·연락처는 보내지 않고, 이 브라우저에서 만든 무작위 id 로만 방문자를 구분합니다.
      관리자 화면에서 '내 방문 제외'를 켜면 이 브라우저의 기록은 보내지 않습니다. */
@@ -310,5 +363,7 @@
       const cur = path.replace(/\.html$/, '');
       if ((key === '/' && (cur === '/' || cur === '')) || (key !== '/' && cur.startsWith(key))) a.setAttribute('aria-current', 'page');
     });
+    // 정적으로 그려진 카드에 올린 사진 끼워 넣기
+    H.hydrateCovers();
   });
 })();

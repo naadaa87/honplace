@@ -7,7 +7,7 @@
 
   /* ── 이름표 ──────────────────────────── */
   const KIND = { home: '홈', place: '플레이스', cat: '분류', area: '동네', guide: '혼자 하는 법', magazine: '매거진', test: '혼자력 테스트', board: '게시판', spaces: '플레이스 목록', host: '호스트 등록', hostcenter: '호스트센터', submit: '제보', etc: '기타' };
-  const AREA = { 'seoul-mapo': '마포·홍대·연남', 'seoul-jung': '을지로·중구·종로', 'seoul-seongdong': '성수·성동', 'seoul-yongsan': '용산·삼각지·이태원', 'seoul-gangnam': '강남·서초·송파', 'seoul-gwanak': '관악·동작·서울대입구', 'seoul-yeongdeungpo': '영등포·문래·여의도', 'seoul-seodaemun': '서대문·연희·신촌', 'seoul-etc': '서울 그 밖', busan: '부산', daegu: '대구', incheon: '인천', daejeon: '대전', gwangju: '광주', jeju: '제주', gyeonggi: '경기·수도권' };
+  const AREA = { 'seoul-mapo': '마포·홍대·연남', 'seoul-jung': '을지로·중구·종로', 'seoul-seongdong': '성수·성동', 'seoul-yongsan': '용산·삼각지·이태원', 'seoul-gangnam': '강남·서초·송파', 'seoul-gwanak': '관악·동작·서울대입구', 'seoul-yeongdeungpo': '영등포·문래·여의도', 'seoul-seodaemun': '서대문·연희·신촌', 'seoul-etc': '서울 그 밖', busan: '부산', daegu: '대구', incheon: '인천', daejeon: '대전', gwangju: '광주', jeju: '제주', gyeonggi: '경기·수도권', gangwon: '강원 강릉·속초' };
   const STATIC = { '/': '홈', '/spaces': '플레이스 전체', '/board': '이름 없는 이야기', '/guide': '혼자 하는 법 목차', '/guide/': '혼자 하는 법 목차', '/magazine': '매거진 목차', '/magazine/': '매거진 목차', '/test': '혼자력 테스트', '/test/': '혼자력 테스트', '/host': '호스트 등록', '/host/': '호스트 등록', '/host/center': '호스트센터', '/submit': '플레이스 알려 주기', '/about': '소개', '/privacy': '개인정보처리방침', '/terms': '이용약관', '/rules': '게시판 규칙', '/404': '없는 페이지' };
   const STATUS = { new: '접수', reviewing: '확인 중', verified: '인증', rejected: '반려' };
   const CTA = { 'header-write': '상단 ‘한마디 남기기’', 'today-pick': '홈 ‘오늘의 혼플’', 'today-q': '게시판 ‘오늘의 질문’ 답하기', 'place-host': '플레이스 → 호스트 안내', 'home-test': '홈 → 혼자력 테스트' };
@@ -19,6 +19,7 @@
     mail: '메일 링크',
     like: '가고 싶어요', unlike: '가고 싶어요 취소',
     share: '공유',
+    photo: '사진 크게 보기', map_embed: '지도 펼치기',
     search: '목록 검색', filter: '목록 필터',
     test_start: '테스트 시작', test_result: '테스트 완료',
     post: `글 올림${label ? ' — ' + (POSTCAT[label] || label) : ''}`,

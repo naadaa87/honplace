@@ -1,0 +1,660 @@
+{
+  "note": "지점 정보를 확인할 때 본 자료입니다. 사이트에는 표시하지 않습니다. 정보를 다시 확인할 때 여기서 시작하세요.",
+  "sources": {
+    "cheongun-munhak-library": [
+      "https://mediahub.seoul.go.kr/archives/2017671",
+      "https://mediahub.seoul.go.kr/archives/2018797",
+      "https://mediahub.seoul.go.kr/archives/2019502",
+      "https://xn--ok0b236bp0a.com/place/15742"
+    ],
+    "samcheong-forest-library": [
+      "https://mediahub.seoul.go.kr/archives/2018339",
+      "https://mediahub.seoul.go.kr/archives/2018711"
+    ],
+    "odong-forest-library": [
+      "https://mediahub.seoul.go.kr/archives/2018339",
+      "https://mediahub.seoul.go.kr/archives/2018797",
+      "https://mediahub.seoul.go.kr/archives/2018937",
+      "https://www.khan.co.kr/article/202601270600051"
+    ],
+    "naereul-forest-library": [
+      "https://mediahub.seoul.go.kr/archives/2018339",
+      "https://mediahub.seoul.go.kr/archives/2013507"
+    ],
+    "seoul-bookbogo": [
+      "https://mediahub.seoul.go.kr/archives/2020053",
+      "https://mediahub.seoul.go.kr/archives/2019229",
+      "https://www.localnaeil.com/News/View/654776?AreaId=2&pageidx=3"
+    ],
+    "seoul-artbookbogo": [
+      "https://mediahub.seoul.go.kr/archives/2019451",
+      "https://mediahub.seoul.go.kr/archives/2018834"
+    ],
+    "gangdong-forest-library": [
+      "https://mediahub.seoul.go.kr/archives/2017442",
+      "https://mediahub.seoul.go.kr/archives/2014449",
+      "https://www.khan.co.kr/article/202601270600051"
+    ],
+    "anam-bukchon": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/anam",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurants"
+    ],
+    "oilje-yongsan": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/oilje",
+      "https://www.wikitree.co.kr/articles/1122865",
+      "https://v.daum.net/v/By2hjXPKh1?f=p"
+    ],
+    "gyewol-seongsu": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/kyewol-gomtang",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurants/page/2"
+    ],
+    "jeongmyeon-jayang": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/jeongmyeon",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurants/page/3"
+    ],
+    "mimi-myeonga": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/mimi-myeonga",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurants/page/2"
+    ],
+    "limbyungjoo-kalguksu": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/limbyungjoo-sandong-kalguksu",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurants/page/4"
+    ],
+    "gosari-express": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/gosari-express",
+      "https://www.wikitree.co.kr/articles/1122865",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurants"
+    ],
+    "yurimmyeon": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/yurimmyeon",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurants"
+    ],
+    "alt-a-itaewon": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/alt-a",
+      "https://www.elle.co.kr/article/1877587",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurants/page/2"
+    ],
+    "kushikawa-dogok": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/kushi-kawa",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurants/page/4"
+    ],
+    "kyodaiya-hapjeong": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/kyodaiya",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurants/page/4"
+    ],
+    "mipildam-hapjeong": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/mipildam",
+      "https://www.elle.co.kr/article/1877587",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurants/page/4"
+    ],
+    "yakitori-kiyu": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/yakitori-kiyu",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurants/page/2"
+    ],
+    "kanda-soba-gyeongbokgung": [
+      "https://polle.com/place/4JBYaJ/%EC%B9%B8%EB%8B%A4%EC%86%8C%EB%B0%94",
+      "https://polle.com/JJeong2/posts/402"
+    ],
+    "dogil-jutaek": [
+      "https://polle.com/place/5FGSFy/%EB%8F%85%EC%9D%BC%EC%A3%BC%ED%83%9D",
+      "https://wanderlog.com/place/details/4184334/german-house",
+      "https://www.timeout.com/seoul/bars/german-house"
+    ],
+    "yakitori-mook": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/yakitori-mook",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurants/page/3"
+    ],
+    "dongyang-odeng-songpa": [
+      "https://polle.com/place/3hyMut/%EB%8F%99%EC%96%91",
+      "https://polle.com/kitekang/posts/18"
+    ],
+    "stagger-seongsu": [
+      "https://polle.com/place/4TaJTC/%EC%8A%A4%ED%83%9C%EA%B1%B0",
+      "https://polle.com/kitekang/posts/17"
+    ],
+    "sapporo-beerstand-seongsu": [
+      "https://polle.com/place/1QfMpl/%EC%82%BF%ED%8F%AC%EB%A1%9C%20%ED%94%84%EB%A6%AC%EB%AF%B8%EC%97%84%20%EB%B9%84%EC%96%B4%EC%8A%A4%ED%83%A0%EB%93%9C",
+      "https://polle.com/kitekang/posts/16"
+    ],
+    "bottomline-incheon": [
+      "https://www.kyeongin.com/article/1766714",
+      "https://www.kyeongin.com/culture/series/S06001245?page=1",
+      "https://www.clien.net/service/board/use/18819753",
+      "https://www.harpersbazaar.co.kr/article/1876511"
+    ],
+    "incheon-maritime-museum": [
+      "https://www.ktriptips.com/kor/culture/3447437",
+      "https://www.kyeongin.com/culture/series/S06001245?page=1"
+    ],
+    "gyeonggi-library": [
+      "https://www.ktriptips.com/kor/culture/3564769",
+      "https://www.gg.go.kr/myggd/vol203/3_6.php",
+      "https://www.gg.go.kr/myggd/vol196/2_4.php"
+    ],
+    "forest-of-wisdom": [
+      "https://www.trvlogue.com/ko/paju-forest-wisdom-guide",
+      "https://v.daum.net/v/20260802080210811",
+      "https://www.ktriptips.com/kor/culture/2609320"
+    ],
+    "uijeongbu-art-library": [
+      "https://www.ktriptips.com/kor/culture/2705299",
+      "https://www.trvlogue.com/ko/korea-unique-libraries-travel"
+    ],
+    "heimat-daegu": [
+      "https://www.hankyung.com/article/202608277306i",
+      "https://www.marieclairekorea.com/?p=510007",
+      "https://www.imaeil.com/page/view/2025021909391550849",
+      "https://polle.com/place/4ueiEk/%ED%95%98%EC%9D%B4%EB%A7%88%ED%8A%B8%20%EC%9D%8C%EC%95%85%EA%B0%90%EC%83%81%EC%8B%A4"
+    ],
+    "nokhyang-daegu": [
+      "https://www.hankyung.com/article/202608277306i",
+      "https://www.ktriptips.com/kor/culture/1988024"
+    ],
+    "kansong-daegu": [
+      "https://www.ktriptips.com/kor/culture/3397707",
+      "https://mobile.newsis.com/view/NISX20260126_0003489770",
+      "https://heraldk.com/2026/01/02/24%ea%b4%80%ea%b4%91%ec%9d%98%eb%b3%84-%eb%8c%80%ea%b5%ac-%ea%b0%84%ec%86%a1-25%eb%85%84-27%eb%a7%8c-%ec%9e%85%ec%9e%a5-%ea%b4%80%ea%b4%91%ea%b0%9d-9%eb%a7%8c%ec%9b%90-%ec%86%8c%eb%b9%84-%ec%a7%80/",
+      "https://nol.yanolja.com/ticket/products/26000742"
+    ],
+    "sinyoung-gangneung": [
+      "https://heypop.kr/n/117877/",
+      "https://news.mtn.co.kr/news-detail/2026092313493694232",
+      "https://cine21.com/news/view/?mag_id=110373"
+    ],
+    "perfectdays-sokcho": [
+      "https://www.ktriptips.com/kor/culture/4161658",
+      "https://www.ktriptips.com/kor/food/3041179",
+      "https://www.esquirekorea.co.kr/article/1906541"
+    ],
+    "moonwoodang-sokcho": [
+      "https://www.ktriptips.com/kor/culture/2710965",
+      "https://brunch.co.kr/@qrssa/4990",
+      "https://www.yeogi.com/content/tripholic-dom-ko-sokcho-local-trip-course"
+    ],
+    "donga-sokcho": [
+      "https://www.ktriptips.com/kor/culture/2710945",
+      "https://www.yeogi.com/content/tripholic-dom-ko-sokcho-local-trip-course"
+    ],
+    "yeongnangho-sokcho": [
+      "https://www.ktriptips.com/kor/tourspot/127565",
+      "https://www.yeogi.com/content/tripholic-dom-ko-sokcho-local-trip-course"
+    ],
+    "bonjeon-gukbap-busan": [
+      "https://polle.com/place/51fZHR/%EB%B3%B8%EC%A0%84%20%EB%8F%BC%EC%A7%80%EA%B5%AD%EB%B0%A5",
+      "https://polle.com/marious/posts/326"
+    ],
+    "domoheon-busan": [
+      "https://www.ktriptips.com/kor/culture/3416331",
+      "https://www.busan.go.kr/domoheon_eng/general-information",
+      "https://www.busan.go.kr/domoheon_eng/directions",
+      "https://www.busan.go.kr/domoheon_eng/spaces"
+    ],
+    "hyundaiok-jeonju": [
+      "https://www.ktriptips.com/kor/food/2778475",
+      "https://www.trvlogue.com/ko/hyundaebok-jeonju-bean-sprout-soup"
+    ],
+    "sosim-jeju": [
+      "https://www.ktriptips.com/kor/culture/1937744",
+      "https://www.esquirekorea.co.kr/article/1906541"
+    ],
+    "namsan-north-loop": [
+      "https://www.gqkorea.co.kr/?p=409031",
+      "https://twig24.com/news/2026/08/21/20260821035001"
+    ],
+    "namsan-north-stairs": [
+      "https://mediahub.seoul.go.kr/archives/2016149",
+      "https://mediahub.seoul.go.kr/archives/2015201"
+    ],
+    "gwanghwamun-runner-space": [
+      "https://v.daum.net/v/20251022111614899?f=p",
+      "https://mediahub.seoul.go.kr/archives/2019894"
+    ],
+    "mokdong-icerink": [
+      "https://www.ktriptips.com/kor/leisure/130978",
+      "https://mom-mom.net/travel/places/696089b96cabf3099803825d",
+      "https://www.heraldk.com/article/2025122818024861636"
+    ],
+    "seoulforest-climbing-ydp": [
+      "https://www.daangn.com/kr/local-profile/서울숲클라이밍-영등포점-x6e5jhn89joi/",
+      "https://lapinsworld.com/climbing/14/",
+      "https://v.daum.net/v/3dc8P9Gkeu"
+    ],
+    "runner-station-yeouinaru": [
+      "https://mediahub.seoul.go.kr/archives/2011230",
+      "https://mediahub.seoul.go.kr/archives/2014005",
+      "https://mediahub.seoul.go.kr/archives/2019894",
+      "https://mediahub.seoul.go.kr/archives/2016895"
+    ],
+    "dokseogwan-yeonnam": [
+      "https://mediahub.seoul.go.kr/archives/2019532",
+      "https://mediahub.seoul.go.kr/archives/2017964"
+    ],
+    "sinabeuro-eungam": [
+      "https://mediahub.seoul.go.kr/archives/2019532",
+      "https://mediahub.seoul.go.kr/archives/2017964"
+    ],
+    "spain-bookshop": [
+      "https://mediahub.seoul.go.kr/archives/2019532",
+      "https://mediahub.seoul.go.kr/archives/2017964"
+    ],
+    "garden-healing-center": [
+      "https://mediahub.seoul.go.kr/archives/2019902",
+      "https://mediahub.seoul.go.kr/archives/2016894"
+    ],
+    "namsan-forest-garden": [
+      "https://mediahub.seoul.go.kr/archives/2020081",
+      "https://mediahub.seoul.go.kr/archives/2020079"
+    ],
+    "namsan-sky-forest-trail": [
+      "https://mediahub.seoul.go.kr/archives/2016116",
+      "https://mediahub.seoul.go.kr/archives/2016149",
+      "https://mediahub.seoul.go.kr/archives/2020081"
+    ],
+    "seonyudo-park": [
+      "https://mediahub.seoul.go.kr/archives/2019846",
+      "https://mediahub.seoul.go.kr/archives/2019802"
+    ],
+    "nodeul-island": [
+      "https://mediahub.seoul.go.kr/archives/2019460",
+      "https://mediahub.seoul.go.kr/archives/2019407",
+      "https://mediahub.seoul.go.kr/archives/2019802"
+    ],
+    "namsangol-hanok": [
+      "https://mediahub.seoul.go.kr/archives/2020111",
+      "https://mediahub.seoul.go.kr/archives/2019407"
+    ],
+    "sema-seosomun": [
+      "https://sema.seoul.go.kr/kr/visit/seosomun",
+      "https://mediahub.seoul.go.kr/archives/2019245",
+      "https://www.gqkorea.co.kr/?p=409031"
+    ],
+    "sema-namseoul": [
+      "https://sema.seoul.go.kr/kr/visit/namseoul",
+      "https://mediahub.seoul.go.kr/archives/2019245"
+    ],
+    "sema-bukseoul": [
+      "https://sema.seoul.go.kr/kr/visit/bukseoul",
+      "https://mediahub.seoul.go.kr/archives/2019245"
+    ],
+    "sema-seoseoul": [
+      "https://sema.seoul.go.kr/kr/visit/seoseoul",
+      "https://sema.seoul.go.kr/kr/visit/bukseoul"
+    ],
+    "sema-art-archive": [
+      "https://sema.seoul.go.kr/kr/visit/art_archive",
+      "https://mediahub.seoul.go.kr/archives/2019245"
+    ],
+    "sports-museum": [
+      "https://mediahub.seoul.go.kr/archives/2019832",
+      "https://mediahub.seoul.go.kr/archives/2020065"
+    ],
+    "masim-euljiro": [
+      "https://polle.com/place/4acWXa/%EB%A7%88%EC%8B%AC",
+      "https://polle.com/punzis/posts/1058"
+    ],
+    "ritabitter-jamsil": [
+      "https://polle.com/place/5cphwo/%EB%A6%AC%ED%83%80%EB%B9%84%ED%84%B0%EB%B0%94"
+    ],
+    "jejuahop": [
+      "https://www.esquirekorea.co.kr/article/1903094",
+      "https://kr.imboldn.com/digest/%EC%9A%94%EC%A6%98-%ED%98%BC%EC%88%A0%EB%B0%94%EB%8A%94-%ED%98%BC%EC%9E%90-%EC%9E%88%EB%8A%94-%EA%B3%B3%EC%9D%B4-%EC%95%84%EB%8B%88%EB%8B%A4/",
+      "https://honsulmap.com/region/seoul",
+      "https://honsulmap.com/spot/9jeju-hongdae",
+      "https://bolta.io/biz/1014701253"
+    ],
+    "godo-yeonnam": [
+      "https://www.esquirekorea.co.kr/article/1903094",
+      "https://honsulmap.com/spot/godo-yeonnam"
+    ],
+    "seoul-library": [
+      "https://mediahub.seoul.go.kr/archives/2018615",
+      "https://lib.seoul.go.kr/rwww/html/en/map.jsp",
+      "https://mediahub.seoul.go.kr/archives/2007411"
+    ],
+    "cinecube": [
+      "https://mediahub.seoul.go.kr/archives/2018422",
+      "https://www.esquirekorea.co.kr/article/1902731",
+      "https://www.gqkorea.co.kr/?p=333879",
+      "https://the-edit.co.kr/57305",
+      "https://v.daum.net/v/20250725143340576?f=p"
+    ],
+    "mmca-seoul": [
+      "https://mmca.go.kr/eng/visitingInfo/seoulInfo.do",
+      "https://mediahub.seoul.go.kr/archives/2019981"
+    ],
+    "seoul-forest": [
+      "https://mediahub.seoul.go.kr/archives/2019859",
+      "https://mediahub.seoul.go.kr/archives/2016122"
+    ],
+    "hangang-night": [
+      "https://hangang.seoul.go.kr/www/contents/656.do?mid=519",
+      "https://hangang.seoul.go.kr/www/contents/669.do?mid=431",
+      "https://mediahub.seoul.go.kr/archives/2017290",
+      "https://mediahub.seoul.go.kr/archives/2015139"
+    ],
+    "scarf-seongsu": [
+      "https://www.marieclairekorea.com/?p=509080"
+    ],
+    "antisocial-whisky": [
+      "https://the-edit.co.kr/83428",
+      "https://www.vogue.co.kr/?p=607935",
+      "https://polle.com/place/4hcuoK/%EC%95%88%ED%8B%B0%EC%86%8C%EC%85%9C%20%EC%9C%84%EC%8A%A4%ED%82%A4%20%ED%81%B4%EB%9F%BD"
+    ],
+    "chaegbar": [
+      "https://www.esquirekorea.co.kr/article/1895954",
+      "https://www.allurekorea.com/?p=240055",
+      "https://polle.com/place/4AM8pv/%EC%B1%85%20%EB%B0%94"
+    ],
+    "keebo": [
+      "https://www.esquirekorea.co.kr/article/1902739",
+      "https://polle.com/place/2TKVHk/%ED%82%A4%EB%B3%B4",
+      "https://heypop.kr/place/76680/"
+    ],
+    "mitsuba-mullae": [
+      "https://v.daum.net/v/bkuAeCVZyC"
+    ],
+    "dreamers-sillim": [
+      "https://kr.imboldn.com/digest/%EC%9A%94%EC%A6%98-%ED%98%BC%EC%88%A0%EB%B0%94%EB%8A%94-%ED%98%BC%EC%9E%90-%EC%9E%88%EB%8A%94-%EA%B3%B3%EC%9D%B4-%EC%95%84%EB%8B%88%EB%8B%A4/"
+    ],
+    "yoru-sillim": [
+      "https://kr.imboldn.com/digest/%EC%9A%94%EC%A6%98-%ED%98%BC%EC%88%A0%EB%B0%94%EB%8A%94-%ED%98%BC%EC%9E%90-%EC%9E%88%EB%8A%94-%EA%B3%B3%EC%9D%B4-%EC%95%84%EB%8B%88%EB%8B%A4/",
+      "https://www.albamon.com/jobs/detail-company/92JbAn1BaWg65g6WksNtjw=="
+    ],
+    "yusagil-gangnam": [
+      "https://www.diningcode.com/profile.php?rid=nEYb2AQEqqhK",
+      "https://honsulmap.com/spot/yusagil-gangnam-2",
+      "https://honsulmap.com/region/seoul"
+    ],
+    "oreno-ramen": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/oreno-ramen",
+      "https://polle.com/place/5B0lI8/%EC%98%A4%EB%A0%88%EB%85%B8%20%EB%9D%BC%EB%A9%98",
+      "https://v.daum.net/v/7IkmjNtsYi"
+    ],
+    "rairaiken": [
+      "https://polle.com/place/23BdBU/%EB%9D%BC%EC%9D%B4%EB%9D%BC%EC%9D%B4%EC%BC%84",
+      "https://the-edit.co.kr/37793"
+    ],
+    "laika-cinema": [
+      "https://www.esquirekorea.co.kr/article/1902731",
+      "https://www.gqkorea.co.kr/?p=333879",
+      "https://the-edit.co.kr/57305"
+    ],
+    "emu-cinema": [
+      "https://mediahub.seoul.go.kr/archives/2018422",
+      "https://mediahub.seoul.go.kr/archives/2010407",
+      "https://www.gqkorea.co.kr/?p=333879"
+    ],
+    "bens-library": [
+      "https://www.esquirekorea.co.kr/article/1895954"
+    ],
+    "jangma": [
+      "https://www.marieclairekorea.com/hot-news/2025/03/book-cafe/",
+      "https://www.marieclairekorea.com/?p=364043"
+    ],
+    "aboutthechapter": [
+      "https://www.marieclairekorea.com/hot-news/2025/03/book-cafe/"
+    ],
+    "goyoseosa": [
+      "https://korean.visitseoul.net/shopping/2024-Goyoseosa/KOPwnlgos",
+      "https://weekly.khan.co.kr/article/202510130600031",
+      "https://www.esquirekorea.co.kr/article/1901286"
+    ],
+    "byeolchaek": [
+      "https://www.ktriptips.com/kor/culture/2783339",
+      "https://www.esquirekorea.co.kr/article/1901286"
+    ],
+    "chaek-ikda": [
+      "https://www.esquirekorea.co.kr/article/1911380",
+      "https://v.daum.net/v/20240419050607394"
+    ],
+    "shapeoftime": [
+      "https://www.vogue.co.kr/?p=552940"
+    ],
+    "bookstore-1984": [
+      "https://www.newsis.com/view/NISX20260710_0003704366",
+      "https://www.ktriptips.com/kor/food/4108662",
+      "https://polle.com/place/125jaa/1984",
+      "https://www.vogue.co.kr/?p=552940"
+    ],
+    "de-stoel": [
+      "https://heypop.kr/place/114091/",
+      "https://heypop.kr/n/91088",
+      "https://polle.com/place/2jxqdO/%EB%8D%B0%20%EC%8A%A4%ED%88%B4"
+    ],
+    "heat-coffee-seogyo": [
+      "https://polle.com/place/2UMkbM/%ED%9E%88%ED%8A%B8%20%EC%BB%A4%ED%94%BC%20%EB%A1%9C%EC%8A%A4%ED%84%B0%EC%8A%A4",
+      "https://heypop.kr/n/91088",
+      "https://polle.com/place/4IlaNw/%ED%9E%88%ED%8A%B8%EC%BB%A4%ED%94%BC%20%EB%A1%9C%EC%8A%A4%ED%84%B0%EC%8A%A4"
+    ],
+    "mudaeryuk": [
+      "https://polle.com/place/1GijY0/%EB%AC%B4%EB%8C%80%EB%A5%99",
+      "https://www.timeout.com/seoul/restaurants/mudaeruk"
+    ],
+    "anipop": [
+      "https://www.elle.co.kr/article/1884667"
+    ],
+    "cafedecomics": [
+      "https://www.elle.co.kr/article/1884667"
+    ],
+    "sparex-dongdaemun": [
+      "https://www.waug.com/ko/activities/143280",
+      "https://www.klook.com/activity/133675-seoul-dongdaemun-sparex-jjimjilbang-sauna-admission-ticket/"
+    ],
+    "sparland-centum": [
+      "https://www.ktriptips.com/kor/tourspot/702551",
+      "https://www.waug.com/ko/activities/176051",
+      "https://www.koreatodo.com/shinsegae-centum-city-spa-land"
+    ],
+    "heosimcheong": [
+      "https://mom-mom.net/travel/properties/695ba78e7c4b817000c9259f",
+      "https://www.yeogi.com/domestic-accommodations/6462"
+    ],
+    "eungbongsan": [
+      "https://mediahub.seoul.go.kr/archives/2017629",
+      "https://korean.visitseoul.net/nature/%EC%9D%91%EB%B4%89%EC%82%B0-%ED%8C%94%EA%B0%81%EC%A0%95/KOP038785"
+    ],
+    "naksan-park": [
+      "https://mediahub.seoul.go.kr/archives/2019768"
+    ],
+    "dalmaji-park": [
+      "https://mediahub.seoul.go.kr/archives/2015076"
+    ],
+    "deoksugung": [
+      "https://www.ktriptips.com/kor/tourspot/126509",
+      "https://mediahub.seoul.go.kr/archives/2013673"
+    ],
+    "seoulforest-garden": [
+      "https://mediahub.seoul.go.kr/archives/2013157",
+      "https://mediahub.seoul.go.kr/archives/2013350"
+    ],
+    "seoul-botanic": [
+      "https://www.ktriptips.com/kor/tourspot/2589349",
+      "https://mediahub.seoul.go.kr/archives/2010335"
+    ],
+    "ttukseom-hangang": [
+      "https://hangang.seoul.go.kr/www/contents/656.do?mid=519"
+    ],
+    "jamwon-hangang": [
+      "https://mediahub.seoul.go.kr/archives/2007395",
+      "https://mediahub.seoul.go.kr/archives/2010047",
+      "https://hangang.seoul.go.kr/archives/46678"
+    ],
+    "nanji-forest": [
+      "https://mediahub.seoul.go.kr/archives/2018264",
+      "https://mediahub.seoul.go.kr/archives/2018893",
+      "https://mediahub.seoul.go.kr/archives/2011755"
+    ],
+    "seoul-art-cinema": [
+      "https://mediahub.seoul.go.kr/archives/2018422",
+      "https://www.esquirekorea.co.kr/article/1902731"
+    ],
+    "arthouse-momo": [
+      "https://www.dailian.co.kr/news/view/1629423/",
+      "https://www.gqkorea.co.kr/?p=333879",
+      "https://www.wikitree.co.kr/articles/244501"
+    ],
+    "ku-cinematheque": [
+      "https://www.hankyung.com/article/202508051794i",
+      "https://www.dailian.co.kr/news/view/1455652",
+      "https://www.wikitree.co.kr/articles/244501"
+    ],
+    "artnine": [
+      "https://cine21.com/news/view/?mag_id=111278",
+      "https://www.esquirekorea.co.kr/article/1902731",
+      "https://www.wikitree.co.kr/articles/244501"
+    ],
+    "seoul-film-center": [
+      "https://mediahub.seoul.go.kr/archives/2018700",
+      "https://news.seoul.go.kr/economy/archives/569995?listPage=1"
+    ],
+    "sangsangmadang-cinema": [
+      "https://brunch.co.kr/@sangsangcinema/55",
+      "https://www.insight.co.kr/news/543561",
+      "https://www.wikitree.co.kr/articles/244501"
+    ],
+    "gwangju-theater": [
+      "https://weekly.khan.co.kr/article/202511141451001",
+      "https://www.ktriptips.com/kor/culture/3380156",
+      "https://heypop.kr/n/117877/"
+    ],
+    "oo-theater": [
+      "https://cine21.com/news/view/?mag_id=110533",
+      "https://heypop.kr/n/117877/",
+      "https://www.marieclairekorea.com/?p=188597",
+      "https://dgmbc.com/NewsArticle/857629"
+    ],
+    "cine-indie-u": [
+      "https://m.ohmynews.com/NWS_Web/Mobile/at_pg.aspx?CNTN_CD=A0003264335",
+      "https://www.ktriptips.com/kor/culture/3038985"
+    ],
+    "moutungi": [
+      "https://cine21.com/news/view/?mag_id=110533",
+      "https://www.ktriptips.com/kor/culture/3345026"
+    ],
+    "busan-cinema-center": [
+      "https://dureraum.org/bcc/contents/contentsView.do?rbsIdx=196",
+      "https://www.busan.go.kr/eng/bsnews01/1748761",
+      "https://www.busan.go.kr/eng/bsevents/1741418"
+    ],
+    "national-museum": [
+      "https://www.museum.go.kr/MUSEUM/contents/M0101000000.do",
+      "https://www.museum.go.kr/MUSEUM/contents/M0106010000.do?menuId=subway-map"
+    ],
+    "seoul-history-museum": [
+      "https://mediahub.seoul.go.kr/archives/2019212"
+    ],
+    "seoul-photo-museum": [
+      "https://sema.seoul.go.kr/kr/visit/photosema"
+    ],
+    "leeum": [
+      "https://www.leeumhoam.org/leeum/info/visit"
+    ],
+    "busan-moa": [
+      "https://www.busan.go.kr/nbtnewsBU/1754553",
+      "https://www.busan.go.kr/eng/bsevents/1752391",
+      "https://www.mcst.go.kr/kor/s_culture/culture/cultureView.jsp?pSeq=75447"
+    ],
+    "moca-busan": [
+      "https://www.busan.go.kr/moca/location01",
+      "https://www.busan.go.kr/moca/news01/1753260",
+      "https://www.mcst.go.kr/site/s_culture/culture/cultureView.jsp?pSeq=61513"
+    ],
+    "daegu-art-museum": [
+      "https://daeguartmuseum.or.kr/index.do?menu_id=00000743",
+      "https://daeguartmuseum.or.kr/index.do?menu_id=00000737",
+      "https://www.yugacrew.com/crewletter/daegu-art-museum"
+    ],
+    "daejeon-moa": [
+      "https://www.mcst.go.kr/kor/s_culture/culture/cultureView.jsp?pSeq=75954",
+      "https://www.ktriptips.com/kor/culture/130551"
+    ],
+    "acc-gwangju": [
+      "https://www.ktriptips.com/kor/culture/2009775",
+      "https://www.mcst.go.kr/site/s_culture/culture/cultureView.jsp?pSeq=75667",
+      "https://m.seoul.co.kr/news/2026/02/15/20260215500038"
+    ],
+    "seoul-alpine-center": [
+      "https://seoulmccenter.kr/guide.html",
+      "https://seoulmccenter.kr/",
+      "https://mediahub.seoul.go.kr/archives/2017074"
+    ],
+    "silhouette-jeju": [
+      "https://maily.so/seoseohi/posts/l1zqg154r5x",
+      "https://polle.com/place/4zQHEs/%EB%A7%88%EC%9D%8C%EC%9D%98%20%EC%8B%A4%EB%A3%A8%EC%97%A3"
+    ],
+    "ryuis-coffeebar": [
+      "https://www.trvlogue.com/en/ryuise-coffee-bar-busan",
+      "https://blurahthebrewing.blogspot.com/2025/03/ryuis-coffee-bar-cafebusankorea.html"
+    ],
+    "okdongsik": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/okdongsik",
+      "https://polle.com/place/2E56XB/%EC%98%A5%EB%8F%99%EC%8B%9D"
+    ],
+    "nishimuramen": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/nishimuramen",
+      "https://polle.com/place/1ZM9tB/%EB%8B%88%EC%8B%9C%EB%AC%B4%EB%9D%BC%20%EB%A9%98%20%EC%84%9C%EC%9A%B8"
+    ],
+    "subaru-soba": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/subaru",
+      "https://polle.com/place/12ca9f/%EC%8A%A4%EB%B0%94%EB%A3%A8"
+    ],
+    "sarukame": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/sarukame",
+      "https://polle.com/place/1MfXrv/%EC%82%AC%EB%A3%A8%EC%B9%B4%EB%A9%94"
+    ],
+    "damtaek": [
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/damtaek",
+      "https://polle.com/p/2102aB"
+    ],
+    "menya-sandaime": [
+      "https://polle.com/place/1rHEpM/%EB%A9%98%EC%95%BC%EC%82%B0%EB%8B%A4%EC%9D%B4%EB%A9%94"
+    ],
+    "hakata-bunko": [
+      "https://www.diningcode.com/profile.php?rid=lQJ4AnDHlbrj",
+      "https://world.nol.com/en/content/pois/19826f04-1787-4bea-862f-4489312fa6be",
+      "https://polle.com/place/3plxLY/%ED%95%98%EC%B9%B4%ED%83%80%EB%B6%84%EC%BD%94"
+    ],
+    "hongojip-donggyo": [
+      "https://www.diningcode.com/profile.php?rid=vmJHLaDzYtB7",
+      "https://polle.com/place/2Utvht/%ED%98%BC%EA%B3%A0%EC%A7%91"
+    ],
+    "hongojip-myeongdong": [
+      "https://www.albamon.com/jobs/detail/118480790"
+    ],
+    "ichiryu-hongdae": [
+      "https://guide.michelin.com/qa/en/seoul-capital-area/kr-seoul/restaurant/ichiryu",
+      "https://polle.com/place/5w8ZGx/%EC%9D%B4%EC%B9%98%EB%A5%98"
+    ],
+    "shabu21-sadang": [
+      "https://www.diningcode.com/profile.php?rid=FWEf4P0b8oZs"
+    ],
+    "shabu21-seogyo": [
+      "https://www.diningcode.com/profile.php?rid=LVDx4lwJwWT7"
+    ],
+    "hana-shabu": [
+      "https://www.diningcode.com/profile.php?rid=sxjONBevTj6G",
+      "https://polle.com/place/421iTA/%ED%95%98%EB%82%98%20%EC%83%A4%EB%B6%80%EC%A0%95"
+    ],
+    "yangji-sikdang": [
+      "https://polle.com/place/30Mf5a/%EC%96%91%EC%A7%80%EC%8B%9D%EB%8B%B9"
+    ],
+    "nongmin-sundae": [
+      "https://magazine.hankyung.com/business/article/202610016709b",
+      "https://polle.com/place/3Gc3zX/%EB%86%8D%EB%AF%BC%EB%B0%B1%EC%95%94%EC%88%9C%EB%8C%80",
+      "https://world.nol.com/en/content/pois/b915d32c-a060-4300-926a-f15252e2d049"
+    ],
+    "dabuchi": [
+      "https://polle.com/place/5vfGtB/%EB%8B%A4%EB%B6%80%EC%B0%8C"
+    ],
+    "myeongdong-gyoja": [
+      "https://www.ktriptips.com/kor/food/403053",
+      "https://magister1318.blog/ja/myeongdong-kyoja-main-store-move-2026/",
+      "https://polle.com/place/1pl2Dw/%EB%AA%85%EB%8F%99%EA%B5%90%EC%9E%90",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/myeongdong-kyoja"
+    ],
+    "yonggeumok": [
+      "https://polle.com/place/3cfbK6/%EC%9A%A9%EA%B8%88%EC%98%A5",
+      "https://guide.michelin.com/kr/ko/seoul-capital-area/kr-seoul/restaurant/yonggeumok"
+    ]
+  }
+}
